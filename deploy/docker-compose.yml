@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  techbuzz-empire:
+    build: ..
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MASTER_EMAIL=piyushmani33@gmail.com
+      - MASTER_KEY_SALT=7da6609f793750fa55889aa5953517a1
+      - MASTER_KEY_HASH=13939481a08f3607cf527a8bc790d77388fcccc692f6c68b5492ab8bc5fb2003
+      - LEAZY_AI_NAME=Leazy Jinn
+      - LEAZY_COMPANY_NAME=TechBuzz Systems
+      - LEAZY_CORE_IDENTITY=Ishani
+      - ALLOWED_ORIGINS=*
+    volumes:
+      - empire_data:/app/backend_python/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  empire_data:

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechBuzz ATS — Applicant Tracking System</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+.ats-shell{position:relative;z-index:1;max-width:1640px;margin:0 auto;padding:0 16px 80px}
+.ats-header{padding:18px 0 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+.ats-h1{font-family:var(--heading);font-size:clamp(1.5rem,3vw,2.4rem);line-height:1;margin:4px 0 0}
+.stat-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sp{padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:.76rem;font-weight:700;color:var(--muted)}
+.sp strong{color:var(--gold)}
+.ats-btns{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start}
+/* tabs */
+.ats-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.atab{padding:7px 16px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;font-weight:700;font-size:.85rem;transition:all .15s}
+.atab.on{background:rgba(241,202,107,.1);border-color:rgba(241,202,107,.28);color:var(--gold)}
+.tab-pane{display:none}.tab-pane.on{display:block}
+/* Kanban */
+.board-wrap{overflow-x:auto;padding-bottom:8px}
+.board{display:flex;gap:12px;min-width:max-content}
+.bcol{width:215px;flex-shrink:0;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:20px;padding:12px;display:flex;flex-direction:column}
+.bcol-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.bcol-title{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.bcol-n{font-size:.68rem;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:800}
+.bcards{display:flex;flex-direction:column;gap:7px;min-height:54px}
+.bc{background:rgba(255,255,255,.055);border:1px solid var(--line);border-left:3px solid;border-radius:12px;padding:10px;cursor:pointer;transition:all .15s}
+.bc:hover{background:rgba(255,255,255,.09);transform:translateX(2px)}
+.bc-name{font-weight:800;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px}
+.bc-role{font-size:.72rem;color:var(--muted);margin-bottom:5px}
+.bc-fit{font-size:.67rem;padding:2px 7px;border-radius:999px;font-weight:800;display:inline-block;margin-bottom:5px}
+.fh{background:rgba(144,242,210,.12);color:var(--teal)}.fm{background:rgba(241,202,107,.1);color:var(--gold)}.fl{background:rgba(255,132,125,.1);color:var(--danger)}
+.bc-ai{font-size:.68rem;color:var(--teal);line-height:1.45;margin-bottom:6px}
+.bc-moves{display:flex;gap:3px;flex-wrap:wrap}
+.mb{font-size:.64rem;padding:2px 6px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;transition:all .12s}
+.mb:hover{border-color:rgba(241,202,107,.4);color:var(--gold)}
+.del{font-size:.64rem;padding:2px 6px;border-radius:7px;border:1px solid rgba(255,132,125,.2);background:rgba(255,132,125,.06);color:var(--danger);cursor:pointer}
+/* Jobs */
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.jcard{border-radius:20px;padding:16px}
+.jst-open{font-size:.67rem;padding:2px 8px;border-radius:999px;background:rgba(144,242,210,.1);color:var(--teal);font-weight:800}
+.jst-closed{font-size:.67rem;padding:2px 8px;border-radius:999px;background:rgba(255,132,125,.08);color:var(--danger);font-weight:800}
+.jdesc{font-size:.78rem;color:var(--muted);line-height:1.6;max-height:70px;overflow:hidden;-webkit-mask-image:linear-gradient(to bottom,#000 40%,transparent)}
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.74);z-index:50;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:14px}
+.modal{width:100%;max-width:540px;border-radius:26px;padding:22px;max-height:88vh;overflow-y:auto;display:grid;gap:11px}
+.modal h3{font-family:var(--heading);font-size:1.4rem;margin:0}
+.mclose{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;padding:6px 12px;color:var(--muted);cursor:pointer;font-size:.82rem}
+.fi{width:100%;padding:10px 13px;border-radius:13px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit;outline:none;transition:border-color .15s}
+.fi:focus{border-color:rgba(241,202,107,.4)}
+textarea.fi{resize:vertical;min-height:75px;line-height:1.6}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lbl{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.abtn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 18px;border-radius:999px;background:linear-gradient(135deg,var(--gold),#ff9c63);color:#0b0f17;border:none;font-weight:900;cursor:pointer;font-size:.88rem;transition:all .15s;width:100%}
+.abtn:hover{filter:brightness(1.1)}.abtn:disabled{opacity:.4;cursor:not-allowed}
+.gbtn{display:inline-flex;align-items:center;gap:5px;padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);font-weight:700;cursor:pointer;font-size:.85rem;white-space:nowrap;transition:all .15s}
+.gbtn:hover{border-color:rgba(241,202,107,.35);color:var(--gold)}.gbtn:disabled{opacity:.4;cursor:not-allowed}
+.brain-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(144,242,210,.05);border:1px solid rgba(144,242,210,.15);border-radius:12px;font-size:.8rem;color:var(--muted);margin-bottom:14px}
+.brain-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 7px var(--teal);animation:bPulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes bPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:_sp .7s linear infinite}
+@keyframes _sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:24px;color:var(--muted);border:1px dashed var(--line);border-radius:16px;font-size:.85rem}
+@media(max-width:700px){.ats-header{flex-direction:column}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="portal-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-sanctum.mp4"></video>
+</div>
+<header class="portal-topbar">
+  <div class="portal-brand">
+    <span class="portal-kicker" id="modeBadge">Nanotube-Mind · Zero-loss pipeline</span>
+    <strong>TechBuzz ATS</strong>
+  </div>
+  <nav class="portal-links">
+    <a href="/leazy">Leazy</a><a href="/hq">HQ</a>
+    <a href="/ats" style="border-color:rgba(241,202,107,.35);color:var(--gold)">ATS</a>
+    <a href="/network/intel">Network Intel</a><a href="/agent">Agent</a>
+    <a href="/neural">Neural</a>
+    <a href="#" onclick="logout()">Sign Out</a>
+  </nav>
+</header>
+<div class="ats-shell">
+  <div class="ats-header">
+    <div>
+      <div class="portal-kicker">TechBuzz Systems · AI Applicant Tracking</div>
+      <div class="ats-h1">Hiring Pipeline</div>
+      <div class="stat-strip" id="statStrip"></div>
+    </div>
+    <div class="ats-btns">
+      <button class="abtn" style="width:auto;padding:9px 16px" onclick="openM('cand')">+ Candidate</button>
+      <button class="gbtn" onclick="openM('job')">+ Post Job</button>
+      <button class="gbtn" id="importBtn" onclick="doImport()">⬇ Import Praapti</button>
+      <button class="gbtn" id="scoreBtn" onclick="doScoreAll()">💎 Score All</button>
+    </div>
+  </div>
+  <div class="brain-bar" id="brainBar" style="display:none">
+    <div class="brain-dot"></div>
+    <span id="brainMsg">Nanotube-Mind active — pipeline synchronized</span>
+  </div>
+  <div class="ats-tabs">
+    <button class="atab on" onclick="showTab('pipeline',this)">📊 Pipeline</button>
+    <button class="atab" onclick="showTab('jobs',this)">💼 Jobs</button>
+  </div>
+  <div class="tab-pane on" id="tp-pipeline">
+    <div class="board-wrap"><div class="board" id="board"></div></div>
+  </div>
+  <div class="tab-pane" id="tp-jobs">
+    <div class="jgrid" id="jobsGrid"></div>
+  </div>
+</div>
+
+<!-- Candidate modal -->
+<div class="overlay" id="m-cand" style="display:none">
+  <div class="modal glass">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h3>Add Candidate</h3><button class="mclose" onclick="closeM('cand')">✕</button></div>
+    <div class="g2">
+      <div><label class="lbl">Full Name</label><input class="fi" id="cn" placeholder="Priya Sharma"></div>
+      <div><label class="lbl">Email</label><input class="fi" id="ce" type="email" placeholder="priya@co.com"></div>
+    </div>
+    <div class="g2">
+      <div><label class="lbl">Target Role</label><input class="fi" id="cr" placeholder="Senior Python Engineer"></div>
+      <div><label class="lbl">Experience (yr)</label><input class="fi" type="number" id="cx" placeholder="5"></div>
+    </div>
+    <div><label class="lbl">Status</label><select class="fi" id="cs"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option></select></div>
+    <div><label class="lbl">Resume / Key Info (AI will use this to score)</label><textarea class="fi" id="cv" placeholder="Paste resume, LinkedIn bio, or key skills..."></textarea></div>
+    <button class="abtn" id="addCBtn" onclick="addCandidate()">Add — AI scores fit</button>
+    <div id="cStatus" style="font-size:.78rem;color:var(--muted)"></div>
+  </div>
+</div>
+
+<!-- Job modal -->
+<div class="overlay" id="m-job" style="display:none">
+  <div class="modal glass">
+    <div style="display:flex;justify-content:space-between;align-items:center"><h3>Post New Job</h3><button class="mclose" onclick="closeM('job')">✕</button></div>
+    <div class="g2">
+      <div><label class="lbl">Job Title</label><input class="fi" id="jt" placeholder="Senior Python Engineer"></div>
+      <div><label class="lbl">Department</label><input class="fi" id="jd" placeholder="Engineering"></div>
+    </div>
+    <div class="g2">
+      <div><label class="lbl">Location</label><input class="fi" id="jl" placeholder="Bangalore / Remote"></div>
+      <div><label class="lbl">Urgency</label><select class="fi" id="ju"><option value="normal">Normal</option><option value="urgent">🔴 Urgent</option><option value="flexible">Flexible</option></select></div>
+    </div>
+    <div><label class="lbl">Key Requirements (AI expands into full JD)</label><textarea class="fi" id="jc" placeholder="Core stack, experience level, team context..."></textarea></div>
+    <button class="abtn" id="addJBtn" onclick="addJob()">📝 Post — AI writes full JD</button>
+    <div id="jStatus" style="font-size:.78rem;color:var(--muted)"></div>
+  </div>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+<script>
+const API='',_$=id=>document.getElementById(id);
+const STAGES=[
+  {id:'applied',label:'Applied',color:'#87dfff'},
+  {id:'screening',label:'Screening',color:'#f1ca6b'},
+  {id:'interview',label:'Interview',color:'#c1a1ff'},
+  {id:'offer',label:'Offer Out',color:'#f39ddd'},
+  {id:'hired',label:'✅ Hired',color:'#90f2d2'},
+  {id:'rejected',label:'Rejected',color:'#ff847d'}
+];
+let _s=null;
+
+function toast(m,t=2600){const el=_$('toast');el.textContent=m;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',t);}
+function openM(n){_$('m-'+n).style.display='flex';}
+function closeM(n){_$('m-'+n).style.display='none';}
+function logout(){fetch(API+'/api/auth/logout',{method:'POST',credentials:'include'});window.location.href='/login';}
+function showTab(t,btn){
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');_$('tp-'+t).classList.add('on');
+}
+async function api(url,method='GET',body){
+  const r=await fetch(API+url,{method,credentials:'include',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  if(r.status===401||r.status===403){window.location.href='/login?next=/ats';throw new Error('Auth');}
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||'Error');return d;
+}
+async function load(){
+  _s=await api('/api/ats/state');
+  renderStats();renderBoard();renderJobs();
+  const bb=_$('brainBar');
+  bb.style.display='flex';
+  _$('brainMsg').textContent=`Nanotube-Mind · ${_s.total_candidates} candidates · ${_s.open_jobs} open roles`;
+}
+function renderStats(){
+  const pc=_s.pipeline_counts||{};
+  _$('statStrip').innerHTML=[['Total',_s.total_candidates],['Hired',pc.hired||0],['Interview',pc.interview||0],['Offers',pc.offer||0],['Open Jobs',_s.open_jobs]]
+    .map(([l,v])=>`<span class="sp">${l}: <strong>${v}</strong></span>`).join('');
+}
+function renderBoard(){
+  const cands=_s.candidates||[];
+  _$('board').innerHTML=STAGES.map(s=>{
+    const cards=cands.filter(c=>c.status===s.id);
+    return `<div class="bcol"><div class="bcol-head">
+      <span class="bcol-title" style="color:${s.color}">${s.label}</span>
+      <span class="bcol-n">${cards.length}</span></div>
+      <div class="bcards">${cards.map(c=>card(c,s)).join('')||'<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:8px">Empty</div>'}</div>
+    </div>`;
+  }).join('');
+}
+function card(c,s){
+  const fit=c.fit_score||70,fc=fit>=85?'fh':fit>=68?'fm':'fl';
+  const avail=STAGES.filter(x=>x.id!==s.id&&x.id!=='applied').slice(0,3);
+  return `<div class="bc" style="border-left-color:${s.color}">
+    <div class="bc-name" title="${c.name}">${c.name}</div>
+    <div class="bc-role">${c.role||'Candidate'}${c.experience?' · '+c.experience+'yr':''}</div>
+    <span class="bc-fit ${fc}">${fit}% fit</span>
+    ${c.ai_strength?`<div class="bc-ai">✓ ${c.ai_strength.slice(0,65)}</div>`:''}
+    <div class="bc-moves">
+      ${avail.map(x=>`<button class="mb" onclick="move('${c.id}','${x.id}')">${x.label.replace('✅ ','')}</button>`).join('')}
+      ${s.id!=='hired'?`<button class="mb" style="border-color:rgba(144,242,210,.25);color:var(--teal)" onclick="move('${c.id}','hired')">✅ Hire</button>`:''}
+      <button class="del" onclick="del('${c.id}')">✕</button>
+    </div>
+  </div>`;
+}
+function renderJobs(){
+  const jobs=_s.jobs||[];
+  _$('jobsGrid').innerHTML=jobs.length?jobs.map(j=>`<div class="jcard glass">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+      <div style="font-family:var(--heading);font-size:1.1rem;flex:1">${j.title}</div>
+      <span class="${j.status==='open'?'jst-open':'jst-closed'}">${j.status}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      ${j.department?`<span style="font-size:.72rem;color:var(--muted)">${j.department}</span>`:''}
+      <span style="font-size:.72rem;color:var(--muted)">${j.location||'India'}</span>
+      <span style="font-size:.72rem;color:${j.urgency==='urgent'?'var(--danger)':'var(--muted)'}">${j.urgency}</span>
+    </div>
+    <div class="jdesc">${j.description||''}</div>
+    <div style="margin-top:10px"><button class="gbtn" style="font-size:.78rem;padding:6px 12px" onclick="huntJob(${JSON.stringify(j.title)})">🎯 Hunt Candidates</button></div>
+  </div>`).join(''):`<div class="empty">No jobs posted yet. Use "Post Job" to get started.</div>`;
+}
+async function addCandidate(){
+  const name=_$('cn').value.trim();if(!name){toast('Enter name');return;}
+  const btn=_$('addCBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> AI scoring...';
+  _$('cStatus').textContent='Analyzing fit with Diamond-Mind...';
+  try{
+    const d=await api('/api/ats/candidates','POST',{name,email:_$('ce').value,role:_$('cr').value,experience:parseInt(_$('cx').value)||0,status:_$('cs').value,resume_text:_$('cv').value});
+    toast(`${name} added! Fit: ${d.fit_score}% · ${d.strength||''}`);
+    ['cn','ce','cr','cx','cv'].forEach(id=>_$(id).value='');
+    closeM('cand');await load();
+  }catch(e){toast(e.message);}
+  btn.disabled=false;btn.textContent='Add — AI scores fit';_$('cStatus').textContent='';
+}
+async function addJob(){
+  const title=_$('jt').value.trim();if(!title){toast('Enter title');return;}
+  const btn=_$('addJBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> AI writing JD...';
+  try{
+    await api('/api/ats/jobs','POST',{title,department:_$('jd').value,location:_$('jl').value,urgency:_$('ju').value,description:_$('jc').value});
+    toast('Job posted with AI-written JD!');
+    ['jt','jd','jl','jc'].forEach(id=>_$(id).value='');
+    closeM('job');await load();
+  }catch(e){toast(e.message);}
+  btn.disabled=false;btn.textContent='📝 Post — AI writes full JD';_$('jStatus').textContent='';
+}
+async function move(id,status){
+  await api(`/api/ats/candidates/${id}/move`,'PUT',{status});
+  toast(status==='hired'?'✅ Hired! Congrats!':`Moved to ${status}`);await load();
+}
+async function del(id){
+  if(!confirm('Remove candidate?'))return;
+  await api(`/api/ats/candidates/${id}`,'DELETE');toast('Removed');await load();
+}
+async function doImport(){
+  const btn=_$('importBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  try{const d=await api('/api/ats/import-praapti','POST',{});toast(`Imported ${d.imported} from Praapti!`);await load();}
+  catch(e){toast(e.message||'No hunts yet — run Praapti first');}
+  btn.disabled=false;btn.textContent='⬇ Import Praapti';
+}
+async function doScoreAll(){
+  const btn=_$('scoreBtn');btn.disabled=true;btn.innerHTML='💎 <span class="spin"></span>';
+  try{const d=await api('/api/ats/ai-score-all','POST',{});toast(`Scored ${d.updated} candidates in Diamond-Mind mode`);await load();}
+  catch(e){toast(e.message);}
+  btn.disabled=false;btn.textContent='💎 Score All';
+}
+function huntJob(title){window.location.href='/agent?jd='+encodeURIComponent(title);}
+
+// Carbon stream
+const es=new EventSource(API+'/api/carbon/stream');
+es.onmessage=e=>{try{const d=JSON.parse(e.data);const mb=_$('modeBadge');if(mb)mb.textContent=`${d.carbon_mode}-Mind · ${d.identity} · ${(d.avatars||[]).join(' + ')}`;}catch{}};
+
+(async()=>{
+  try{
+    const r=await fetch(API+'/api/auth/me',{credentials:'include'});
+    if(!r.ok){window.location.href='/login?next=/ats';return;}
+    const me=await r.json();
+    if(!me.authenticated||me.user?.role!=='master'){window.location.href='/login?next=/ats';return;}
+    await load();
+  }catch{window.location.href='/login?next=/ats';}
+})();
+</script>
+</body>
+</html>

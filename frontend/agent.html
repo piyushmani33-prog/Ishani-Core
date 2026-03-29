@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leazy Jinn Agent Console</title>
+<meta name="theme-color" content="#120f25">
+<link rel="stylesheet" href="/frontend-assets/agent.css">
+<link rel="stylesheet" href="/frontend-assets/brain-accounts.css">
+</head>
+<body>
+<div class="agent-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-sanctum.mp4"></video>
+</div>
+
+<main class="agent-shell">
+  <header class="agent-hero">
+    <div class="hero-copy">
+      <div class="agent-kicker">TechBuzz Systems • Live Recruitment And Execution Cockpit</div>
+      <h1>Agent Console</h1>
+      <p>This is now a full operating workspace tied to the same Leazy brain as HQ, Network, and ATS. Use it for hunts, role tracking, shortlist thinking, queue management, and live strategy.</p>
+      <div class="hero-badges">
+        <span class="hero-chip" id="agentProviderBadge">Provider loading</span>
+        <span class="hero-chip" id="agentModeBadge">Brain mode loading</span>
+        <span class="hero-chip" id="agentGuardianBadge">Guardian loading</span>
+      </div>
+    </div>
+    <div class="agent-actions">
+      <a class="agent-btn primary" href="/leazy">Open Leazy Jinn</a>
+      <a class="agent-btn" href="/company/portal" target="_blank">TechBuzz HQ</a>
+      <a class="agent-btn" href="/navigator" target="_blank">Navigator</a>
+      <a class="agent-btn" href="/ats" target="_blank">ATS</a>
+      <a class="agent-btn" href="/login" target="_blank">Access</a>
+    </div>
+  </header>
+
+  <section class="agent-grid top">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Live Snapshot</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="agentStats"></div>
+      <div class="avatar-strip" id="agentAvatarStrip"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Brain Relay</h2>
+      </div>
+      <div class="relay-grid" id="agentRelayBoard"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Quick Links</h2>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-link" onclick="window.location.href='/leazy'">Bridge</button>
+        <button class="quick-link" onclick="window.location.href='/leazy#cabinet'">Cabinet</button>
+        <button class="quick-link" onclick="window.location.href='/leazy#praapti'">Praapti</button>
+        <button class="quick-link" onclick="window.location.href='/leazy#avatars'">Avatars</button>
+        <button class="quick-link" onclick="document.getElementById('accountsAutomation').scrollIntoView({behavior:'smooth'})">Accounts</button>
+        <button class="quick-link" onclick="window.location.href='/company/portal#dashboard'">HQ</button>
+        <button class="quick-link" onclick="window.location.href='/navigator'">Navigator</button>
+        <button class="quick-link" onclick="window.location.href='/network/intel'">Network Intel</button>
+        <button class="quick-link" onclick="window.location.href='/ats#candidates'">ATS</button>
+        <button class="quick-link" onclick="window.location.href='/media'">Media</button>
+        <button class="quick-link" onclick="document.getElementById('actionCenterSection').scrollIntoView({behavior:'smooth'})">Action Center</button>
+      </div>
+      <div class="stack-list compact" id="agentCabinetSummary"></div>
+      <p class="muted" id="agentGuardian">Loading guardian status...</p>
+    </article>
+  </section>
+
+  <section class="agent-grid main">
+    <article class="agent-card hunt-card">
+      <div class="card-head">
+        <h2>Praapti Hunt</h2>
+        <button class="agent-btn small" onclick="startAgentHunt()">Run Hunt</button>
+      </div>
+      <textarea id="agentJobDescription" placeholder="Paste a job description and Praapti will generate culture insight, ideal profile, and candidates."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="startAgentHunt()">Start Hunt</button>
+        <button class="agent-btn" onclick="seedAgentPrompt()">Use Sample Prompt</button>
+      </div>
+      <div class="report-box" id="agentHuntNarrative">No hunt running yet.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Strategist Chat</h2>
+      </div>
+      <div class="chat-log" id="agentChatLog"></div>
+      <div class="chat-compose">
+        <textarea id="agentChatInput" rows="3" placeholder="Ask for candidate strategy, sourcing plans, hiring guidance, role summaries, or next actions."></textarea>
+        <button class="agent-btn primary" onclick="sendAgentMessage()">Send</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruitment Brain Seed</h2>
+        <button class="agent-btn small" onclick="loadRecruitmentCore()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="agentSeedStats"></div>
+      <div class="report-box" id="agentSeedSummary">The permanent recruitment knowledge mesh is loading.</div>
+      <div class="stack-list compact" id="agentSeedList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Global Hiring Atlas</h2>
+        <button class="agent-btn small" onclick="loadRecruitmentCore()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="agentWorldStats"></div>
+      <div class="report-box" id="agentWorldSummary">The global recruitment atlas is loading.</div>
+      <div class="stack-list compact" id="agentWorldSourceList"></div>
+    </article>
+
+    <article class="agent-card" id="actionCenterSection">
+      <div class="card-head">
+        <h2>Action Center</h2>
+        <button class="agent-btn small" onclick="prepareActionCenter()">Prepare</button>
+      </div>
+      <div class="form-grid">
+        <select id="actionCenterKind"></select>
+        <input id="actionCenterTarget" type="text" placeholder="Email, phone, LinkedIn search, or URL">
+        <input id="actionCenterSubject" type="text" placeholder="Subject or short reason">
+        <input id="actionCenterUrl" type="text" placeholder="Optional direct URL">
+      </div>
+      <textarea id="actionCenterBody" placeholder="Draft the email, Teams message, WhatsApp note, browser target, or call context here."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="prepareActionCenter()">Prepare Action</button>
+        <button class="agent-btn" onclick="openPreparedAction()">Open Prepared Action</button>
+      </div>
+      <div class="report-box" id="actionCenterStatus">Action Center is loading. It prepares visible handoffs only and never sends silently.</div>
+      <div class="stack-list compact" id="actionCenterRecent"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Candidate Pipeline</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Apply</button>
+      </div>
+      <div class="form-grid">
+        <input id="candidateSearch" type="text" placeholder="Search by role, skill, name, or source">
+        <select id="candidateStageFilter">
+          <option value="">All stages</option>
+          <option value="applied">Applied</option>
+          <option value="screening">Screening</option>
+          <option value="interview">Interview</option>
+          <option value="offer">Offer</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select id="candidateDetailLevel">
+          <option value="minimal">Minimal detail</option>
+          <option value="guided" selected>Guided detail</option>
+          <option value="full">Full detail</option>
+        </select>
+        <label class="agent-check"><input id="candidateAllowFull" type="checkbox"> Allow full candidate context</label>
+      </div>
+      <div class="button-row">
+        <button class="agent-btn" onclick="refreshAgentConsole()">Refresh Pipeline</button>
+        <button class="agent-btn" onclick="importLatestHuntCandidates()">Import Latest Hunt</button>
+      </div>
+      <p class="muted" id="candidateDisclosureStatus">Candidate disclosure mode loading.</p>
+      <div class="candidate-list" id="agentCandidateList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Open Roles</h2>
+      </div>
+      <p class="muted" id="agentRoleSummary">ATS roles are loading.</p>
+      <div class="stack-list" id="agentRoleList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruiter Tracker</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="trackerStats"></div>
+      <p class="muted" id="trackerHeadline">Recruiter tracker is loading.</p>
+      <div class="stack-list" id="trackerRowList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>DSR / HSR Rhythm</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Sync</button>
+      </div>
+      <div class="stats-grid" id="trackerReportStats"></div>
+      <div class="report-box" id="trackerReportNarrative">Two-hour and daily reporting is loading.</div>
+      <div class="stack-list compact" id="trackerIssueBoard"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruiter Autopilot</h2>
+        <button class="agent-btn small" onclick="processRecruiterCapture()">Process Conversation</button>
+      </div>
+      <div class="form-grid">
+        <input id="captureCandidateName" type="text" placeholder="Candidate name">
+        <input id="capturePosition" type="text" placeholder="Position / role">
+        <input id="captureClientName" type="text" placeholder="Client name">
+        <input id="captureRecruiter" type="text" placeholder="Recruiter name">
+        <input id="captureSource" type="text" placeholder="Source: Naukri / Monster / LinkedIn">
+      </div>
+      <textarea id="captureTranscript" placeholder="Paste recruiter-candidate conversation notes here. Include skills, current company, location, total exp, relevant exp, notice period, current CTC, expected CTC, interest level, objections, interview updates, and next steps."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="processRecruiterCapture()">Update Tracker From Conversation</button>
+        <button class="agent-btn" onclick="copyTrackerExport('tracker')">Copy Tracker</button>
+        <button class="agent-btn" onclick="copyTrackerExport('dsr')">Copy DSR</button>
+        <button class="agent-btn" onclick="copyTrackerExport('hsr')">Copy HSR</button>
+      </div>
+      <div class="report-box" id="captureStatus">Recruiter autopilot is loading. Use this after every candidate call so the tracker, journey, and follow-up memory stay accurate.</div>
+      <div class="report-box" id="trackerExportBox">Tracker export will appear here for copy-paste into Excel or chat.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Journey And Interview Desk</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="journeyStats"></div>
+      <div class="stack-list compact" id="journeyList"></div>
+      <div class="stack-list compact" id="interviewDesk"></div>
+      <div class="stack-list compact" id="followUpDesk"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruiter Memory Desk</h2>
+        <button class="agent-btn small" onclick="loadRecruiterMemoryDesk()">Load Trail</button>
+      </div>
+      <div class="form-grid">
+        <input id="reportDateFrom" type="date" placeholder="From date">
+        <input id="reportDateTo" type="date" placeholder="To date">
+        <input id="reportRecruiterFilter" type="text" placeholder="Recruiter">
+        <input id="reportCandidateFilter" type="text" placeholder="Candidate name">
+        <input id="reportClientFilter" type="text" placeholder="Client name">
+        <input id="reportPositionFilter" type="text" placeholder="Position">
+      </div>
+      <div class="form-grid">
+        <input id="reportMailFilter" type="text" placeholder="Mail id">
+        <input id="reportContactFilter" type="text" placeholder="Contact number">
+        <input id="reportNoticeFilter" type="text" placeholder="Notice period / immediate / serving">
+        <input id="reportRowIdFilter" type="text" placeholder="Tracker row id">
+        <input id="reportMinExpFilter" type="number" min="0" step="0.1" placeholder="Min exp">
+        <input id="reportMaxExpFilter" type="number" min="0" step="0.1" placeholder="Max exp">
+      </div>
+      <div class="form-grid">
+        <input id="reportMinCtcFilter" type="number" min="0" step="0.1" placeholder="Min CTC">
+        <input id="reportMaxCtcFilter" type="number" min="0" step="0.1" placeholder="Max CTC">
+        <input id="reportSubmissionStateFilter" type="text" placeholder="Submission state">
+        <input id="reportResponseStatusFilter" type="text" placeholder="Response status">
+      </div>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="loadRecruiterMemoryDesk()">Load Memory</button>
+        <button class="agent-btn" onclick="copyHistoricalTracker('tracker')">Copy Filtered Tracker</button>
+        <button class="agent-btn" onclick="copyHistoricalTracker('dsr')">Copy Filtered DSR</button>
+        <button class="agent-btn" onclick="copyHistoricalTracker('hsr')">Copy Filtered HSR</button>
+      </div>
+      <div class="stats-grid" id="reportDeskStats"></div>
+      <div class="report-box" id="reportDeskStatus">Recruiter memory desk is loading. Use filters here when a manager asks for old or exact recruiter data.</div>
+      <div class="stack-list compact" id="discussionTrailList"></div>
+      <div class="stack-list compact" id="reportHistoryList"></div>
+      <div class="report-box" id="reportDeskExportBox">Filtered tracker or report export will appear here for copy-paste into Excel or chat.</div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card" id="resumeIntake">
+      <div class="card-head">
+        <h2>Confirmed Resume Intake</h2>
+        <button class="agent-btn small" onclick="submitRecruiterResume()">Submit Resume</button>
+      </div>
+      <div class="form-grid">
+        <input id="resumeCandidateName" type="text" placeholder="Candidate name">
+        <input id="resumePosition" type="text" placeholder="Position / role">
+        <input id="resumeClientName" type="text" placeholder="Client name">
+        <input id="resumeRecruiter" type="text" placeholder="Recruiter name">
+        <input id="resumeSource" type="text" placeholder="Source: Naukri / LinkedIn / Reference">
+        <select id="resumeAckStatus">
+          <option value="pending">Ack pending</option>
+          <option value="prepared">Ack draft ready</option>
+          <option value="sent">Ack sent</option>
+          <option value="confirmed" selected>Ack confirmed</option>
+        </select>
+      </div>
+      <div class="form-grid">
+        <input id="resumeMailId" type="text" placeholder="Candidate mail id">
+        <input id="resumeContactNo" type="text" placeholder="Candidate contact number">
+        <input id="resumeCurrentCtc" type="text" placeholder="Current CTC">
+        <input id="resumeExpectedCtc" type="text" placeholder="Expected CTC">
+        <input id="resumeNoticePeriod" type="text" placeholder="Notice period">
+        <label class="agent-check"><input id="resumeCandidateConfirmed" type="checkbox" checked> Candidate confirmed on mail / call</label>
+      </div>
+      <input id="resumeUploadFile" type="file" accept=".pdf,.doc,.docx,.txt,.rtf">
+      <textarea id="resumeIntakeNotes" placeholder="Paste candidate confirmation note, recruiter summary, or acknowledgment discussion here. The AI will merge it with the uploaded resume and finalize the tracker only after acknowledgment."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="submitRecruiterResume()">Upload Resume And Update Tracker</button>
+        <button class="agent-btn" onclick="prepareResumeAckDraft()">Prepare Ack Draft Only</button>
+      </div>
+      <div class="report-box" id="resumeIntakeStatus">Resume intake is loading. Upload the confirmed resume after candidate acknowledgment and the tracker will be finalized automatically.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Resume To Tracker Rules</h2>
+      </div>
+      <div class="stack-list compact">
+        <div class="stack-item">
+          <strong>1. Call To Draft</strong>
+          <p>Recruiter conversation creates draft tracker memory with CTC, notice period, locations, skills, objections, and next steps.</p>
+        </div>
+        <div class="stack-item">
+          <strong>2. Ack To Confirmation</strong>
+          <p>Acknowledgment stays visible and human-controlled. Tracker becomes confirmed only after the candidate acknowledgment is marked received.</p>
+        </div>
+        <div class="stack-item">
+          <strong>3. Resume To Record</strong>
+          <p>Uploaded resume fills missing profile data, keeps the journey in order, and reduces manual tracker work for recruiters.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruitment Vault</h2>
+        <button class="agent-btn small" onclick="syncRecruitmentVaultToServer()">Sync Server Brain</button>
+      </div>
+      <div class="stats-grid" id="vaultStats"></div>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="downloadRecruitmentVault()">Download Vault Zip</button>
+        <button class="agent-btn" onclick="triggerRecruitmentVaultImport()">Upload Vault Zip</button>
+        <button class="agent-btn" onclick="clearRecruitmentLocalVault()">Clear Local Lane</button>
+      </div>
+      <div class="button-row">
+        <button class="agent-btn" onclick="loadRecruitmentArchiveRecall()">Recall Archive Trail</button>
+        <button class="agent-btn" onclick="copyArchiveRecall('tracker')">Recall Archive Tracker</button>
+        <button class="agent-btn" onclick="copyArchiveRecall('dsr')">Recall Archive DSR</button>
+        <button class="agent-btn" onclick="copyArchiveRecall('hsr')">Recall Archive HSR</button>
+      </div>
+      <input id="vaultImportFile" type="file" accept=".zip,application/zip" hidden onchange="importRecruitmentVault()">
+      <div class="report-box" id="vaultStatus">Recruitment vault is loading. The local lane mirrors recruiter data on this device, while the server archive remains sealed for the mother brain.</div>
+      <div class="stack-list compact" id="vaultArchiveList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Vault Policy</h2>
+      </div>
+      <div class="stack-list compact" id="vaultPolicyList">
+        <div class="stack-item">
+          <strong>Local Operational Lane</strong>
+          <p>Recruiter-facing tracker, discussion trail, DSR, HSR, and resume-linked activity stay in the operational lane so the workspace remains fast and editable.</p>
+        </div>
+        <div class="stack-item">
+          <strong>Server Memory Seal</strong>
+          <p>The mother brain keeps a sealed archive snapshot. When local operational data is cleared, the live company-facing recruiter lane is emptied but the sealed archive remains on the server.</p>
+        </div>
+        <div class="stack-item">
+          <strong>Portable Recovery</strong>
+          <p>You can compress the recruiter vault into a zip, keep it anywhere, and later upload it back into the same account to restore the operational lane.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Candidate Intelligence</h2>
+        <button class="agent-btn small" onclick="refreshAgentConsole()">Refresh</button>
+      </div>
+      <div class="stats-grid" id="candidateIntelStats"></div>
+      <div class="report-box" id="candidateIntelSummary">Candidate market intelligence is loading.</div>
+      <div class="stack-list compact" id="candidateIntelList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Next Move Desk</h2>
+      </div>
+      <div class="report-box" id="candidateIntelPolicy">Recruiter guidance is loading.</div>
+      <div class="stack-list compact" id="candidateIntelWatchList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Intelligent Search</h2>
+      </div>
+      <div class="stats-grid" id="searchToolStats"></div>
+      <div class="report-box" id="searchToolSummary">Search intelligence is loading.</div>
+      <div class="stack-list compact" id="searchSuggestionList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Talent CRM Pools</h2>
+      </div>
+      <div class="stats-grid" id="crmStats"></div>
+      <div class="stack-list compact" id="crmPoolList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Fraud And Compliance Watch</h2>
+      </div>
+      <div class="stats-grid" id="riskToolStats"></div>
+      <div class="report-box" id="riskToolSummary">Fraud and compliance intelligence is loading.</div>
+      <div class="stack-list compact" id="riskToolList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Workforce Planning</h2>
+      </div>
+      <div class="stats-grid" id="workforceStats"></div>
+      <div class="report-box" id="workforceSummary">Workforce planning is loading.</div>
+      <div class="stack-list compact" id="workforceRoleList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recruiting Software Market Map</h2>
+      </div>
+      <div class="stats-grid" id="vendorToolStats"></div>
+      <div class="report-box" id="vendorToolSummary">Recruiting software market intelligence is loading.</div>
+      <div class="stack-list compact" id="vendorToolList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Benchmark Guide</h2>
+      </div>
+      <div class="report-box" id="vendorBenchmarkSummary">Benchmark guidance is loading.</div>
+      <div class="stack-list compact" id="vendorBenchmarkList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid bottom">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Execution Queue</h2>
+      </div>
+      <div class="stack-list" id="agentQueueList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Recent Hunts</h2>
+      </div>
+      <div class="stack-list" id="recentHunts"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Reports And Vault</h2>
+      </div>
+      <div class="stack-list" id="agentReportList"></div>
+      <div class="stack-list compact" id="agentVaultList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Mother Monitor</h2>
+      </div>
+      <div class="stats-grid" id="agentMonitorStats"></div>
+      <div class="stack-list compact" id="agentMonitorAlerts"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Domain Systems</h2>
+      </div>
+      <div class="stack-list" id="agentDomainList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Brain Hierarchy</h2>
+      </div>
+      <div class="stack-list" id="agentBrainHierarchy"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Permission Relay</h2>
+      </div>
+      <div class="stack-list" id="agentPermissionRelay"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid accounts" id="accountsAutomation">
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Accounts Command</h2>
+        <button class="agent-btn small" onclick="saveAccountsProfile()">Save Profile</button>
+      </div>
+      <div class="stats-grid" id="agentAccountsStats"></div>
+      <div class="form-grid">
+        <select id="accountsRegionSelect"></select>
+        <input id="accountsBusinessName" type="text" placeholder="Business name">
+        <input id="accountsBusinessType" type="text" placeholder="Business type">
+        <input id="accountsCurrency" type="text" placeholder="Currency">
+        <input id="accountsTaxName" type="text" placeholder="Tax name">
+        <input id="accountsTaxRate" type="number" step="0.01" placeholder="Default tax rate">
+        <input id="accountsFilingCycle" type="text" placeholder="Filing cycle">
+        <input id="accountsRegistration" type="text" placeholder="Tax registration">
+      </div>
+      <textarea id="accountsProfileNotes" placeholder="Regional notes, accountant instructions, or local compliance reminders."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="saveAccountsProfile()">Save Accounts Profile</button>
+        <button class="agent-btn" onclick="runAccountsAnalysis()">Analyze Accounts</button>
+      </div>
+      <div class="report-box" id="accountsProfileStatus">Accounts automation is ready to learn your region, tax style, and bookkeeping rhythm.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Ledger Entry Composer</h2>
+        <button class="agent-btn small" onclick="addAccountsEntry()">Add Entry</button>
+      </div>
+      <div class="form-grid">
+        <select id="accountsEntryType"></select>
+        <input id="accountsEntryCategory" type="text" placeholder="Category">
+        <input id="accountsEntryAmount" type="number" step="0.01" placeholder="Amount">
+        <input id="accountsEntryTaxPercent" type="number" step="0.01" placeholder="Tax percent">
+        <input id="accountsCounterparty" type="text" placeholder="Client or vendor">
+        <input id="accountsOccurredOn" type="date">
+      </div>
+      <textarea id="accountsEntryDescription" placeholder="Describe the invoice, expense, payroll, tax payment, or other transaction."></textarea>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="addAccountsEntry()">Post To Ledger</button>
+        <button class="agent-btn" onclick="seedAccountsEntry()">Use Sample Entry</button>
+      </div>
+      <div class="report-box" id="accountsEntryStatus">Ledger relay idle. Add income, expense, payroll, or tax entries and Ishani will map the flow.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Accounts Guidance</h2>
+      </div>
+      <div class="stack-list compact" id="agentAccountsGuideList"></div>
+      <div class="stack-list" id="agentAccountsReportList"></div>
+      <div class="stack-list compact" id="agentAccountsEntryList"></div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline">
+    <article class="agent-card" style="grid-column:1/-1">
+      <div class="card-head">
+        <h2>Living Brain Hierarchy</h2>
+        <button class="agent-btn small" onclick="if(typeof renderBrainHierarchy==='function')renderBrainHierarchy()">Refresh</button>
+      </div>
+      <div id="brainHierarchyWrap">
+        <div class="muted">Loading brain hierarchy...</div>
+      </div>
+    </article>
+
+    <article class="agent-card" style="grid-column:1/-1">
+      <div class="card-head">
+        <h2>Research Intelligence Engine</h2>
+        <button class="agent-btn small" onclick="if(typeof renderIntelPanel==='function')renderIntelPanel()">Refresh</button>
+      </div>
+      <div id="intelPanelWrap">
+        <div class="muted">Loading intelligence engine...</div>
+      </div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Document Studio</h2>
+        <button class="agent-btn small" onclick="uploadAgentDocuments()">Upload</button>
+      </div>
+      <input id="agentDocumentFiles" type="file" multiple>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="uploadAgentDocuments()">Upload Files</button>
+        <button class="agent-btn" onclick="mergeSelectedDocuments()">Merge Selected PDFs</button>
+      </div>
+      <textarea id="agentNoteContent" placeholder="Draft a note, SOP, or office document here."></textarea>
+      <div class="button-row">
+        <input id="agentNoteTitle" type="text" placeholder="Document title">
+        <button class="agent-btn" onclick="createAgentNote('docx')">Create DOCX</button>
+        <button class="agent-btn" onclick="createAgentNote('txt')">Create TXT</button>
+      </div>
+      <div class="report-box" id="agentDocumentStatus">Document studio ready. Upload PDFs, DOCX, XLSX, PPTX, CSV, or text files to let Ishani read them.</div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Document Library</h2>
+      </div>
+      <div class="stack-list" id="agentDocumentList"></div>
+    </article>
+
+    <article class="agent-card">
+      <div class="card-head">
+        <h2>Document Reader</h2>
+      </div>
+      <div class="report-box" id="agentDocumentPreview">Open a document from the library to inspect extracted text, office notes, or PDF contents.</div>
+    </article>
+  </section>
+</main>
+
+<script src="/frontend-assets/brain-hierarchy.js"></script>
+<script src="/frontend-assets/intel-panel.js"></script>
+<script src="/frontend-assets/agent.js"></script>
+</body>
+</html>
