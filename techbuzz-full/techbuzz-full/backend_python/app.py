@@ -45,6 +45,7 @@ from interpreter_brain_layer import install_interpreter_brain_layer
 from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
+from routes.resume_router import install_resume_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -8517,6 +8518,11 @@ async def career_page():
     return serve_frontend_page("career.html")
 
 
+@app.get("/resume")
+async def resume_page():
+    return serve_frontend_page("resume.html")
+
+
 @app.get("/jobs")
 async def jobs_page():
     return serve_frontend_page("jobs.html")
@@ -10215,6 +10221,18 @@ VOICE_RUNTIME_LAYER = install_voice_runtime_layer(
         "now_iso": now_iso,
         "BACKEND_DIR": BACKEND_DIR,
         "DATA_DIR": DATA_DIR,
+        "log": log,
+    },
+)
+
+install_resume_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_one": db_one,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "generate_text": generate_text,
         "log": log,
     },
 )
