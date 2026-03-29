@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resume Builder | TechBuzz Systems</title>
+<meta name="theme-color" content="#07090f">
+<style>
+:root{
+  --bg:#07090f;
+  --surface:rgba(12,16,28,.82);
+  --line:rgba(255,255,255,.09);
+  --line2:rgba(255,255,255,.05);
+  --text:#edf2ff;
+  --muted:#8899b8;
+  --dim:#3a4a64;
+  --gold:#f1ca6b;
+  --blue:#87dfff;
+  --rose:#f39ddd;
+  --teal:#90f2d2;
+  --vio:#c1a1ff;
+  --danger:#ff7f7f;
+  --green:#6effc8;
+  --shadow:0 24px 64px rgba(0,0,0,.48);
+  --head:"Palatino Linotype","Book Antiqua",Georgia,serif;
+  --body:"Trebuchet MS","Segoe UI Variable","Gill Sans",sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:var(--body);-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit}
+img{max-width:100%;display:block}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+
+/* Sky */
+.sky{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 20% 15%,rgba(135,223,255,.12),transparent 28%),
+             radial-gradient(ellipse at 78% 18%,rgba(144,242,210,.08),transparent 25%),
+             radial-gradient(ellipse at 50% 80%,rgba(241,202,107,.06),transparent 22%),
+             linear-gradient(180deg,#04060c,#080d18 45%,#04060c 100%);
+}
+
+/* Layout */
+.shell{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:0 16px 80px}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0;position:sticky;top:0;background:linear-gradient(180deg,rgba(7,9,15,.94),rgba(7,9,15,.72));backdrop-filter:blur(18px);border-bottom:1px solid var(--line2);z-index:10}
+.brand{display:flex;align-items:center;gap:10px}
+.brand strong{font-family:var(--head);font-size:1.1rem}
+.brand span{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:8px;flex-wrap:wrap}
+.nav-links a{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);font-weight:700;font-size:.8rem;transition:.15s}
+.nav-links a:hover{border-color:rgba(135,223,255,.3);color:var(--blue)}
+
+/* Glass card */
+.glass{border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+
+/* Hero */
+.hero{padding:28px 0 16px}
+.eyebrow{display:inline-flex;padding:5px 12px;border-radius:999px;background:rgba(144,242,210,.08);border:1px solid rgba(144,242,210,.18);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:800;margin-bottom:14px}
+.hero h1{font-family:var(--head);font-size:clamp(1.8rem,4vw,2.9rem);line-height:1.1;margin-bottom:8px}
+.hero h1 em{background:linear-gradient(135deg,var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal}
+.hero p{color:var(--muted);line-height:1.8;max-width:580px}
+
+/* Main grid */
+.workspace{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:18px;align-items:start}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}}
+
+/* Panel */
+.panel{border-radius:24px;padding:22px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}
+.panel-head h2{font-family:var(--head);font-size:1.15rem}
+.panel-head h3{font-size:1rem;font-family:var(--head)}
+
+/* Form elements */
+.field,textarea.field{width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);outline:none;transition:.15s}
+.field:focus{border-color:rgba(135,223,255,.35);background:rgba(135,223,255,.04)}
+textarea.field{min-height:360px;resize:vertical;line-height:1.7;font-size:.9rem}
+.field-label{display:block;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.form-row{margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.row>.form-row{flex:1;margin-bottom:0}
+
+/* Buttons */
+.btn{padding:11px 18px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font-weight:800;cursor:pointer;font-size:.84rem;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.09)}
+.btn.primary{border:none;background:linear-gradient(135deg,var(--blue),var(--teal));color:#050c14;box-shadow:0 4px 18px rgba(135,223,255,.28)}
+.btn.primary:hover{opacity:.9}
+.btn.gold{border:none;background:linear-gradient(135deg,var(--gold),#ffad69);color:#050c14}
+.btn.danger{border-color:rgba(255,127,127,.3);color:var(--danger);background:rgba(255,127,127,.06)}
+.btn.danger:hover{background:rgba(255,127,127,.14)}
+.btn.sm{padding:7px 12px;font-size:.76rem;border-radius:10px}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Status bar */
+.status-bar{padding:10px 14px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.03);font-size:.82rem;color:var(--muted);min-height:40px;margin-top:12px;line-height:1.6}
+.status-bar.ok{border-color:rgba(110,255,200,.25);color:var(--green);background:rgba(110,255,200,.06)}
+.status-bar.err{border-color:rgba(255,127,127,.25);color:var(--danger);background:rgba(255,127,127,.06)}
+
+/* Resume list */
+.resume-list{display:flex;flex-direction:column;gap:10px;max-height:600px;overflow-y:auto}
+.resume-card{padding:14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);cursor:pointer;transition:.18s}
+.resume-card:hover{border-color:rgba(135,223,255,.22);background:rgba(135,223,255,.05)}
+.resume-card.active{border-color:rgba(135,223,255,.4);background:rgba(135,223,255,.08)}
+.resume-card-title{font-weight:800;font-size:.94rem;margin-bottom:4px}
+.resume-card-meta{font-size:.76rem;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.resume-card-actions{display:flex;gap:6px}
+.chip{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.1);font-size:.7rem;color:var(--muted);background:rgba(255,255,255,.04)}
+.chip.teal{border-color:rgba(144,242,210,.25);color:var(--teal);background:rgba(144,242,210,.06)}
+
+/* Divider */
+.divider{border:none;border-top:1px solid var(--line2);margin:18px 0}
+
+/* Empty state */
+.empty-state{text-align:center;padding:32px 20px;color:var(--muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:10px;opacity:.5}
+.empty-state p{font-size:.9rem;line-height:1.7}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;transform:translateY(120%);transition:.3s cubic-bezier(.4,0,.2,1);pointer-events:none}
+#toast.show{transform:translateY(0)}
+.toast-inner{padding:12px 18px;border-radius:14px;background:rgba(16,22,38,.95);border:1px solid var(--line);backdrop-filter:blur(14px);font-size:.86rem;max-width:320px;color:var(--text)}
+.toast-inner.ok{border-color:rgba(110,255,200,.25);color:var(--green)}
+.toast-inner.err{border-color:rgba(255,127,127,.25);color:var(--danger)}
+
+/* Spinner */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Section heading */
+.section-label{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <strong>Resume Builder</strong>
+      <span>TechBuzz Systems</span>
+    </div>
+    <nav class="nav-links">
+      <a href="/agent/console">Console</a>
+      <a href="/navigator">Navigator</a>
+      <a href="/media">Media</a>
+      <a href="/login">Account</a>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">My Workspace</div>
+    <h1>Resume <em>Builder</em></h1>
+    <p>Create, edit, and AI-improve your personal resumes. Each resume is private to your account.</p>
+  </div>
+
+  <div class="workspace">
+    <!-- LEFT: Builder -->
+    <div>
+      <div class="panel glass" id="builderPanel">
+        <div class="panel-head">
+          <h2 id="builderTitle">New Resume</h2>
+          <div class="btn-group">
+            <button class="btn sm" onclick="resetBuilder()">+ New</button>
+            <button class="btn sm primary" onclick="saveResume()" id="saveBtn">Save</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-row" style="flex:2">
+            <label class="field-label" for="rTitle">Title</label>
+            <input class="field" id="rTitle" type="text" placeholder="e.g. Senior Backend Engineer Resume" maxlength="120">
+          </div>
+          <div class="form-row" style="flex:1">
+            <label class="field-label" for="rRole">Target Role</label>
+            <input class="field" id="rRole" type="text" placeholder="e.g. Backend Engineer" maxlength="80">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="field-label" for="rContent">Resume Content</label>
+          <textarea class="field" id="rContent" placeholder="Paste or type your resume here. Include your summary, experience, skills, and education..."></textarea>
+        </div>
+
+        <div id="builderStatus" class="status-bar" style="display:none"></div>
+
+        <hr class="divider">
+
+        <div class="panel-head" style="margin-bottom:12px">
+          <h3>AI Improve</h3>
+        </div>
+        <div class="form-row">
+          <label class="field-label" for="rInstruction">Improvement Instruction (optional)</label>
+          <input class="field" id="rInstruction" type="text" placeholder="e.g. Make it more ATS-friendly, emphasize leadership" maxlength="200">
+        </div>
+        <div class="btn-group">
+          <button class="btn gold" onclick="improveResume()" id="improveBtn" disabled>✦ AI Improve</button>
+        </div>
+        <div id="improveStatus" class="status-bar" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: My Resumes list -->
+    <div>
+      <div class="panel glass">
+        <div class="panel-head">
+          <h3>My Resumes</h3>
+          <button class="btn sm" onclick="loadResumeList()" title="Refresh">↺</button>
+        </div>
+        <div id="resumeListWrap">
+          <div class="empty-state">
+            <div class="icon">📄</div>
+            <p>Loading your resumes…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"><div class="toast-inner" id="toastInner"></div></div>
+
+<script>
+// -------------------------------------------------------------------------
+// State
+// -------------------------------------------------------------------------
+let currentResumeId = null;
+let toastTimer = null;
+const TOAST_DURATION_MS = 3800;
+
+// -------------------------------------------------------------------------
+// Toast
+// -------------------------------------------------------------------------
+function toast(msg, type = "ok") {
+  const el = document.getElementById("toast");
+  const inner = document.getElementById("toastInner");
+  inner.textContent = msg;
+  inner.className = "toast-inner " + type;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), TOAST_DURATION_MS);
+}
+
+// -------------------------------------------------------------------------
+// Status bar helper
+// -------------------------------------------------------------------------
+function setStatus(id, msg, type = "") {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "status-bar" + (type ? " " + type : "");
+  el.style.display = msg ? "" : "none";
+}
+
+// -------------------------------------------------------------------------
+// Reset builder to new mode
+// -------------------------------------------------------------------------
+function resetBuilder() {
+  currentResumeId = null;
+  document.getElementById("builderTitle").textContent = "New Resume";
+  document.getElementById("rTitle").value = "";
+  document.getElementById("rRole").value = "";
+  document.getElementById("rContent").value = "";
+  document.getElementById("rInstruction").value = "";
+  document.getElementById("improveBtn").disabled = true;
+  setStatus("builderStatus", "");
+  setStatus("improveStatus", "");
+  document.querySelectorAll(".resume-card").forEach(c => c.classList.remove("active"));
+}
+
+// -------------------------------------------------------------------------
+// Load resume list
+// -------------------------------------------------------------------------
+async function loadResumeList() {
+  const wrap = document.getElementById("resumeListWrap");
+  wrap.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading…</p></div>';
+  try {
+    const res = await fetch("/api/resume/list");
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠</div><p>' + (e.detail || "Failed to load resumes.") + "</p></div>";
+      return;
+    }
+    const data = await res.json();
+    renderResumeList(data.resumes || []);
+  } catch (err) {
+    wrap.innerHTML = '<div class="empty-state"><div class="icon">⚠</div><p>Network error. Please try again.</p></div>';
+  }
+}
+
+function renderResumeList(resumes) {
+  const wrap = document.getElementById("resumeListWrap");
+  if (!resumes.length) {
+    wrap.innerHTML = '<div class="empty-state"><div class="icon">📄</div><p>No resumes yet.<br>Create your first resume on the left.</p></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="resume-list" id="resumeList"></div>';
+  const list = document.getElementById("resumeList");
+  resumes.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "resume-card" + (r.id === currentResumeId ? " active" : "");
+    card.dataset.resumeId = r.id;
+    const updated = r.updated_at ? new Date(r.updated_at).toLocaleDateString() : "";
+    const roleChip = r.target_role
+      ? '<span class="chip teal">' + esc(r.target_role) + "</span>"
+      : "";
+    card.innerHTML =
+      '<div class="resume-card-title">' + esc(r.title) + "</div>" +
+      '<div class="resume-card-meta">' + roleChip + "<span>" + esc(updated) + "</span></div>" +
+      '<div class="resume-card-actions">' +
+        '<button class="btn sm primary" data-action="open" data-id="' + esc(r.id) + '">Open</button>' +
+        '<button class="btn sm danger" data-action="delete" data-id="' + esc(r.id) + '">Delete</button>' +
+      "</div>";
+    list.appendChild(card);
+  });
+}
+
+// Event delegation for resume list actions
+document.addEventListener("click", function(evt) {
+  const btn = evt.target.closest("button[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  if (!id) return;
+  if (action === "open") { openResume(id); }
+  else if (action === "delete") { evt.stopPropagation(); deleteResume(id); }
+});
+
+// -------------------------------------------------------------------------
+// Open / edit a resume
+// -------------------------------------------------------------------------
+async function openResume(id) {
+  try {
+    const res = await fetch("/api/resume/" + id);
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      toast(e.detail || "Failed to open resume.", "err");
+      return;
+    }
+    const data = await res.json();
+    const r = data.resume;
+    currentResumeId = r.id;
+    document.getElementById("builderTitle").textContent = "Edit Resume";
+    document.getElementById("rTitle").value = r.title || "";
+    document.getElementById("rRole").value = r.target_role || "";
+    document.getElementById("rContent").value = r.content || "";
+    document.getElementById("rInstruction").value = "";
+    document.getElementById("improveBtn").disabled = false;
+    setStatus("builderStatus", "");
+    setStatus("improveStatus", "");
+    document.querySelectorAll(".resume-card").forEach(c => {
+      c.classList.toggle("active", c.dataset.resumeId === id);
+    });
+    window.scrollTo({top: 0, behavior: "smooth"});
+  } catch (err) {
+    toast("Network error opening resume.", "err");
+  }
+}
+
+// -------------------------------------------------------------------------
+// Save (create or update)
+// -------------------------------------------------------------------------
+async function saveResume() {
+  const title = document.getElementById("rTitle").value.trim();
+  const content = document.getElementById("rContent").value;
+  const target_role = document.getElementById("rRole").value.trim();
+  if (!title) { toast("A title is required.", "err"); return; }
+  const saveBtn = document.getElementById("saveBtn");
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="spinner"></span>Saving…';
+  setStatus("builderStatus", "");
+  try {
+    let res, data;
+    if (currentResumeId) {
+      res = await fetch("/api/resume/" + currentResumeId, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({title, content, target_role}),
+      });
+    } else {
+      res = await fetch("/api/resume/create", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({title, content, target_role}),
+      });
+    }
+    data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setStatus("builderStatus", data.detail || "Save failed.", "err");
+      toast(data.detail || "Save failed.", "err");
+      return;
+    }
+    currentResumeId = data.resume.id;
+    document.getElementById("builderTitle").textContent = "Edit Resume";
+    document.getElementById("improveBtn").disabled = false;
+    setStatus("builderStatus", data.message || "Saved.", "ok");
+    toast(data.message || "Resume saved.");
+    loadResumeList();
+  } catch (err) {
+    setStatus("builderStatus", "Network error. Please try again.", "err");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save";
+  }
+}
+
+// -------------------------------------------------------------------------
+// Delete
+// -------------------------------------------------------------------------
+async function deleteResume(id) {
+  if (!confirm("Delete this resume? This cannot be undone.")) return;
+  try {
+    const res = await fetch("/api/resume/" + id, {method: "DELETE"});
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast(data.detail || "Delete failed.", "err");
+      return;
+    }
+    toast("Resume deleted.");
+    if (currentResumeId === id) resetBuilder();
+    loadResumeList();
+  } catch (err) {
+    toast("Network error. Please try again.", "err");
+  }
+}
+
+// -------------------------------------------------------------------------
+// AI Improve
+// -------------------------------------------------------------------------
+async function improveResume() {
+  if (!currentResumeId) { toast("Save the resume first.", "err"); return; }
+  const instruction = document.getElementById("rInstruction").value.trim();
+  const improveBtn = document.getElementById("improveBtn");
+  improveBtn.disabled = true;
+  improveBtn.innerHTML = '<span class="spinner"></span>Improving…';
+  setStatus("improveStatus", "");
+  try {
+    const res = await fetch("/api/resume/" + currentResumeId + "/improve", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({instruction}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setStatus("improveStatus", data.detail || "AI improvement failed.", "err");
+      toast(data.detail || "AI improvement failed.", "err");
+      return;
+    }
+    document.getElementById("rContent").value = data.improved_text || data.resume.content || "";
+    setStatus("improveStatus", "Improved by " + (data.provider || "AI") + ". Review and save if satisfied.", "ok");
+    toast("Resume improved by AI. Review and save.");
+  } catch (err) {
+    setStatus("improveStatus", "Network error. Please try again.", "err");
+  } finally {
+    improveBtn.disabled = false;
+    improveBtn.innerHTML = "✦ AI Improve";
+  }
+}
+
+// -------------------------------------------------------------------------
+// Utility
+// -------------------------------------------------------------------------
+function esc(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// -------------------------------------------------------------------------
+// Init
+// -------------------------------------------------------------------------
+loadResumeList();
+</script>
+</body>
+</html>

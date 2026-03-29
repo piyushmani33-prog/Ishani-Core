@@ -45,6 +45,7 @@ from interpreter_brain_layer import install_interpreter_brain_layer
 from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
+from routes.resume_router import install_resume_router
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -1648,6 +1649,22 @@ def init_core_db() -> None:
                 ON navigator_sessions(user_id, created_at DESC);
             """
         )
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS resumes(
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL DEFAULT '',
+                target_role TEXT NOT NULL DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+            CREATE INDEX IF NOT EXISTS idx_resumes_user_updated
+                ON resumes(user_id, updated_at DESC);
+            """
+        )
         for plan in PLAN_CATALOG:
             conn.execute(
                 """
@@ -1946,6 +1963,8 @@ def path_requires_member(path: str) -> bool:
         return True
     if path == "/agent/console" or path.startswith("/agent/console/"):
         return True
+    if path == "/resume" or path.startswith("/resume/"):
+        return True
     for prefix in (
         "/api/leazy/chat",
         "/api/agent/seed-pack",
@@ -1961,6 +1980,7 @@ def path_requires_member(path: str) -> bool:
         "/api/accounts",
         "/api/billing/checkout",
         "/api/billing/orders",
+        "/api/resume",
     ):
         if path.startswith(prefix):
             return True
@@ -8507,6 +8527,11 @@ async def navigator_page():
     return serve_frontend_page("navigator.html")
 
 
+@app.get("/resume")
+async def resume_page():
+    return serve_frontend_page("resume.html")
+
+
 @app.get("/browser", include_in_schema=False)
 async def browser_page():
     return serve_frontend_page("browser.html")
@@ -10216,6 +10241,19 @@ VOICE_RUNTIME_LAYER = install_voice_runtime_layer(
         "BACKEND_DIR": BACKEND_DIR,
         "DATA_DIR": DATA_DIR,
         "log": log,
+    },
+)
+
+install_resume_router(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_one": db_one,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "generate_text": generate_text,
     },
 )
 
