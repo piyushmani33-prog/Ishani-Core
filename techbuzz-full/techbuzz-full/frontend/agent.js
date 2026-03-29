@@ -60,9 +60,19 @@ async function copyTextToClipboard(text) {
     area.value = value;
     area.style.position = "fixed";
     area.style.opacity = "0";
+    area.style.top = "0";
+    area.style.left = "0";
+    area.readOnly = false;
     document.body.appendChild(area);
+    area.focus();
+    area.setSelectionRange(0, area.value.length);
     area.select();
-    const copied = document.execCommand("copy");
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } catch (_) {
+      copied = false;
+    }
     document.body.removeChild(area);
     return copied;
   }
@@ -413,25 +423,35 @@ function buildTrackerIssueChips(issueFlags = []) {
 }
 
 async function updateTrackerRow(rowId, payload = {}) {
-  const data = await api("/api/recruitment-tracker/update", {
-    method: "POST",
-    body: JSON.stringify({ row_id: rowId, ...payload })
-  });
-  $("trackerHeadline").textContent = data.message || "Recruitment tracker updated.";
-  await refreshAgentConsole();
+  try {
+    const data = await api("/api/recruitment-tracker/update", {
+      method: "POST",
+      body: JSON.stringify({ row_id: rowId, ...payload })
+    });
+    $("trackerHeadline").textContent = data.message || "Recruitment tracker updated.";
+    await refreshAgentConsole();
+  } catch (error) {
+    $("trackerHeadline").textContent = error.message || "Tracker update failed. Please try again.";
+  }
 }
 
 async function prepareTrackerAcknowledgment(rowId) {
-  const data = await api("/api/recruitment-tracker/prepare-ack", {
-    method: "POST",
-    body: JSON.stringify({ row_id: rowId })
-  });
-  preparedActionUrl = data.launch_url || "";
-  $("actionCenterStatus").textContent =
-    `${data.message || "Acknowledgment prepared."}\n\nPrepared: ${data.label}\n${data.summary}`;
-  $("captureStatus").textContent =
-    `${data.message || "Acknowledgment prepared."}\n\nSubject: ${data.subject || ""}\n\n${data.body || ""}`;
-  await loadRecruitmentCore();
+  try {
+    const data = await api("/api/recruitment-tracker/prepare-ack", {
+      method: "POST",
+      body: JSON.stringify({ row_id: rowId })
+    });
+    preparedActionUrl = data.launch_url || "";
+    $("actionCenterStatus").textContent =
+      `${data.message || "Acknowledgment prepared."}\n\nPrepared: ${data.label}\n${data.summary}`;
+    $("captureStatus").textContent =
+      `${data.message || "Acknowledgment prepared."}\n\nSubject: ${data.subject || ""}\n\n${data.body || ""}`;
+    await loadRecruitmentCore();
+  } catch (error) {
+    if ($("actionCenterStatus")) {
+      $("actionCenterStatus").textContent = error.message || "Acknowledgment preparation failed. Please try again.";
+    }
+  }
 }
 
 function renderRecruitmentTracker(tracker) {
@@ -1656,20 +1676,24 @@ async function processRecruiterCapture() {
     sourced_from: $("captureSource")?.value || "",
     auto_prepare_ack: true,
   };
-  const data = await api("/api/recruitment-tracker/capture", {
-    method: "POST",
-    body: JSON.stringify(body)
-  });
-  if (data.acknowledgment?.launch_url) {
-    preparedActionUrl = data.acknowledgment.launch_url;
+  try {
+    const data = await api("/api/recruitment-tracker/capture", {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+    if (data.acknowledgment?.launch_url) {
+      preparedActionUrl = data.acknowledgment.launch_url;
+    }
+    $("captureStatus").textContent =
+      `${data.message || "Conversation captured."}\n\n` +
+      `${data.summary || ""}\n\n` +
+      `${data.acknowledgment ? "Acknowledgment draft prepared in Action Center." : "Draft tracker memory saved. Final tracker waits for acknowledgment confirmation."}`;
+    $("trackerExportBox").textContent = data.tracker_export?.tsv || "";
+    $("captureTranscript").value = "";
+    await refreshAgentConsole();
+  } catch (error) {
+    $("captureStatus").textContent = error.message || "Capture failed. Please try again.";
   }
-  $("captureStatus").textContent =
-    `${data.message || "Conversation captured."}\n\n` +
-    `${data.summary || ""}\n\n` +
-    `${data.acknowledgment ? "Acknowledgment draft prepared in Action Center." : "Draft tracker memory saved. Final tracker waits for acknowledgment confirmation."}`;
-  $("trackerExportBox").textContent = data.tracker_export?.tsv || "";
-  $("captureTranscript").value = "";
-  await refreshAgentConsole();
 }
 
 function prepareResumeAckDraft() {
