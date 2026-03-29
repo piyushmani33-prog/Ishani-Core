@@ -1,0 +1,11 @@
+TITLE: Mission Memory Relay
+CREATED_AT: 2026-03-26T12:26:01.439853+00:00
+APPROVED_AT: 2026-03-26T15:11:05.734484+00:00
+
+DESCRIPTION:
+Adds a reusable relay for handing context between Praapti, Swarm, and Akshaya without growing the runtime footprint.
+
+CODE_SNIPPET:
+def mission_memory_relay(events):
+    return [event for event in events if event]
+

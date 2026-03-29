@@ -1,0 +1,9 @@
+AMIT VERMA
+amit.b92659d6@example.com
+9888888888
+Current Location: Hyderabad
+Preferred Location: Bangalore
+Total Experience: 7 years
+Relevant Experience: 6 years
+Skills: Java, Spring Boot, Microservices, Kafka, SQL
+Roles and Responsibilities: Built APIs, handled production issues, mentored analysts.

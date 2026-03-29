@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechBuzz AI Agent | Public Workspace</title>
+<meta name="theme-color" content="#120f25">
+<link rel="stylesheet" href="/frontend-assets/public-agent.css">
+</head>
+<body>
+<div class="public-agent-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-orbit.mp4"></video>
+</div>
+
+<main class="public-agent-shell">
+  <header class="public-agent-hero glass">
+    <div class="hero-copy">
+      <div class="agent-kicker">TechBuzz Systems Pvt Ltd • Public AI Agent</div>
+      <h1>One free TechBuzz AI surface for everyone, with optional bring-your-own-key and built-in voice control.</h1>
+      <p>The public agent stays connected to the same Ishani context, but it does not require login. Use the built-in brain for free, or paste your own provider key and fetch live models without storing that key on the server.</p>
+      <div class="hero-badges">
+        <span class="hero-chip" id="publicAgentProviderBadge">Built-in ready</span>
+        <span class="hero-chip" id="publicAgentVoiceBadge">Voice standby</span>
+        <span class="hero-chip" id="publicAgentAuthBadge">Public access</span>
+      </div>
+      <div class="hero-actions">
+        <a class="agent-btn primary" href="/company/portal">Open TechBuzz HQ</a>
+        <a class="agent-btn" href="/login?next=/agent/console">Open Console</a>
+        <a class="agent-btn" href="/login?next=/leazy">Open Core</a>
+      </div>
+    </div>
+    <div class="hero-side">
+      <div class="compact-card">
+        <strong>Carbon Protocol</strong>
+        <p>The public agent acts as the universal bonding layer for TechBuzz surfaces: public HQ, protected console, ATS, Network, and the mother-brain.</p>
+      </div>
+      <div class="compact-card">
+        <strong>Ishani Voice</strong>
+        <p>Female browser voice is active by default. Speech recognition and speech output run locally in the browser when supported.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="public-agent-grid">
+    <article class="glass public-agent-card">
+      <div class="card-head">
+        <h2>Bring Your Own Key</h2>
+        <button class="agent-btn small" onclick="fetchProviderModels()">Fetch Models</button>
+      </div>
+      <div class="field-grid">
+        <label>
+          <span>Provider</span>
+          <select id="providerSelect">
+            <option value="built_in">Built-in</option>
+            <option value="openai">OpenAI</option>
+            <option value="gemini">Gemini</option>
+            <option value="anthropic">Anthropic</option>
+          </select>
+        </label>
+        <label>
+          <span>Model</span>
+          <select id="modelSelect">
+            <option value="empire-fallback">empire-fallback</option>
+          </select>
+        </label>
+      </div>
+      <label class="full-field">
+        <span>API Key</span>
+        <input id="providerKey" type="password" placeholder="Paste your API key here. It stays in this browser unless you clear it.">
+      </label>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="saveProviderDraft()">Use This Provider</button>
+        <button class="agent-btn" onclick="clearProviderDraft()">Clear</button>
+      </div>
+      <div class="report-box" id="providerStatusBox">Choose a provider, paste a key if needed, fetch models, then chat. Built-in mode works with no key.</div>
+    </article>
+
+    <article class="glass public-agent-card">
+      <div class="card-head">
+        <h2>Voice Control</h2>
+        <button class="agent-btn small" onclick="toggleVoiceListening()">Toggle Mic</button>
+      </div>
+      <div class="field-grid">
+        <label>
+          <span>Speech Language</span>
+          <select id="voiceLanguage">
+            <option value="en-IN">English (India)</option>
+            <option value="en-US">English (US)</option>
+            <option value="hi-IN">Hindi</option>
+          </select>
+        </label>
+        <label>
+          <span>Voice Persona</span>
+          <select id="voicePersona">
+            <option value="sovereign_female">Sovereign Female</option>
+            <option value="warm_guide">Warm Guide</option>
+            <option value="strategic_female">Strategic Female</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </label>
+      </div>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="toggleVoiceListening()" id="voiceToggleBtn">Start Listening</button>
+        <button class="agent-btn" onclick="speakLastReply()">Speak Last Reply</button>
+      </div>
+      <div class="report-box" id="voiceStatusBox">Browser voice is ready. If speech recognition is supported, the public agent can listen and send your words directly into the chat.</div>
+    </article>
+  </section>
+
+  <section class="glass public-agent-card agent-chat-shell">
+    <div class="card-head">
+      <h2>TechBuzz AI Agent</h2>
+      <button class="agent-btn small" onclick="seedPublicPrompt()">Use Sample Prompt</button>
+    </div>
+    <div class="prompt-chips" id="publicPromptChips"></div>
+    <div class="chat-log" id="publicAgentChatLog"></div>
+    <div class="chat-compose">
+      <textarea id="publicAgentInput" rows="4" placeholder="Ask about hiring, automation, documents, strategy, TechBuzz services, or how to work with Ishani."></textarea>
+      <button class="agent-btn primary" onclick="sendPublicAgentMessage()">Send</button>
+    </div>
+  </section>
+
+  <section class="public-agent-grid">
+    <article class="glass public-agent-card">
+      <div class="card-head">
+        <h2>Free Capabilities</h2>
+      </div>
+      <div class="stack-list">
+        <div class="stack-item"><strong>Public AI Concierge</strong><p>Ask about TechBuzz services, roles, automation plans, and next steps.</p></div>
+        <div class="stack-item"><strong>Voice Input And Output</strong><p>Use browser speech recognition and a built-in feminine speech voice when supported.</p></div>
+        <div class="stack-item"><strong>Bring Your Own Key</strong><p>Paste OpenAI, Gemini, or Anthropic keys to fetch models and use your own provider live.</p></div>
+      </div>
+    </article>
+
+    <article class="glass public-agent-card">
+      <div class="card-head">
+        <h2>Protected Upgrades</h2>
+      </div>
+      <div class="stack-list">
+        <div class="stack-item"><strong>Agent Console</strong><p>Document studio, Praapti hunts, role pipeline, queue management, and vault access.</p></div>
+        <div class="stack-item"><strong>Leazy Core</strong><p>Cabinet, Prana, Nirmaan, Akshaya, settings, and owner-level monitoring.</p></div>
+        <div class="stack-item"><strong>ATS And Network</strong><p>Real hiring and signal surfaces connected to the same mother-brain.</p></div>
+      </div>
+    </article>
+  </section>
+</main>
+
+<div class="agent-toast" id="agentToast"></div>
+
+<script src="/frontend-assets/public-agent.js"></script>
+</body>
+</html>

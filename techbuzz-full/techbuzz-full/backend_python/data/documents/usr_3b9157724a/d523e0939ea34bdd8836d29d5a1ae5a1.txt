@@ -1,0 +1,9 @@
+AMIT KUMAR
+amit.kumar@example.com
+9876543210
+Current Location: Pune
+Preferred Location: Bangalore
+Total Experience: 8 years
+Relevant Experience: 7 years
+Skills: Java, Spring Boot, Microservices, Kafka, Oracle, SQL
+Roles and Responsibilities: Built backend APIs, handled production incidents, mentored juniors.

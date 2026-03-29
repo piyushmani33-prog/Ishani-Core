@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jobs — TechBuzz AI Recruitment</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+:root{--bg:#04060c;--line:rgba(255,255,255,.08);--text:#edf2ff;--muted:#8899b8;--gold:#f1ca6b;--teal:#90f2d2;--vio:#c1a1ff;--danger:#ff847d;--surface:#0b0f1e}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:"Trebuchet MS",sans-serif;min-height:100vh}
+.top-nav{padding:14px 5%;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);background:rgba(4,6,18,.9);position:sticky;top:0;z-index:50;backdrop-filter:blur(16px)}
+.tn-brand{font-family:"Palatino Linotype",Georgia,serif;font-weight:900;font-size:1rem}
+.tn-links{display:flex;gap:16px;font-size:.83rem;margin-left:auto}
+.tn-links a{color:var(--muted);transition:color .15s}.tn-links a:hover{color:var(--text)}
+.jobs-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;max-width:1400px;margin:0 auto;padding:24px 5%}
+.filters-panel{border-radius:18px;padding:18px;border:1px solid var(--line);background:var(--surface);height:fit-content;position:sticky;top:80px}
+.fph{font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.fi{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit;font-size:.85rem;outline:none;margin-bottom:8px;transition:border-color .15s}
+.fi:focus{border-color:rgba(144,242,210,.35)}
+.abtn{display:block;width:100%;padding:10px;border-radius:11px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.85rem;border:none;cursor:pointer;transition:all .15s;text-align:center}
+.abtn:hover{filter:brightness(1.1)}
+.gbtn{display:block;width:100%;padding:8px;border-radius:11px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);font-weight:700;font-size:.82rem;cursor:pointer;transition:all .15s;text-align:center;margin-top:7px}
+.gbtn:hover{border-color:rgba(193,161,255,.3);color:var(--vio)}
+.jobs-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.jobs-count{font-size:.85rem;color:var(--muted)}
+.job-card{border-radius:18px;padding:20px;border:1px solid var(--line);background:var(--surface);margin-bottom:12px;cursor:pointer;transition:all .15s}
+.job-card:hover{border-color:rgba(144,242,210,.25);background:rgba(144,242,210,.04);transform:translateY(-2px)}
+.jc-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px}
+.jc-logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,rgba(144,242,210,.15),rgba(193,161,255,.12));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.jc-info{flex:1}
+.jc-title{font-size:.98rem;font-weight:800;margin-bottom:3px}
+.jc-co{font-size:.8rem;color:var(--muted)}
+.jc-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.jtag{font-size:.65rem;padding:3px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-weight:700;color:var(--muted)}
+.jc-desc{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.jc-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.jc-salary{font-size:.85rem;font-weight:800;color:var(--teal)}
+.jc-meta{font-size:.7rem;color:var(--dim,#3a4a64)}
+.apply-btn{padding:7px 16px;border-radius:999px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.78rem;border:none;cursor:pointer;transition:all .15s}
+.apply-btn:hover{filter:brightness(1.1)}
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;display:none}
+.modal{width:100%;max-width:660px;border-radius:24px;padding:24px;max-height:90vh;overflow-y:auto;background:#0b0f1e;border:1px solid rgba(144,242,210,.15)}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:.9rem}
+.pagination{display:flex;gap:8px;justify-content:center;margin-top:20px}
+.page-btn{padding:6px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);cursor:pointer;font-size:.82rem;transition:all .15s}
+.page-btn.on{background:rgba(144,242,210,.1);border-color:rgba(144,242,210,.3);color:var(--teal)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--teal);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:860px){.jobs-layout{grid-template-columns:1fr}.filters-panel{position:static}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="tn-brand">⬡ TechBuzz AI</div>
+  <div class="tn-links">
+    <a href="/">Home</a><a href="/jobs" style="color:var(--teal)">Jobs</a><a href="/career">Career AI</a>
+    <a href="/company-portal">For Companies</a><a href="/login">Sign In</a>
+  </div>
+</nav>
+
+<div class="jobs-layout">
+  <!-- Filters -->
+  <aside class="filters-panel">
+    <div class="fph">Search & Filter</div>
+    <input class="fi" id="fQ" placeholder="Job title, skill, keyword…">
+    <input class="fi" id="fLoc" placeholder="City, state, or remote…">
+    <select class="fi" id="fType">
+      <option value="">All Job Types</option>
+      <option value="full_time">Full-time</option>
+      <option value="part_time">Part-time</option>
+      <option value="contract">Contract</option>
+      <option value="internship">Internship</option>
+    </select>
+    <select class="fi" id="fRemote">
+      <option value="">All Work Modes</option>
+      <option value="remote">Remote</option>
+      <option value="hybrid">Hybrid</option>
+      <option value="onsite">On-site</option>
+    </select>
+    <input class="fi" id="fSkills" placeholder="Skills: Python, React, AWS…">
+    <button class="abtn" onclick="loadJobs(1)">Search Jobs</button>
+    <button class="gbtn" onclick="clearFilters()">Clear Filters</button>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+      <div class="fph">Are You Hiring?</div>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px;line-height:1.65">Post jobs and get AI-screened candidates.</p>
+      <button class="gbtn" style="background:rgba(144,242,210,.08);border-color:rgba(144,242,210,.25);color:var(--teal)" onclick="window.location.href='/company-register'">Post a Job Free →</button>
+    </div>
+  </aside>
+
+  <!-- Job list -->
+  <main>
+    <div class="jobs-header">
+      <div class="jobs-count" id="jobsCount">Loading jobs…</div>
+      <div style="font-size:.78rem;color:var(--muted)">AI-powered job board · Updated live</div>
+    </div>
+    <div id="jobList"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<!-- Apply modal -->
+<div class="modal-bg" id="applyModal">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:10px">
+      <div>
+        <div style="font-size:1.1rem;font-weight:800" id="modalTitle">Apply</div>
+        <div style="font-size:.8rem;color:var(--muted)" id="modalCo"></div>
+      </div>
+      <button onclick="closeModal()" style="padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-size:.8rem">✕ Close</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let _page=1,_totalPages=1;
+
+async function api(path,opts){
+  const r=await fetch(path,{headers:{'Content-Type':'application/json'},...(opts||{})});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.detail||'Error');return d;
+}
+function toast(m){const el=$('toast');el.textContent=m;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000);}
+
+function clearFilters(){$('fQ').value='';$('fLoc').value='';$('fType').value='';$('fRemote').value='';$('fSkills').value='';loadJobs(1);}
+
+async function loadJobs(page=1){
+  _page=page;
+  $('jobList').innerHTML='<div class="empty"><span class="spin"></span> Loading jobs…</div>';
+  const params=new URLSearchParams({page,limit:12});
+  const q=$('fQ').value.trim();const loc=$('fLoc').value.trim();
+  const jt=$('fType').value;const rem=$('fRemote').value;const sk=$('fSkills').value.trim();
+  if(q)params.set('q',q);if(loc)params.set('location',loc);
+  if(jt)params.set('job_type',jt);if(rem)params.set('remote',rem);if(sk)params.set('skills',sk);
+  const d=await api('/api/jobs?'+params).catch(()=>({jobs:[],total:0,pages:1}));
+  const jobs=d.jobs||[];
+  _totalPages=d.pages||1;
+  $('jobsCount').textContent=`${d.total||0} jobs found`;
+
+  const JT={'full_time':'Full-time','part_time':'Part-time','contract':'Contract','internship':'Internship'};
+  const REM={'remote':'Remote','hybrid':'Hybrid','onsite':'On-site'};
+  $('jobList').innerHTML=jobs.length?jobs.map(j=>`
+    <div class="job-card" id="jcard-${j.id}">
+      <div class="jc-top">
+        <div class="jc-logo">🏢</div>
+        <div class="jc-info">
+          <div class="jc-title">${j.title}</div>
+          <div class="jc-co">${j.company_name||'Company'} · ${j.location||'India'}</div>
+        </div>
+      </div>
+      <div class="jc-tags">
+        <span class="jtag">${JT[j.job_type]||j.job_type}</span>
+        <span class="jtag">${REM[j.remote]||j.remote}</span>
+        <span class="jtag">${j.experience_min||0}–${j.experience_max||5} yr</span>
+        ${(j.skills||'').split(',').slice(0,3).filter(Boolean).map(s=>`<span class="jtag">${s.trim()}</span>`).join('')}
+      </div>
+      <div class="jc-desc">${(j.description||'').slice(0,160)}…</div>
+      <div class="jc-bottom">
+        <span class="jc-salary">${j.salary_max?'₹'+(j.salary_max/100000).toFixed(0)+'L+':''}</span>
+        <span class="jc-meta">${j.applications||0} applied · ${(j.posted_at||'').slice(0,10)}</span>
+        <button class="apply-btn" onclick="openApply('${j.id}','${j.title?.replace(/'/g,"\\'")}','${j.company_name?.replace(/'/g,"\\'")||'Company'}')">Apply Now</button>
+      </div>
+    </div>`).join('')
+  :'<div class="empty">No jobs match your search. Try different keywords or filters.</div>';
+
+  // Pagination
+  const pages=[];for(let i=1;i<=Math.min(_totalPages,8);i++)pages.push(i);
+  $('pagination').innerHTML=pages.map(p=>`<button class="page-btn ${p===page?'on':''}" onclick="loadJobs(${p})">${p}</button>`).join('');
+}
+
+let _currentJobId='';
+function openApply(jobId,title,company){
+  _currentJobId=jobId;
+  $('modalTitle').textContent=title;$('modalCo').textContent=company;
+  $('modalContent').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+      <input class="fi" id="aName" placeholder="Full name *" required>
+      <input class="fi" id="aEmail" placeholder="Email *" type="email" required>
+      <input class="fi" id="aPhone" placeholder="Phone">
+      <input class="fi" id="aExp" placeholder="Years of experience" type="number" value="0">
+      <input class="fi" id="aCo" placeholder="Current company">
+      <input class="fi" id="aRole" placeholder="Current role">
+    </div>
+    <input class="fi" id="aNotice" placeholder="Notice period (e.g. 30 days)" value="30 days" style="margin-top:2px">
+    <input class="fi" id="aSalary" placeholder="Expected salary (e.g. ₹12 LPA)">
+    <input class="fi" id="aLinkedin" placeholder="LinkedIn profile URL (optional)">
+    <textarea class="fi" id="aResume" placeholder="Paste your resume / profile summary here *" style="min-height:120px;resize:vertical;font-size:.82rem" required></textarea>
+    <textarea class="fi" id="aCover" placeholder="Cover letter (optional)" style="min-height:80px;resize:vertical;font-size:.82rem"></textarea>
+    <button onclick="submitApplication()" style="width:100%;padding:12px;border-radius:13px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.9rem;border:none;cursor:pointer;margin-top:4px" id="applySubmitBtn">
+      ⬡ Submit Application (AI will score instantly)
+    </button>
+    <div id="applyResult" style="margin-top:10px;font-size:.82rem"></div>`;
+  $('applyModal').style.display='flex';
+}
+
+function closeModal(){$('applyModal').style.display='none';}
+
+async function submitApplication(){
+  const name=$('aName').value.trim();const email=$('aEmail').value.trim();
+  const resume=$('aResume').value.trim();
+  if(!name||!email||!resume){toast('Name, email, and resume are required');return;}
+  const btn=$('applySubmitBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> AI scoring your application…';
+  try{
+    const d=await api('/api/jobs/'+_currentJobId+'/apply',{method:'POST',body:JSON.stringify({
+      applicant_name:name,applicant_email:email,applicant_phone:$('aPhone').value,
+      resume_text:resume,cover_letter:$('aCover').value,
+      experience_years:parseInt($('aExp').value)||0,
+      current_company:$('aCo').value,current_role:$('aRole').value,
+      notice_period:$('aNotice').value,expected_salary:$('aSalary').value,
+      linkedin_url:$('aLinkedin').value,portfolio_url:''
+    })});
+    const score=Math.round((d.ai_score||0)*100);
+    const colors={high:'var(--teal)',medium:'var(--gold)',low:'var(--danger)'};
+    const level=score>=70?'high':score>=50?'medium':'low';
+    $('applyResult').innerHTML=`<div style="padding:14px;border-radius:13px;background:rgba(144,242,210,.06);border:1px solid rgba(144,242,210,.15)">
+      <div style="font-weight:800;margin-bottom:6px;color:var(--teal)">✅ Application Submitted!</div>
+      <div style="margin-bottom:4px">AI Verdict: <strong style="color:${colors[level]}">${d.verdict||'Good Fit'}</strong></div>
+      <div style="font-size:.78rem;color:var(--muted)">Your application ID: ${d.application_id?.slice(0,8)||'—'}</div>
+    </div>`;
+    btn.innerHTML='Applied!';
+    toast(`Application submitted! AI score: ${d.verdict}`);
+    loadJobs(_page);
+  }catch(e){
+    $('applyResult').innerHTML=`<div style="color:var(--danger)">${e.message}</div>`;
+    btn.innerHTML='⬡ Submit Application';btn.disabled=false;
+  }
+}
+
+// Boot
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target===document.body||e.target.classList.contains('fi')))loadJobs(1);});
+['fQ','fLoc'].forEach(id=>document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter')loadJobs(1);}));
+loadJobs(1);
+</script>
+</body>
+</html>

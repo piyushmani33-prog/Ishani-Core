@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechBuzz HQ | Public AI Command</title>
+<meta name="theme-color" content="#120f25">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+</head>
+<body>
+<div class="portal-sky">
+  <video id="portalSkyVideo" autoplay muted loop playsinline></video>
+</div>
+
+<header class="portal-topbar">
+  <div class="portal-brand">
+    <span class="portal-kicker" id="portalKicker">Leazy-operated company mode</span>
+    <strong id="portalTitle">TechBuzz HQ</strong>
+  </div>
+  <nav class="portal-links" id="portalLinks">
+    <a href="/leazy">Leazy</a>
+    <a href="/agent">Agent</a>
+    <a href="/company/portal">HQ</a>
+    <a href="/network">Network</a>
+    <a href="/ats">ATS</a>
+    <a href="/login">Login</a>
+    <a href="/leazy#settings">Settings</a>
+  </nav>
+</header>
+
+<section class="public-hq-stage" id="publicHqStage" hidden>
+  <section class="public-hq-hero glass">
+    <div class="public-hq-copy">
+      <div class="hero-eyebrow" id="publicHeroEyebrow">TechBuzz Systems Pvt Ltd</div>
+      <h1 id="publicHeroTitle">Loading TechBuzz HQ...</h1>
+      <p id="publicHeroText">Preparing the public front door to Ishani.</p>
+      <div class="public-hq-actions" id="publicHeroActions"></div>
+      <div class="public-chip-row" id="publicPromptChips"></div>
+    </div>
+    <div class="public-hq-sidebar">
+      <div class="public-badge-card">
+        <span>Shared Brain</span>
+        <strong id="publicBrainBadge">Ishani Core</strong>
+        <p id="publicBrainCopy">The same TechBuzz AI now powers this public HQ surface.</p>
+      </div>
+      <div class="public-stat-grid" id="publicStatGrid"></div>
+    </div>
+  </section>
+
+  <section class="public-hq-band" id="publicTrustBand"></section>
+
+  <section class="public-hq-grid">
+    <article class="glass public-card">
+      <div class="card-head">
+        <h3>Why TechBuzz</h3>
+        <button class="mini-btn" onclick="focusPublicAi()">Ask The AI</button>
+      </div>
+      <div id="publicCapabilityCards"></div>
+    </article>
+
+    <article class="glass public-card">
+      <div class="card-head">
+        <h3>Living Mother Brain</h3>
+        <button class="mini-btn" onclick="window.location.href='/login?next=/leazy'">Open Protected Core</button>
+      </div>
+      <div id="publicBrainFlow"></div>
+    </article>
+  </section>
+
+  <section class="public-hq-grid">
+    <article class="glass public-card">
+      <div class="card-head">
+        <h3>Free For Everyone</h3>
+        <button class="mini-btn" onclick="focusPublicAi()">Try Now</button>
+      </div>
+      <div id="publicPlanCards"></div>
+    </article>
+
+    <article class="glass public-card">
+      <div class="card-head">
+        <h3>TechBuzz Surfaces</h3>
+        <button class="mini-btn" onclick="window.location.href='/login'">Member Access</button>
+      </div>
+      <div id="publicSurfaceCards"></div>
+    </article>
+  </section>
+
+  <section class="glass public-ai-shell" id="hqConcierge">
+    <div class="card-head">
+      <div>
+        <div class="hero-eyebrow">Free Public AI</div>
+        <h3>TechBuzz AI Concierge</h3>
+      </div>
+      <button class="mini-btn" onclick="toggleHqPopup(true)">Open Popup</button>
+    </div>
+    <p class="public-ai-copy">Ask about hiring, automation, document tools, TechBuzz services, or the fastest way to work with Ishani.</p>
+    <div class="public-ai-log" id="publicAiLog"></div>
+    <div class="public-ai-row">
+      <textarea id="publicAiInput" rows="3" placeholder="Ask TechBuzz AI anything about services, workflows, hiring, automation, or how to get started."></textarea>
+      <button class="launch-btn" onclick="sendPublicHqMessage('panel')">Send</button>
+    </div>
+  </section>
+</section>
+
+<main class="portal-shell">
+  <aside class="portal-rail glass">
+    <div class="rail-card">
+      <div class="rail-eyebrow">Live Control</div>
+      <h1 id="railModeHeading">TechBuzz HQ</h1>
+      <p id="railModeCopy">Loading portal context...</p>
+    </div>
+    <div class="rail-card">
+      <div class="rail-eyebrow">Mode Navigation</div>
+      <div class="rail-nav" id="portalNav"></div>
+    </div>
+    <div class="rail-card">
+      <div class="rail-eyebrow">Brain Routing</div>
+      <div class="rail-stat" id="portalProvider">Provider loading</div>
+      <div class="rail-stat" id="portalGuardian">Guardian loading</div>
+      <div class="rail-stat" id="portalProtection">Protection loading</div>
+    </div>
+    <div class="rail-card">
+      <div class="rail-eyebrow">Workspace Guide</div>
+      <div class="workspace-log" id="portalGuideLog"></div>
+      <div class="workspace-row">
+        <input id="portalGuideInput" placeholder="Ask this workspace about its work">
+        <button class="mini-btn" onclick="sendPortalGuide()">Ask</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="portal-main">
+    <section class="glass portal-hero">
+      <div class="hero-copy">
+        <div class="hero-eyebrow" id="portalHeroEyebrow">TechBuzz Systems Pvt Ltd</div>
+        <h2 id="portalHeroTitle">Leazy is bringing the company systems into one coherent command view.</h2>
+        <p id="portalHeroText">Loading live portal summary...</p>
+      </div>
+      <div class="hero-actions" id="portalHeroActions"></div>
+    </section>
+
+    <section class="metric-row" id="portalHeroMetrics"></section>
+
+    <section class="portal-grid">
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3 id="portalPrimaryTitle">Overview</h3>
+          <button class="mini-btn" onclick="refreshPortal()">Refresh</button>
+        </div>
+        <div id="portalPrimaryBody"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3>Brain Status</h3>
+          <button class="mini-btn" onclick="window.location.href='/leazy#bridge'">Open Leazy</button>
+        </div>
+        <div id="portalBrainBody"></div>
+      </article>
+    </section>
+
+    <section class="portal-grid secondary">
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3 id="portalSecondaryTitle">Support Panel</h3>
+          <button class="mini-btn" onclick="refreshPortal()">Sync</button>
+        </div>
+        <div id="portalSecondaryBody"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3>Activity Feed</h3>
+          <button class="mini-btn" onclick="jumpToActivity()">Open Activity</button>
+        </div>
+        <div id="portalActivityBody"></div>
+      </article>
+    </section>
+
+    <section class="portal-grid tertiary">
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3 id="portalTertiaryTitle">Operations Board</h3>
+          <button class="mini-btn" onclick="refreshPortal()">Refresh</button>
+        </div>
+        <div id="portalTertiaryBody"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="card-head">
+          <h3 id="portalQueueTitle">Execution Queue</h3>
+          <button class="mini-btn" onclick="jumpToActivity()">Follow Queue</button>
+        </div>
+        <div id="portalQueueBody"></div>
+      </article>
+    </section>
+  </section>
+</main>
+
+<button class="hq-ai-fab" id="hqAiFab" onclick="toggleHqPopup()">
+  <span>TechBuzz AI</span>
+  <strong>Ask Free</strong>
+</button>
+
+<aside class="hq-ai-popup glass" id="hqAiPopup" hidden>
+  <div class="card-head">
+    <div>
+      <div class="hero-eyebrow">Shared Public Brain</div>
+      <h3>TechBuzz AI</h3>
+    </div>
+    <button class="mini-btn" onclick="toggleHqPopup(false)">Close</button>
+  </div>
+  <div class="public-ai-log compact" id="hqAiPopupLog"></div>
+  <div class="public-ai-row popup">
+    <textarea id="hqAiPopupInput" rows="2" placeholder="Ask TechBuzz AI"></textarea>
+    <button class="launch-btn" onclick="sendPublicHqMessage('popup')">Send</button>
+  </div>
+</aside>
+
+<div class="portal-toast" id="portalToast"></div>
+
+<script src="/frontend-assets/empire-pages.js"></script>
+</body>
+</html>

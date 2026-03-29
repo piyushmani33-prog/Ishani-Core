@@ -1,0 +1,1 @@
+TechBuzz local AI smoke file. Recruitment tracker automation needs grounded notes, interview scheduling, and candidate follow-up memory.

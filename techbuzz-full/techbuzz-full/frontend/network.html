@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechBuzz Network</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+.net-wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 16px 80px;display:grid;grid-template-columns:320px 1fr;gap:16px;min-height:calc(100vh - 64px)}
+.net-rail,.net-main{padding-top:20px;display:flex;flex-direction:column;gap:14px}
+.rail-card,.panel{border-radius:24px;padding:18px}
+.rail-h{font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.net-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ns{padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);text-align:center}
+.ns strong{display:block;font-family:var(--heading);font-size:1.32rem;color:var(--gold)}
+.ns span{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.fi,.compose-ta{width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit}
+.compose-ta{min-height:88px;resize:vertical;line-height:1.65}
+.fi:focus,.compose-ta:focus{outline:none;border-color:rgba(241,202,107,.34)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.abtn,.gbtn,.ghost-link,.tag{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;font-weight:800}
+.abtn{padding:9px 16px;background:linear-gradient(135deg,var(--gold),#ff9c63);color:#0b0f17;border:none;cursor:pointer}
+.gbtn,.ghost-link{padding:8px 14px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);cursor:pointer;text-decoration:none}
+.tag{padding:6px 12px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:.76rem}
+.feed,.conn-list,.journey-list,.job-grid,.company-grid{display:flex;flex-direction:column;gap:10px}
+.job-grid,.company-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.conn-item,.post-card,.journey-item,.job-card,.company-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04);padding:14px}
+.conn-item{display:flex;align-items:center;gap:10px}
+.conn-av{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(241,202,107,.22),rgba(193,161,255,.16));display:flex;align-items:center;justify-content:center;font-weight:900}
+.conn-meta{flex:1;min-width:0}
+.conn-meta strong,.post-top strong,.job-card strong,.company-card strong,.journey-item strong{display:block}
+.conn-meta span,.post-top span,.muted,.journey-meta,.job-meta,.company-meta{font-size:.78rem;color:var(--muted);line-height:1.5}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);text-align:center}
+.brain-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(144,242,210,.06);border:1px solid rgba(144,242,210,.15);border-radius:14px;font-size:.82rem;color:var(--muted)}
+.bdot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:bdp 2s ease-in-out infinite}
+.checkline{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
+.post-enhanced{margin-top:10px;padding:12px;border-left:2px solid rgba(241,202,107,.3);background:rgba(255,255,255,.03);font-size:.82rem;color:var(--muted);white-space:pre-wrap}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.22);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bdp{0%,100%{opacity:.45}50%{opacity:1}}
+@media(max-width:960px){.net-wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="portal-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-orbit.mp4"></video>
+</div>
+<header class="portal-topbar">
+  <div class="portal-brand">
+    <span class="portal-kicker" id="modeBadge">Career network · local candidate memory</span>
+    <strong>TechBuzz Network</strong>
+  </div>
+  <nav class="portal-links" id="navLinks">
+    <a href="/company/portal">HQ</a>
+    <a href="/career">Career</a>
+    <a href="/jobs">Jobs</a>
+    <a href="/network" style="border-color:rgba(241,202,107,.35);color:var(--gold)">Network</a>
+    <a href="/login">Login</a>
+  </nav>
+</header>
+
+<div class="net-wrap">
+  <aside class="net-rail">
+    <section class="rail-card glass">
+      <div class="rail-h" id="deskTitle">Member Desk</div>
+      <div id="deskSummary" class="muted">Sign in to turn the network into your private career desk with ATS-linked journey tracking.</div>
+      <div class="row" style="margin-top:12px" id="deskActions">
+        <a class="abtn" href="/login?next=/network">Sign In</a>
+        <a class="gbtn" href="/career">Resume Builder</a>
+      </div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Career Stats</div>
+      <div class="net-stats" id="netStats"></div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Quick Connection</div>
+      <input class="fi" id="cName" placeholder="Name">
+      <input class="fi" id="cTitle" placeholder="Role · Company" style="margin-top:8px">
+      <input class="fi" id="cLinkedin" placeholder="linkedin.com/in/..." style="margin-top:8px" onkeydown="if(event.key==='Enter')addConn()">
+      <div class="row" style="margin-top:10px">
+        <button class="gbtn" style="width:100%" onclick="addConn()">Save Connection</button>
+      </div>
+      <div class="conn-list" id="connList" style="margin-top:12px"></div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Your Next Move</div>
+      <div id="nextMove" class="muted">The network will suggest the next move after your resume or job journey is stored.</div>
+      <div class="row" style="margin-top:12px">
+        <a class="gbtn" href="/career">Align Resume</a>
+        <a class="gbtn" href="/jobs">Apply Jobs</a>
+      </div>
+    </section>
+  </aside>
+
+  <main class="net-main">
+    <div class="brain-bar glass"><div class="bdot"></div><span id="brainMsg">TechBuzz Network is ready for community posts, profile sync, and live job movement.</span></div>
+
+    <section class="panel glass">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div class="rail-h" style="margin-bottom:6px">Professional Network</div>
+          <h2 style="margin:0;font-family:var(--heading)">A smoother Naukri plus LinkedIn style lane for TechBuzz.</h2>
+          <p style="margin:8px 0 0;color:var(--muted);max-width:760px">Candidates can keep their resume, job journey, and network activity in one local workspace. Recruiters can still read career intent through ATS when a member explicitly signals a job change.</p>
+        </div>
+        <div class="row" id="heroActions">
+          <a class="gbtn" href="/career">Resume Builder</a>
+          <a class="gbtn" href="/jobs">Live Jobs</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel glass">
+      <div class="rail-h">Post Update</div>
+      <textarea class="compose-ta" id="postContent" placeholder="Share a professional update, learning milestone, availability change, or hiring signal..."></textarea>
+      <label class="checkline" style="margin-top:10px">
+        <input type="checkbox" id="openToChange">
+        <span>Forward this as job-change intent to ATS if I mention availability, notice period, or role preferences.</span>
+      </label>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <div class="row">
+          <span class="tag">Posts stay local to your workspace</span>
+          <span class="tag">ATS forwarding only happens from explicit intent</span>
+        </div>
+        <button class="abtn" id="postBtn" onclick="publishPost()">Post Update</button>
+      </div>
+    </section>
+
+    <section class="panel glass">
+      <div class="section-head" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <div>
+          <div class="rail-h" style="margin-bottom:4px">Job Journey</div>
+          <strong style="font-size:1.02rem">Your live hiring movement</strong>
+        </div>
+        <a class="ghost-link" href="/jobs">Open Full Jobs Board</a>
+      </div>
+      <div class="journey-list" id="journeyList" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel glass">
+      <div class="section-head" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <div>
+          <div class="rail-h" style="margin-bottom:4px">Current Openings</div>
+          <strong style="font-size:1.02rem">Companies hiring right now</strong>
+        </div>
+        <a class="ghost-link" href="/jobs">Browse All Jobs</a>
+      </div>
+      <div class="job-grid" id="openings" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel glass">
+      <div class="section-head" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+        <div>
+          <div class="rail-h" style="margin-bottom:4px">Companies On Network</div>
+          <strong style="font-size:1.02rem">Fresh employer activity</strong>
+        </div>
+        <a class="ghost-link" href="/company/portal">Open HQ</a>
+      </div>
+      <div class="company-grid" id="companies" style="margin-top:12px"></div>
+    </section>
+
+    <section class="panel glass">
+      <div class="rail-h">Your Feed</div>
+      <div class="feed" id="feed"></div>
+    </section>
+  </main>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+<script>
+const API = "";
+const $ = id => document.getElementById(id);
+let me = null;
+let state = null;
+
+function toast(message, ms = 2600){
+  const el = $("toast");
+  el.textContent = message;
+  el.style.display = "block";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = "none", ms);
+}
+
+async function api(url, method = "GET", body, allowAnon = false){
+  const response = await fetch(API + url, {
+    method,
+    credentials: "include",
+    headers: {"Content-Type":"application/json"},
+    ...(body ? {body: JSON.stringify(body)} : {})
+  });
+  if((response.status === 401 || response.status === 403) && !allowAnon){
+    window.location.href = "/login?next=/network";
+    throw new Error("Authentication required.");
+  }
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok && !allowAnon) throw new Error(data.detail || "Request failed.");
+  return data;
+}
+
+function renderNav(){
+  const links = [
+    `<a href="/company/portal">HQ</a>`,
+    `<a href="/career">Career</a>`,
+    `<a href="/jobs">Jobs</a>`,
+    `<a href="/network" style="border-color:rgba(241,202,107,.35);color:var(--gold)">Network</a>`
+  ];
+  if(me?.authenticated){
+    links.push(`<a href="/navigator">Navigator</a>`);
+    if(me.user?.role === "master") links.push(`<a href="/network/intel">Recruiter Intel</a>`);
+    links.push(`<a href="#" onclick="logout()">Sign Out</a>`);
+  }else{
+    links.push(`<a href="/login?next=/network">Login</a>`);
+  }
+  $("navLinks").innerHTML = links.join("");
+}
+
+function logout(){
+  fetch("/api/auth/logout", {method:"POST", credentials:"include"}).finally(() => {
+    window.location.href = "/login";
+  });
+}
+
+function renderDesk(){
+  const profile = state?.profile || {};
+  const summary = state?.summary || {};
+  if(me?.authenticated){
+    $("deskTitle").textContent = "Candidate Desk";
+    const role = profile.current_role || profile.headline || "Profile not aligned yet";
+    const location = profile.current_location || "Location open";
+    const notice = profile.notice_period || "Notice not shared";
+    $("deskSummary").innerHTML = `
+      <strong>${me.user?.name || "Member"}</strong><br>
+      <span class="muted">${role} · ${location} · ${notice}</span><br>
+      <span class="muted">${summary.member_message || ""}</span>
+    `;
+    $("deskActions").innerHTML = `
+      <a class="abtn" href="/career">Update Resume</a>
+      <a class="gbtn" href="/jobs">Apply Jobs</a>
+      ${me.user?.role === "master" ? '<a class="gbtn" href="/network/intel">Recruiter Intel</a>' : ""}
+    `;
+  }else{
+    $("deskTitle").textContent = "Join The Network";
+    $("deskSummary").textContent = summary.member_message || "Sign in to store your network, resume, and job journey locally.";
+    $("deskActions").innerHTML = `
+      <a class="abtn" href="/login?next=/network">Sign In</a>
+      <a class="gbtn" href="/career">Resume Builder</a>
+    `;
+  }
+}
+
+function renderStats(){
+  const stats = state?.stats || {};
+  $("netStats").innerHTML = [
+    ["Openings", stats.openings || 0],
+    ["Applications", stats.applications || 0],
+    ["Interviews", stats.interviews || 0],
+    ["Offers", stats.offers || 0],
+    ["Connections", stats.connections || 0],
+    ["Companies", stats.companies || 0]
+  ].map(([label, value]) => `<div class="ns"><strong>${value}</strong><span>${label}</span></div>`).join("");
+}
+
+function renderConnections(){
+  const items = state?.connections || [];
+  $("connList").innerHTML = items.length ? items.map(item => `
+    <div class="conn-item">
+      <div class="conn-av">${(item.name || "?").slice(0,1).toUpperCase()}</div>
+      <div class="conn-meta">
+        <strong>${item.name || "Unknown"}</strong>
+        <span>${item.title || ""}${item.company ? " · " + item.company : ""}</span>
+      </div>
+      ${me?.authenticated ? `<button class="gbtn" style="padding:6px 10px" onclick="deleteConn('${item.id}')">Remove</button>` : ""}
+    </div>
+  `).join("") : `<div class="empty">${me?.authenticated ? "No saved connections yet." : "Connections appear here after you sign in and save them."}</div>`;
+}
+
+function renderJourneys(){
+  const items = state?.journeys || [];
+  $("journeyList").innerHTML = items.length ? items.map(item => `
+    <div class="journey-item">
+      <strong>${item.job_title || "Profile Ready"}${item.company_name ? " · " + item.company_name : ""}</strong>
+      <div class="journey-meta">${item.stage || "profile_ready"} · ${item.status_note || item.last_event || "Tracking is active"} · ${new Date(item.updated_at || item.applied_at || "").toLocaleString("en-IN")}</div>
+    </div>
+  `).join("") : `<div class="empty">${me?.authenticated ? "No job journey stored yet. Apply to a role or sync your resume." : "Sign in to keep a private job journey here."}</div>`;
+}
+
+function renderOpenings(){
+  const items = state?.openings || [];
+  $("openings").innerHTML = items.length ? items.map(item => `
+    <div class="job-card">
+      <strong>${item.title || "Open Role"}</strong>
+      <div class="job-meta">${item.company_name || "TechBuzz Partner"} · ${item.location || "India"} · ${item.job_type || "full-time"}</div>
+      <div class="job-meta" style="margin-top:8px">${item.experience_min || 0}-${item.experience_max || 0} yrs · ${(item.skills || "").split(",").slice(0,4).join(", ") || "Skill details available on job page"}</div>
+      <div class="row" style="margin-top:12px">
+        <a class="gbtn" href="/jobs?job=${item.id}">Open Role</a>
+      </div>
+    </div>
+  `).join("") : `<div class="empty">No open jobs found right now.</div>`;
+}
+
+function renderCompanies(){
+  const items = state?.companies || [];
+  $("companies").innerHTML = items.length ? items.map(item => `
+    <div class="company-card">
+      <strong>${item.name || "Hiring Company"}</strong>
+      <div class="company-meta">${item.city || "India"} · ${(item.plan || "starter").toUpperCase()}</div>
+      <div class="company-meta" style="margin-top:8px">${item.tagline || "Using TechBuzz to manage hiring and candidate movement."}</div>
+      <div class="row" style="margin-top:12px">
+        <a class="gbtn" href="/jobs">See Jobs</a>
+      </div>
+    </div>
+  `).join("") : `<div class="empty">Company activity will appear here as employers start posting jobs.</div>`;
+}
+
+function renderFeed(){
+  const items = state?.posts || [];
+  $("feed").innerHTML = items.length ? items.map(item => `
+    <div class="post-card">
+      <div class="post-top" style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div>
+          <strong>${me?.user?.name || "Network Member"}</strong>
+          <span>${new Date(item.created_at || "").toLocaleString("en-IN")} · ${item.kind || "post"}</span>
+        </div>
+        ${me?.authenticated ? `<button class="gbtn" style="padding:6px 10px" onclick="likePost('${item.id}', this)">Like ${item.likes || 0}</button>` : ""}
+      </div>
+      <div style="margin-top:12px;white-space:pre-wrap;line-height:1.7">${item.content || ""}</div>
+      ${item.enhanced ? `<div class="post-enhanced">${item.enhanced}</div>` : ""}
+    </div>
+  `).join("") : `<div class="empty">${me?.authenticated ? "Your private feed is empty. Post an update or mention that you are open to job change." : "Sign in to post updates and keep your career feed locally."}</div>`;
+}
+
+function renderNextMove(){
+  $("nextMove").textContent = state?.next_move || "The network will suggest the next move after your profile or job journey is stored.";
+}
+
+async function publishPost(){
+  if(!me?.authenticated){
+    window.location.href = "/login?next=/network";
+    return;
+  }
+  const content = $("postContent").value.trim();
+  if(!content){ toast("Write something first."); return; }
+  const btn = $("postBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Posting';
+  try{
+    const post = await api("/api/member-network/post", "POST", {content, kind: "career_update"});
+    const shouldForward = $("openToChange").checked || /job change|looking for|available|notice period|offer|interview/i.test(content);
+    if(shouldForward){
+      await api("/api/member-network/candidate-intent", "POST", {
+        content,
+        post_id: post.id,
+        source_kind: "member_network_post",
+        auto_forward_to_ats: true
+      });
+      toast("Posted and ATS intent updated.");
+    }else{
+      toast("Posted to your network.");
+    }
+    $("postContent").value = "";
+    $("openToChange").checked = false;
+    await load();
+  }catch(error){
+    toast(error.message);
+  }
+  btn.disabled = false;
+  btn.textContent = "Post Update";
+}
+
+async function addConn(){
+  if(!me?.authenticated){
+    window.location.href = "/login?next=/network";
+    return;
+  }
+  const name = $("cName").value.trim();
+  if(!name){ toast("Enter a connection name."); return; }
+  const titleLine = $("cTitle").value.trim();
+  const parts = titleLine.split("·");
+  await api("/api/member-network/connect", "POST", {
+    name,
+    title: (parts[0] || "").trim(),
+    company: (parts[1] || "").trim(),
+    linkedin: $("cLinkedin").value.trim()
+  });
+  $("cName").value = "";
+  $("cTitle").value = "";
+  $("cLinkedin").value = "";
+  toast("Connection saved.");
+  await load();
+}
+
+async function deleteConn(connectionId){
+  await api(`/api/member-network/connections/${connectionId}`, "DELETE");
+  toast("Connection removed.");
+  await load();
+}
+
+async function likePost(postId, btn){
+  await api(`/api/member-network/posts/${postId}/like`, "POST", {});
+  const next = Number((btn.textContent.match(/\\d+/) || ["0"])[0]) + 1;
+  btn.textContent = `Like ${next}`;
+}
+
+async function load(){
+  const meResp = await fetch("/api/auth/me", {credentials:"include"}).catch(() => null);
+  me = meResp && meResp.ok ? await meResp.json().catch(() => ({authenticated:false})) : {authenticated:false};
+  state = me?.authenticated ? await api("/api/member-network/state") : await api("/api/member-network/public-state", "GET", null, true);
+  renderNav();
+  renderDesk();
+  renderStats();
+  renderConnections();
+  renderJourneys();
+  renderOpenings();
+  renderCompanies();
+  renderFeed();
+  renderNextMove();
+  $("brainMsg").textContent = me?.authenticated
+    ? `Private candidate memory is active. ${state.stats?.applications || 0} applications, ${state.stats?.interviews || 0} interviews, ${state.stats?.offers || 0} offers tracked.`
+    : "Guest view is active. Sign in to store connections, posts, and job movement locally.";
+  $("modeBadge").textContent = me?.authenticated ? "Career network · ATS-linked local memory" : "Career network · guest read-only view";
+}
+
+load().catch(() => {
+  toast("Network load failed. Refresh once.");
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leazy Jinn | Ishani Core</title>
+<meta name="theme-color" content="#120f25">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/frontend-assets/leazy.css">
+</head>
+<body>
+<div class="sky">
+  <video id="skyVideo" autoplay muted loop playsinline></video>
+</div>
+
+<button class="install-btn" onclick="installPWA()">Install Leazy Jinn</button>
+<button class="settings-fab" onclick="showPanel('settings')">Settings</button>
+
+<div class="page-shell">
+  <header class="masthead">
+    <div class="brand-block">
+      <div class="eyebrow">Ishani Core • Living Empire • TechBuzz Systems</div>
+      <h1>Leazy Jinn, rebuilt as a mature cinematic operating brain.</h1>
+      <p>The live cockpit now runs on original sigils, nebula sky video, brain-pulse intelligence, Praapti recruitment, Nirmaan evolution, Akshaya preservation, voice wake flow, and Dashavatara guidance. The reference images stay untouched; this interface uses fresh in-app visuals instead.</p>
+    </div>
+    <div class="action-row">
+      <button class="action-btn" onclick="window.open('/company/portal','_blank')">TechBuzz HQ</button>
+      <button class="ghost-btn" onclick="window.open('/agent/console','_blank')">Agent</button>
+      <button class="ghost-btn" onclick="window.open('/navigator','_blank')">Navigator</button>
+      <button class="ghost-btn" onclick="window.open('/network/intel','_blank')">Network Intel</button>
+      <button class="ghost-btn" onclick="window.open('/ats','_blank')">ATS</button>
+      <button class="ghost-btn" onclick="window.open('/media','_blank')">Media</button>
+      <button class="ghost-btn" onclick="window.open('/login','_blank')">Access</button>
+    </div>
+  </header>
+
+  <section class="hero-grid">
+    <article class="glass hero-card">
+      <div class="status-strip">
+        <span class="status-pill" id="identityChip">Ishani Core</span>
+        <span class="status-pill" id="creatorChip">Creator Priority Mode</span>
+        <span class="status-pill" id="heartbeatChip">Heartbeat stable</span>
+      </div>
+      <h2 id="brainMode">Strategic Preservation Mode</h2>
+      <p id="brainMessage">The empire brain reads the live system, balances expansion with safety, and keeps memory, growth, development, and protection moving together.</p>
+      <div class="control-grid">
+        <select id="brainFocus">
+          <option value="all">All Pillars</option>
+          <option value="expand">Expand</option>
+          <option value="grow">Grow</option>
+          <option value="develop">Develop</option>
+          <option value="protect">Protect</option>
+        </select>
+        <input id="brainGoal" value="advance the empire with clarity and resilience" placeholder="Define the next objective">
+      </div>
+      <div class="button-row">
+        <button class="action-btn" onclick="runBrainPulse()">Run Brain Pulse</button>
+        <button class="ghost-btn" onclick="triggerSwarmMission()">Launch Swarm Mission</button>
+        <button class="ghost-btn" onclick="channelAvatar('Matsya + Kurma')">Raise Protection</button>
+      </div>
+      <div class="section-head section-tight" style="margin-top:18px">
+        <h3>Evolution Cycle</h3>
+        <span class="status-pill" id="brainProviderChip">Provider loading</span>
+      </div>
+      <div class="cycle-grid" id="brainCycle"></div>
+      <div class="report-box" id="brainPulseReport">The brain pulse report will appear here with focused Expand, Grow, Develop, and Protect guidance.</div>
+    </article>
+
+    <article class="glass core-card">
+      <div class="sigil-stage">
+        <div class="sigil-halo"></div>
+        <img class="core-sigil" src="/frontend-assets/art/core-sigil.svg" alt="Leazy Jinn core sigil">
+        <div class="core-legend">
+          <strong id="coreLegendTitle">Akshaya Quantum Core</strong>
+          <span id="coreLegendCopy">Eternal memory, responsive strategy, and graceful execution.</span>
+        </div>
+      </div>
+      <div class="pillars-grid" id="brainPillars"></div>
+    </article>
+
+    <aside class="glass side-card">
+      <div>
+        <div class="section-head">
+          <h3>Guidance Queue</h3>
+          <button class="mini-btn" onclick="loadBrainStatus()">Refresh</button>
+        </div>
+        <div class="recommendation-list" id="brainRecommendations"></div>
+      </div>
+      <div>
+        <div class="section-head">
+          <h3>Sky Themes</h3>
+          <button class="mini-btn" onclick="cycleScene()">Cycle</button>
+        </div>
+        <div class="scene-grid" id="sceneButtons"></div>
+      </div>
+      <div class="compact-card">
+        <strong>Visual Direction</strong>
+        <p>The new interface uses original SVG sigils and your nebula videos as ambient sky layers, keeping the experience clean, cinematic, and watermark-free.</p>
+      </div>
+    </aside>
+  </section>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <section class="tab-panel active" id="panel-bridge">
+    <div class="bridge-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Empire Metrics</h3>
+          <button class="mini-btn" onclick="loadEmpireDashboard()">Refresh</button>
+        </div>
+        <div class="metric-grid" id="empireMetrics"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Active Avatars</h3>
+          <button class="mini-btn" onclick="showPanel('avatars')">Open Wheel</button>
+        </div>
+        <div id="activeAvatarEmpire" class="muted">The active avatar protocol appears here.</div>
+        <div class="badge-row" id="activeAvatarBadges" style="margin-top:14px"></div>
+        <div class="meter"><span id="protectionMeterFill" style="width:0%"></span></div>
+        <div id="protectionLabel" class="muted">Protection meter initializing.</div>
+        <div class="mantra" id="activeAvatarMantra" style="margin-top:12px"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Memory Guardian</h3>
+          <button class="mini-btn" onclick="loadVault()">Inspect Vault</button>
+        </div>
+        <p id="guardianInfo" class="muted">Akshaya preservation is stabilizing the long memory of the empire.</p>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Live Controls</h3>
+          <button class="mini-btn" onclick="showPanel('settings')">Open Settings</button>
+        </div>
+        <div class="compact-card">
+          <strong id="settingsSummaryTitle">Settings are loading</strong>
+          <p id="settingsSummaryText">Privacy controls, provider routing, screen vision, and bounded packages appear here once the control layer is ready.</p>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Prime Minister Cabinet</h3>
+          <button class="mini-btn" onclick="showPanel('cabinet')">Open Cabinet</button>
+        </div>
+        <div class="compact-card">
+          <strong id="primeMinisterStatus">Prime Minister initializing</strong>
+          <p id="primeMinisterFocus">The cabinet mandate and governance state will appear here.</p>
+        </div>
+        <div class="compact-card" style="margin-top:12px">
+          <strong id="primeMinisterStats">Secretary swarm loading</strong>
+          <p id="primeMinisterLoop">Loop status and revenue direction will appear here.</p>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Mother Monitor</h3>
+          <button class="mini-btn" onclick="showPanel('prana')">Open Pulse</button>
+        </div>
+        <div class="compact-card">
+          <strong id="monitorStatus">Mother monitor loading</strong>
+          <p id="monitorSummary">The live watchtower and nervous-system heartbeat will appear here.</p>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Domain Lattice</h3>
+          <button class="mini-btn" onclick="showPanel('systems')">Open Systems</button>
+        </div>
+        <div class="compact-card">
+          <strong id="systemsStatus">Operational domains loading</strong>
+          <p id="systemsSummary">Management, recovery, lab, supply, transmission, and defense lanes will appear here.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Swarm Network</h3>
+          <button class="mini-btn" onclick="triggerSwarmMission()">Run Mission</button>
+        </div>
+        <div class="swarm-grid" id="swarmAgents"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Mission Echo</h3>
+          <button class="mini-btn" onclick="loadVishnuStatus()">Refresh</button>
+        </div>
+        <div class="report-box" id="latestSwarm" style="min-height:170px">No swarm mission has been run yet.</div>
+        <div class="section-head" style="margin-top:16px">
+          <h3>Avatar History</h3>
+        </div>
+        <div class="history-list" id="avatarHistory"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-cabinet">
+    <div class="cabinet-grid">
+      <article class="glass panel-card cabinet-mandate">
+        <div class="section-head">
+          <h2>Prime Minister Cabinet</h2>
+          <div class="button-row">
+            <button class="action-btn" onclick="runPrimeMinisterCycle()">Run Cycle</button>
+            <button class="ghost-btn" id="pmToggleBtn" onclick="togglePrimeMinisterLoop()">Pause Loop</button>
+          </div>
+        </div>
+        <p class="muted">The Prime Minister governs the core and directs an elastic secretary swarm. The mandate stays focused on revenue growth for TechBuzz Systems Pvt Ltd while protecting the operating core.</p>
+        <input id="pmObjective" placeholder="Set the Prime Minister mandate, for example: generate revenue through ATS, outbound hiring, and delivery lanes">
+        <div class="report-box" id="pmReport">The Prime Minister report will appear here once the first cabinet cycle is running.</div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Quantum Storage Manager</h3>
+          <button class="mini-btn" onclick="loadCabinetStatus()">Refresh</button>
+        </div>
+        <div class="compact-card">
+          <strong id="pmStorageTitle">Quantum storage loading</strong>
+          <p id="pmStorageSummary">Akshaya storage management details will appear here.</p>
+        </div>
+        <div class="compact-card" style="margin-top:12px">
+          <strong id="pmRevenueTitle">Revenue board loading</strong>
+          <p id="pmRevenueSummary">The revenue board and secretary direction will appear here.</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Secretary Swarm</h3>
+          <span class="status-pill" id="pmSecretaryCount">0 active</span>
+        </div>
+        <div class="secretary-grid" id="pmSecretaryGrid"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Cabinet Mission Log</h3>
+        </div>
+        <div class="proposal-list" id="pmMissionLog"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-monitor">
+    <div class="monitor-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Mother Monitor</h2>
+          <button class="mini-btn" onclick="loadMotherMonitor()">Refresh</button>
+        </div>
+        <div class="metric-grid" id="monitorStrip"></div>
+        <div class="report-box" id="monitorSummaryBox">The mother monitor is preparing the live system brief.</div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Memory Audit</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="mini-btn" onclick="loadMotherMonitor()">Audit Again</button>
+            <button class="mini-btn" onclick="runSafeRepair()">Run Safe Repair</button>
+          </div>
+        </div>
+        <div class="report-box" id="memoryAuditBox">Quantum memory audit is loading.</div>
+      </article>
+    </div>
+
+    <article class="glass panel-card">
+      <div class="section-head">
+        <h3>Auto Repair Engine</h3>
+        <button class="mini-btn" onclick="runSafeRepair()">Run Self-Check</button>
+      </div>
+      <div class="report-box" id="monitorRepairBox">Safe self-check layer is preparing the repair brief.</div>
+    </article>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Alerts</h3>
+        </div>
+        <div class="proposal-list" id="monitorAlerts"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Engine Reports</h3>
+        </div>
+        <div class="proposal-list" id="monitorReports"></div>
+      </article>
+    </div>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Nervous System Nodes</h3>
+        </div>
+        <div class="proposal-list" id="nervousNodes"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Flow Chain</h3>
+        </div>
+        <div class="proposal-list" id="nervousFlow"></div>
+      </article>
+    </div>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Brain Hierarchy</h3>
+        </div>
+        <div class="proposal-list" id="brainHierarchyList"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Permission Relay</h3>
+        </div>
+        <div class="proposal-list" id="permissionRelayList"></div>
+      </article>
+    </div>
+
+    <article class="glass panel-card">
+      <div class="section-head">
+        <h3>Motivation Streams</h3>
+      </div>
+      <div class="systems-grid" id="brainMotivationGrid"></div>
+    </article>
+
+    <div class="split-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Organ Systems</h3>
+        </div>
+        <div class="proposal-list" id="organSystems"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Cell Clusters</h3>
+        </div>
+        <div class="proposal-list" id="cellClusters"></div>
+      </article>
+    </div>
+
+    <article class="glass panel-card">
+      <div class="section-head">
+        <h3>Reflex Arcs</h3>
+      </div>
+      <div class="systems-grid" id="reflexArcs"></div>
+    </article>
+  </section>
+
+  <section class="tab-panel" id="panel-prana">
+    <div class="monitor-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Prana-Nadi Nervous System</h2>
+          <button class="mini-btn" onclick="loadPranaNadi()">Refresh Pulse</button>
+        </div>
+        <p class="muted">Sushumna, Ida, Pingala, and Prana-Vahini now pulse as the visible living relay of Ishani Core.</p>
+        <div class="prana-canvas-shell">
+          <canvas id="nadiCanvas" width="920" height="420"></canvas>
+        </div>
+        <div class="metric-grid" id="pranaMetrics"></div>
+        <div class="report-box" id="pranaMessage">Prana-Nadi pulse is warming up.</div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Sovereign Sync Core</h3>
+        </div>
+        <div class="compact-card">
+          <strong id="hridayaStatus">Sync field loading</strong>
+          <p id="hridayaCopy">Where command becomes system-wide motion.</p>
+        </div>
+        <div class="proposal-list" id="pranaChannels"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-systems">
+    <article class="glass panel-card">
+      <div class="section-head">
+        <h2>Operational Domain Lattice</h2>
+        <button class="mini-btn" onclick="loadMotherMonitor()">Refresh</button>
+      </div>
+      <p class="muted">Every in-built domain has its own identity, lead agent, status, and reporting lane back to the mother brain.</p>
+      <div class="systems-grid" id="systemsGrid"></div>
+    </article>
+  </section>
+
+  <section class="tab-panel" id="panel-avatars">
+    <div class="vishnu-layout">
+      <article class="glass wheel-card">
+        <div class="section-head">
+          <h2>Dashavatara Wheel</h2>
+          <button class="mini-btn" onclick="channelAvatar('Krishna + Kalki')">Strategic Renewal</button>
+        </div>
+        <div class="wheel-stage">
+          <div class="wheel-shell" id="avatarWheel">
+            <div class="wheel-core">
+              <div>
+                <img src="/frontend-assets/art/core-sigil.svg" alt="Core wheel">
+                <span>Channel a mode directly or let the brain auto-select one.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="avatar-side">
+        <article class="glass panel-card active-avatar">
+          <div class="section-head">
+            <h3>Active Avatar Status</h3>
+            <button class="mini-btn" onclick="loadVishnuStatus()">Refresh</button>
+          </div>
+          <div class="active-avatar-title" id="avatarStatusTitle">Rama Mode Active</div>
+          <p id="avatarStatusDesc">The active avatar powers, personality, and protection state will appear here.</p>
+          <div class="mantra" id="avatarStatusMantra"></div>
+          <div class="button-row" style="margin-top:14px">
+            <button class="ghost-btn" onclick="channelAvatar('Matsya + Kurma')">Preserve</button>
+            <button class="ghost-btn" onclick="channelAvatar('Narasimha')">Defend</button>
+            <button class="ghost-btn" onclick="channelAvatar('Krishna')">Strategize</button>
+          </div>
+        </article>
+
+        <article class="glass panel-card">
+          <div class="section-head">
+            <h3>Creator Alignment</h3>
+          </div>
+          <p id="creatorModeText" class="muted">Creator Priority Mode is active. Commands are answered quickly while preserving safety, legality, and runtime stability.</p>
+        </article>
+
+        <article class="glass panel-card">
+          <div class="section-head">
+            <h3>Avatar Guidance</h3>
+          </div>
+          <div class="avatar-guide-grid" id="avatarGuideGrid"></div>
+        </article>
+      </aside>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-praapti">
+    <div class="praapti-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Praapti Recruitment Hunt</h2>
+          <button class="mini-btn" onclick="startPraaptiHunt()">Run Hunt</button>
+        </div>
+        <textarea id="jdInput" placeholder="Paste the full job description here. Praapti will infer culture, ideal profile, and candidate fit."></textarea>
+        <div class="button-row">
+          <button class="action-btn" onclick="startPraaptiHunt()">Start The Hunt</button>
+          <button class="ghost-btn" onclick="showPanel('bridge')">Back To Bridge</button>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Praapti Reading</h3>
+        </div>
+        <div class="report-box" id="praaptiNarrative">Paste a role and start the hunt to generate culture insight, ideal profile, and candidate matches.</div>
+        <div class="candidate-list" id="praaptiResults"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-nirmaan">
+    <article class="glass panel-card">
+      <div class="section-head">
+        <h2>Nirmaan Chakra</h2>
+        <div class="button-row">
+          <button class="action-btn" onclick="triggerSelfDevelopment()">Generate Proposal</button>
+          <button class="mini-btn" onclick="loadNirmaanProposals()">Refresh</button>
+        </div>
+      </div>
+      <p class="muted">Nirmaan reads the current backend and frontend and proposes high-impact evolutions without duplicating the systems already in place.</p>
+      <div class="proposal-list" id="nirmaanList" style="margin-top:18px"></div>
+    </article>
+  </section>
+
+  <section class="tab-panel" id="panel-akshaya">
+    <div class="vault-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Akshaya Quantum Vault</h2>
+          <button class="mini-btn" onclick="loadVault()">Refresh</button>
+        </div>
+        <p id="vaultGuardian" class="muted">Memory Guardian is preserving the empire in lightweight long-term form.</p>
+      </article>
+      <article class="glass panel-card" style="grid-column:1 / -1">
+        <div class="vault-list" id="vaultList"></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-voice">
+    <div class="voice-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Voice Wake Layer</h2>
+          <button class="mini-btn" onclick="loadVoiceStatus()">Refresh</button>
+        </div>
+        <p class="muted">Use browser speech recognition for live mic mode, or switch to the local Whisper runtime below for uploaded audio clips. Wake phrases include "Hey Jinn" and "My King commands". You can also say "Channel Krishna" or combine avatars.</p>
+        <div class="button-row">
+          <button class="action-btn" id="voiceToggle" onclick="toggleListening()">Enable Listening</button>
+          <button class="ghost-btn" onclick="testWake()">Run Demo Wake</button>
+        </div>
+        <div class="control-grid" style="margin-top:16px">
+          <select id="voiceProfileSelect">
+            <option value="sovereign_female">Sovereign Female</option>
+            <option value="warm_guide">Warm Guide</option>
+            <option value="strategic_female">Strategic Female</option>
+            <option value="neutral">Neutral</option>
+          </select>
+          <select id="voiceLanguageSelect">
+            <option value="en-IN">English (India)</option>
+            <option value="hi-IN">Hindi (India)</option>
+            <option value="en-US">English (US)</option>
+          </select>
+        </div>
+        <div class="button-row">
+          <button class="mini-btn" onclick="saveVoicePreferences()">Apply Voice Persona</button>
+          <button class="mini-btn" onclick="refreshSpeechVoices()">Refresh Built-in Voices</button>
+        </div>
+        <div class="compact-card" style="margin-top:12px">
+          <strong id="voiceSelectedName">The browser will select the best built-in feminine voice available.</strong>
+          <p id="voiceEngineNote">Voice synthesis is local to your machine and does not depend on an external API.</p>
+        </div>
+        <div class="report-box" id="voiceStatus" style="min-height:140px">Voice system idle.</div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Manual Voice Command</h3>
+        </div>
+        <input id="voiceManual" placeholder="Type a wake command, for example: Hey Jinn, channel Krishna and report status">
+        <div class="button-row">
+          <button class="action-btn" onclick="sendVoiceCommand()">Send Voice Command</button>
+          <button class="ghost-btn" onclick="channelAvatar('Buddha')">Calm Mode</button>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h3>Local Voice Runtime</h3>
+        </div>
+        <div class="compact-card">
+          <strong id="voiceRuntimeHeadline">Loading Whisper / VAD / TTS stack...</strong>
+          <p id="voiceRuntimeNote">The local runtime can transcribe, reason, and synthesize without depending on a cloud API.</p>
+        </div>
+        <input id="voiceClipFile" type="file" accept="audio/*" style="margin-top:14px">
+        <div class="button-row">
+          <button class="action-btn" onclick="transcribeVoiceClip()">Transcribe Clip</button>
+          <button class="ghost-btn" onclick="runLocalVoiceLoop()">Run Local Voice Loop</button>
+        </div>
+        <div class="report-box" id="voiceRuntimeResult" style="min-height:140px">Upload a short voice clip to test Faster-Whisper, VAD, and the local response loop.</div>
+        <div class="compact-card">
+          <strong>Always Listening</strong>
+          <p id="listeningState">Disabled until you turn it on from this panel.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-settings">
+    <div class="settings-grid">
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>System Settings</h2>
+          <button class="mini-btn" onclick="loadSettingsStatus()">Refresh</button>
+        </div>
+        <div class="provider-grid" id="settingsProviders"></div>
+        <div class="provider-config-card">
+          <div class="section-head">
+            <h3>Provider Control</h3>
+            <button class="mini-btn" onclick="applySelectedProvider()">Use Selected</button>
+          </div>
+          <div class="control-grid">
+            <select id="providerSelect" onchange="onProviderChanged()"></select>
+            <select id="providerModelSelect" onchange="onProviderModelChanged()"></select>
+          </div>
+          <input id="providerKeyInput" type="password" placeholder="Paste API key here to save locally for the selected provider">
+          <div class="button-row">
+            <button class="mini-btn" onclick="fetchProviderModels()">Fetch Models</button>
+            <button class="action-btn" onclick="saveProviderConfig()">Save Provider Config</button>
+            <button class="ghost-btn" onclick="clearProviderKeyInput()">Clear Key Field</button>
+            <button class="ghost-btn" onclick="removeSavedProviderKey()">Remove Saved Key</button>
+          </div>
+          <div class="compact-card" style="margin-top:12px">
+            <strong id="providerCatalogTitle">Model Catalog</strong>
+            <p id="providerCatalogNote">Paste a key and fetch the live model list for the selected provider.</p>
+          </div>
+          <div class="compact-card" style="margin-top:12px">
+            <strong id="providerIssueTitle">Provider Health</strong>
+            <p id="providerIssueText">Provider health information will appear here.</p>
+          </div>
+          <div class="compact-card" style="margin-top:12px">
+            <strong id="interpreterBridgeTitle">Interpreter Bridge</strong>
+            <p id="interpreterBridgeNote">Offline interpreter status will appear here.</p>
+            <p id="interpreterBridgeModels" class="muted" style="margin-top:8px">Brain-to-user and user-to-brain translation lanes are loading.</p>
+          </div>
+        </div>
+        <div class="toggle-list" id="settingsToggles"></div>
+        <div class="compact-card" style="margin-top:16px">
+          <strong>Security Note</strong>
+          <p id="settingsKeyNote">Provider keys are detected from environment variables only and are never shown in the UI.</p>
+        </div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Screen Vision</h2>
+          <button class="mini-btn" onclick="loadSettingsStatus()">Sync</button>
+        </div>
+        <p class="muted">Screen vision is consent-based. Nothing starts automatically: you choose the screen, start the recording, and stop it locally in the browser.</p>
+        <div class="button-row">
+          <button class="action-btn" onclick="startScreenVision()">Start Screen Vision</button>
+          <button class="ghost-btn" onclick="stopScreenVision()">Stop Screen Vision</button>
+        </div>
+        <div class="report-box" id="screenVisionStatus" style="min-height:140px">Screen vision is idle.</div>
+        <div class="proposal-list" id="screenRecordings"></div>
+      </article>
+
+      <article class="glass panel-card">
+        <div class="section-head">
+          <h2>Bounded Packages</h2>
+          <button class="mini-btn" onclick="loadPackageTemplates()">Refresh</button>
+        </div>
+        <input id="packageObjective" placeholder="Optional objective, for example: build a revenue pipeline for TechBuzz systems in fintech">
+        <div class="proposal-list" id="packageTemplates" style="margin-top:16px"></div>
+        <div class="report-box" id="packageLaunchLog" style="min-height:160px">Launch a bounded package to create a safe mission plan for growth, research, or protection.</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="panel-portals">
+    <div class="portals-grid">
+      <a class="portal-link" href="/company/portal" target="_blank">
+        <strong>TechBuzz HQ</strong>
+        <span>Leazy-operated company control room with activity, reports, revenue, and portal actions.</span>
+      </a>
+      <a class="portal-link" href="/agent/console" target="_blank">
+        <strong>Agent Console</strong>
+        <span>Recruitment and strategist workspace tied to the same live empire backend.</span>
+      </a>
+      <a class="portal-link" href="/navigator" target="_blank">
+        <strong>Navigator</strong>
+        <span>Approved sourcing workspace for browser-led research, learning capture, and launcher handoff.</span>
+      </a>
+      <a class="portal-link" href="/network/intel" target="_blank">
+        <strong>Network Intel</strong>
+        <span>Live ecosystem map for hunts, signals, relationships, and missions.</span>
+      </a>
+      <a class="portal-link" href="/ats" target="_blank">
+        <strong>ATS</strong>
+        <span>Hiring dashboard for candidates, jobs, resume intake, and reports.</span>
+      </a>
+      <a class="portal-link" href="/media" target="_blank">
+        <strong>Media Center</strong>
+        <span>Audio, streaming, local media, and learning surfaces connected to the same TechBuzz brain.</span>
+      </a>
+    </div>
+  </section>
+</div>
+
+<div class="orb-dock" id="orbDock">
+  <div class="glass orb-drawer" id="orbDrawer">
+    <div class="section-head">
+      <h3>Companion Orb</h3>
+      <button class="mini-btn" onclick="hideOrbDock()">Hide</button>
+    </div>
+    <div class="chat-log" id="orbLog"></div>
+    <div class="chat-row">
+      <input id="orbInput" placeholder="Ask Leazy Jinn anything..." onkeydown="if(event.key==='Enter'){sendOrbMessage()}">
+      <button class="action-btn" onclick="sendOrbMessage()">Send</button>
+    </div>
+  </div>
+  <div class="orb" id="orb" onclick="toggleCompanion()"><span id="orbEmoji">R</span></div>
+  <div class="orb-sub" id="orbSub">Rama Protocol</div>
+</div>
+<button class="orb-restore" id="orbRestore" onclick="showOrbDock()">Open Companion</button>
+
+<div class="toast" id="toast"></div>
+
+<script src="/frontend-assets/leazy.js"></script>
+</body>
+</html>

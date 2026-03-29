@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechBuzz HQ — Owner Command Portal</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+.hq-shell{position:relative;z-index:1;max-width:1560px;margin:0 auto;padding:0 16px 80px;display:grid;grid-template-columns:280px 1fr;gap:16px}
+.hq-rail{padding-top:18px;display:flex;flex-direction:column;gap:12px;height:max-content;position:sticky;top:72px}
+.hq-main{padding-top:18px;display:flex;flex-direction:column;gap:16px}
+.rc{border-radius:22px;padding:16px}
+.rh{font-size:.68rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.rail-nav{display:flex;flex-direction:column;gap:6px}
+.rnb{padding:10px 13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);text-align:left;cursor:pointer;font-weight:700;font-size:.86rem;transition:all .15s}
+.rnb:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.rnb.on{background:linear-gradient(135deg,rgba(241,202,107,.12),rgba(193,161,255,.06));border-color:rgba(241,202,107,.28);color:var(--gold)}
+.rail-kpi{display:flex;flex-direction:column;gap:5px}
+.rk{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.rk:last-child{border:none}
+.rk span{color:var(--muted);font-size:.8rem}
+.rk strong{font-family:var(--heading);color:var(--gold);font-size:.95rem}
+/* Panels */
+.panel{display:none}.panel.on{display:flex;flex-direction:column;gap:16px}
+/* AI insight bar */
+.insight-bar{border-radius:18px;padding:14px;display:flex;gap:10px;align-items:flex-start}
+.ib-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.ib-text{font-size:.88rem;line-height:1.7;color:var(--text)}
+/* Metrics grid */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.metric-card{padding:16px;border-radius:20px;border:1px solid var(--line);background:rgba(255,255,255,.04);text-align:center}
+.metric-val{font-family:var(--heading);font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:4px}
+.metric-lbl{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+/* Client Kanban */
+.ck-board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;overflow-x:auto}
+.ck-col{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:12px}
+.ck-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ck-title{font-size:.7rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.ck-n{font-size:.7rem;padding:1px 7px;border-radius:999px;background:rgba(255,255,255,.08);font-weight:800}
+.ck-cards{display:flex;flex-direction:column;gap:7px;min-height:60px}
+.ccard{background:rgba(255,255,255,.055);border:1px solid var(--line);border-left:3px solid;border-radius:13px;padding:11px;cursor:pointer;transition:all .15s}
+.ccard:hover{background:rgba(255,255,255,.09)}
+.ccard-name{font-weight:800;font-size:.88rem;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ccard-ind{font-size:.72rem;color:var(--muted)}
+.ccard-val{font-size:.8rem;color:var(--gold);font-family:var(--heading);margin-top:5px}
+.ccard-btns{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}
+.cmb{font-size:.62rem;padding:2px 7px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;transition:all .12s}
+.cmb:hover{border-color:rgba(241,202,107,.4);color:var(--gold)}
+.cdel{font-size:.62rem;padding:2px 7px;border-radius:7px;border:1px solid rgba(255,132,125,.2);background:rgba(255,132,125,.06);color:var(--danger);cursor:pointer}
+/* Revenue list */
+.rev-list{display:flex;flex-direction:column;gap:7px}
+.rev-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:15px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.rev-type{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rev-src{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem}
+.rev-date{font-size:.72rem;color:var(--muted)}
+.rev-amt{font-weight:800;font-family:var(--heading);font-size:1rem;flex-shrink:0}
+/* Team */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.team-card{border-radius:18px;padding:14px;display:flex;align-items:center;gap:11px}
+.team-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(241,202,107,.18),rgba(193,161,255,.14));display:flex;align-items:center;justify-content:center;font-weight:900;font-family:var(--heading);font-size:1.2rem;flex-shrink:0}
+.team-del{margin-left:auto;background:none;border:none;color:var(--danger);cursor:pointer;opacity:.35;transition:opacity .15s}
+.team-del:hover{opacity:1}
+/* Strategy */
+.strat-result{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:18px;padding:16px;white-space:pre-wrap;line-height:1.75;font-size:.88rem;min-height:200px;display:none}
+.mode-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.mbtn{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-size:.8rem;font-weight:700;transition:all .15s}
+.mbtn.on{background:rgba(241,202,107,.1);border-color:rgba(241,202,107,.3);color:var(--gold)}
+/* Forms */
+.qadd{background:rgba(255,255,255,.03);border:1px dashed var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.qadd h4{font-size:.72rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px}
+.fi{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit;outline:none;transition:border-color .15s}
+.fi:focus{border-color:rgba(241,202,107,.4)}
+.fg{margin-bottom:8px}
+.fl{display:block;font-size:.67rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.abtn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:999px;background:linear-gradient(135deg,var(--gold),#ff9c63);color:#0b0f17;border:none;font-weight:900;cursor:pointer;font-size:.83rem;white-space:nowrap;transition:all .15s}
+.abtn:hover{filter:brightness(1.1)}.abtn:disabled{opacity:.4;cursor:not-allowed}
+.gbtn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);font-weight:700;cursor:pointer;font-size:.82rem;transition:all .15s;white-space:nowrap}
+.gbtn:hover{border-color:rgba(241,202,107,.35);color:var(--gold)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.section-head h3{font-family:var(--heading);font-size:1.4rem;margin:0}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:_sp .7s linear infinite}
+@keyframes _sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:20px;color:var(--muted);border:1px dashed var(--line);border-radius:16px;font-size:.85rem}
+.brain-bar{display:flex;align-items:center;gap:8px;padding:7px 14px;background:rgba(144,242,210,.04);border:1px solid rgba(144,242,210,.1);border-radius:12px;font-size:.8rem;color:var(--muted)}
+.bdot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 6px var(--teal);flex-shrink:0;animation:bdp 2s ease-in-out infinite}
+@keyframes bdp{0%,100%{opacity:.5}50%{opacity:1}}
+@media(max-width:1000px){.hq-shell{grid-template-columns:1fr}.hq-rail{position:relative;top:0}.ck-board{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.ck-board,.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="portal-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-crown.mp4"></video>
+</div>
+<header class="portal-topbar">
+  <div class="portal-brand">
+    <span class="portal-kicker" id="modeBadge">Diamond-Mind · Strategic command</span>
+    <strong>TechBuzz HQ</strong>
+  </div>
+  <nav class="portal-links">
+    <a href="/leazy">Leazy</a>
+    <a href="/hq" style="border-color:rgba(241,202,107,.35);color:var(--gold)">HQ</a>
+    <a href="/ats">ATS</a><a href="/network/intel">Network Intel</a><a href="/agent">Agent</a>
+    <a href="/neural">Neural</a>
+    <a href="#" onclick="logout()">Sign Out</a>
+  </nav>
+</header>
+
+<div class="hq-shell">
+  <aside class="hq-rail">
+    <div class="rc glass">
+      <div class="rh">Navigation</div>
+      <div class="rail-nav">
+        <button class="rnb on" id="rn-overview" onclick="showPanel('overview',this)">📊 Overview</button>
+        <button class="rnb" id="rn-clients" onclick="showPanel('clients',this)">🤝 Client Pipeline</button>
+        <button class="rnb" id="rn-revenue" onclick="showPanel('revenue',this)">💰 Revenue</button>
+        <button class="rnb" id="rn-team" onclick="showPanel('team',this)">👥 Team</button>
+        <button class="rnb" id="rn-strategy" onclick="showPanel('strategy',this)">🎯 Strategy</button>
+      </div>
+    </div>
+    <div class="rc glass">
+      <div class="rh">Live Numbers</div>
+      <div class="rail-kpi" id="railKpi"></div>
+    </div>
+    <div class="rc glass" style="background:rgba(144,242,210,.04);border-color:rgba(144,242,210,.12)">
+      <div class="rh">Mother Brain</div>
+      <div id="railBrain" style="font-size:.82rem;color:var(--muted);line-height:1.65"></div>
+    </div>
+  </aside>
+
+  <main class="hq-main">
+    <div class="brain-bar glass"><div class="bdot"></div><span id="brainMsg">Diamond-Mind active — strategic command synchronized</span></div>
+
+    <!-- OVERVIEW -->
+    <div class="panel on" id="panel-overview">
+      <div class="insight-bar glass">
+        <div class="ib-icon">🧠</div>
+        <div>
+          <div style="font-size:.68rem;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px">Mother Brain — Diamond-Mind Analysis</div>
+          <div class="ib-text" id="aiInsight">Loading strategic intelligence...</div>
+        </div>
+      </div>
+      <div class="metrics-grid" id="metricsGrid"></div>
+      <div class="g2">
+        <div class="glass" style="border-radius:22px;padding:18px">
+          <div class="section-head"><h3>Recent Clients</h3><a href="#" onclick="showPanel('clients',document.getElementById('rn-clients'))" style="font-size:.82rem;color:var(--gold)">View all →</a></div>
+          <div id="recentClients"></div>
+        </div>
+        <div class="glass" style="border-radius:22px;padding:18px">
+          <div class="section-head"><h3>Revenue Log</h3><a href="#" onclick="showPanel('revenue',document.getElementById('rn-revenue'))" style="font-size:.82rem;color:var(--gold)">View all →</a></div>
+          <div id="recentRevenue"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="panel" id="panel-clients">
+      <div class="section-head">
+        <h3 style="font-family:var(--heading);font-size:1.6rem;margin:0">Client Pipeline</h3>
+        <button class="abtn" onclick="toggleForm('clientForm')">+ Add Client</button>
+      </div>
+      <div class="qadd glass" id="clientForm" style="display:none">
+        <h4>New Client</h4>
+        <div class="g2">
+          <div class="fg"><label class="fl">Company Name</label><input class="fi" id="cl-name" placeholder="Infosys, Startup XYZ..."></div>
+          <div class="fg"><label class="fl">Industry</label><input class="fi" id="cl-ind" placeholder="Technology, Finance..."></div>
+        </div>
+        <div class="g3">
+          <div class="fg"><label class="fl">Deal Value (₹)</label><input class="fi" type="number" id="cl-val" placeholder="500000"></div>
+          <div class="fg"><label class="fl">Stage</label><select class="fi" id="cl-stage"><option value="prospect">Prospect</option><option value="active">Active</option><option value="closed_won">Won</option><option value="lost">Lost</option></select></div>
+          <div class="fg"><label class="fl">Contact Person</label><input class="fi" id="cl-contact" placeholder="HR Manager..."></div>
+        </div>
+        <button class="abtn" onclick="addClient()">Add Client</button>
+        <button class="gbtn" onclick="toggleForm('clientForm')" style="margin-left:8px">Cancel</button>
+      </div>
+      <div class="ck-board" id="clientBoard"></div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="panel" id="panel-revenue">
+      <div class="section-head">
+        <h3 style="font-family:var(--heading);font-size:1.6rem;margin:0">Revenue Tracker</h3>
+        <button class="abtn" onclick="toggleForm('revForm')">+ Add Entry</button>
+      </div>
+      <div class="metrics-grid" id="revMetrics"></div>
+      <div class="qadd glass" id="revForm" style="display:none">
+        <h4>New Revenue Entry</h4>
+        <div class="g3">
+          <div class="fg"><label class="fl">Type</label><select class="fi" id="rv-type"><option value="revenue">💰 Revenue</option><option value="expense">💸 Expense</option></select></div>
+          <div class="fg"><label class="fl">Amount (₹)</label><input class="fi" type="number" id="rv-amt" placeholder="150000"></div>
+          <div class="fg"><label class="fl">Source</label><input class="fi" id="rv-src" placeholder="Client name, category..." onkeydown="if(event.key==='Enter')addRevenue()"></div>
+        </div>
+        <button class="abtn" onclick="addRevenue()">Add Entry</button>
+        <button class="gbtn" onclick="toggleForm('revForm')" style="margin-left:8px">Cancel</button>
+      </div>
+      <div class="rev-list" id="revList"></div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="panel" id="panel-team">
+      <div class="section-head">
+        <h3 style="font-family:var(--heading);font-size:1.6rem;margin:0">Team</h3>
+        <button class="abtn" onclick="toggleForm('teamForm')">+ Add Member</button>
+      </div>
+      <div class="qadd glass" id="teamForm" style="display:none">
+        <h4>New Team Member</h4>
+        <div class="g2">
+          <div class="fg"><label class="fl">Name</label><input class="fi" id="tm-name" placeholder="Priya Sharma"></div>
+          <div class="fg"><label class="fl">Role</label><input class="fi" id="tm-role" placeholder="Senior Recruiter"></div>
+        </div>
+        <div class="g2">
+          <div class="fg"><label class="fl">Email</label><input class="fi" id="tm-email" type="email" placeholder="priya@techbuzz.in"></div>
+          <div class="fg"><label class="fl">Department</label><input class="fi" id="tm-dept" placeholder="Recruitment"></div>
+        </div>
+        <button class="abtn" onclick="addTeam()">Add Member</button>
+        <button class="gbtn" onclick="toggleForm('teamForm')" style="margin-left:8px">Cancel</button>
+      </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
+
+    <!-- STRATEGY -->
+    <div class="panel" id="panel-strategy">
+      <div class="section-head"><h3 style="font-family:var(--heading);font-size:1.6rem;margin:0">Strategic Intelligence</h3></div>
+      <div class="mode-btns" id="modeBtns">
+        <button class="mbtn on" onclick="setStratMode('diamond',this)">💎 Diamond-Mind</button>
+        <button class="mbtn" onclick="setStratMode('graphene',this)">🕸️ Graphene-Mind</button>
+        <button class="mbtn" onclick="setStratMode('nanotube',this)">⚡ Nanotube-Mind</button>
+      </div>
+      <div class="fg"><textarea class="fi" id="stratGoal" style="min-height:80px" placeholder="What strategic question or goal should the Mother Brain analyze?&#10;Examples: How do I grow from 5 to 20 clients this quarter? What's the highest-leverage action this week?"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="abtn" id="stratBtn" onclick="runStrategy()">Run Strategic Analysis</button>
+        <button class="gbtn" onclick="runSwarmMission()">🌐 Deploy Swarm Mission</button>
+        <button class="gbtn" onclick="runBrainPulse()">⚡ Brain Pulse</button>
+      </div>
+      <div class="strat-result" id="stratResult"></div>
+    </div>
+  </main>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+<script>
+const API='',_$=id=>document.getElementById(id);
+let _hq=null,_stratMode='diamond';
+
+function toast(m,t=2600){const el=_$('toast');el.textContent=m;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',t);}
+function logout(){fetch(API+'/api/auth/logout',{method:'POST',credentials:'include'});window.location.href='/login';}
+function toggleForm(id){const f=_$(id);f.style.display=f.style.display==='none'?'block':'none';}
+function setStratMode(m,btn){_stratMode=m;document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function showPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.rnb').forEach(b=>b.classList.remove('on'));
+  _$('panel-'+name).classList.add('on');btn.classList.add('on');
+  if(name==='overview')renderOverview();
+  if(name==='clients')renderClients();
+  if(name==='revenue')renderRevenue();
+  if(name==='team')renderTeam();
+}
+async function api(url,method='GET',body){
+  const r=await fetch(API+url,{method,credentials:'include',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  if(r.status===401||r.status===403){window.location.href='/login?next=/hq';throw new Error('Auth');}
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.detail||'Error');return d;
+}
+async function load(){
+  _hq=await api('/api/hq/state');
+  renderRailKpi();renderOverview();
+  _$('aiInsight').textContent=_hq.ai_insight||'Diamond-Mind is analyzing your empire...';
+  _$('railBrain').innerHTML=`Praapti hunts: <strong style="color:var(--gold)">${_hq.metrics?.praapti_hunts||0}</strong><br>Vault memories: <strong style="color:var(--gold)">${_hq.metrics?.vault_items||0}</strong><br>Carbon mode: <strong style="color:var(--teal)">${_hq.carbon_mode||'graphene'}</strong>`;
+}
+function renderRailKpi(){
+  const m=_hq.metrics||{};
+  const totalRev=(_hq.revenue||[]).filter(r=>r.type==='revenue').reduce((a,b)=>a+b.amount,0);
+  _$('railKpi').innerHTML=[
+    ['Clients',(_hq.clients||[]).length],['Active',m.active_clients||0],
+    ['Revenue','₹'+Math.round(totalRev/1000)+'K'],['Team',m.team_size||0],
+  ].map(([l,v])=>`<div class="rk"><span>${l}</span><strong>${v}</strong></div>`).join('');
+  _$('brainMsg').textContent=`Diamond-Mind · ${(_hq.clients||[]).length} clients · ₹${Math.round(totalRev/100000)/10}L revenue`;
+}
+function renderOverview(){
+  const m=_hq.metrics||{};const revenue=_hq.revenue||[];const clients=_hq.clients||[];
+  const totalRev=revenue.filter(r=>r.type==='revenue').reduce((a,b)=>a+b.amount,0);
+  const totalExp=revenue.filter(r=>r.type==='expense').reduce((a,b)=>a+b.amount,0);
+  _$('metricsGrid').innerHTML=[
+    ['₹'+totalRev.toLocaleString('en-IN'),'Total Revenue','var(--teal)'],
+    ['₹'+(totalRev-totalExp).toLocaleString('en-IN'),'Net Profit',totalRev>=totalExp?'var(--teal)':'var(--danger)'],
+    [m.active_clients||0,'Active Clients','var(--gold)'],
+    [m.prospects||0,'Prospects','var(--blue)'],
+    [m.won||0,'Won Deals','var(--violet)'],
+    [m.team_size||0,'Team Size','var(--rose)'],
+  ].map(([v,l,c])=>`<div class="metric-card glass"><div class="metric-val" style="color:${c}">${v}</div><div class="metric-lbl">${l}</div></div>`).join('');
+  _$('recentClients').innerHTML=clients.slice(-4).reverse().map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="flex:1;overflow:hidden"><div style="font-weight:700;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-size:.72rem;color:var(--muted)">${c.industry||''}</div></div>
+      <span style="font-size:.7rem;padding:2px 8px;border-radius:999px;background:${c.stage==='active'?'rgba(144,242,210,.1)':c.stage==='closed_won'?'rgba(193,161,255,.1)':'rgba(255,255,255,.06)'};color:${c.stage==='active'?'var(--teal)':c.stage==='closed_won'?'var(--violet)':'var(--muted)'};">${c.stage}</span>
+    </div>`).join('')||'<div class="empty">No clients yet.</div>';
+  _$('recentRevenue').innerHTML=revenue.slice(-5).reverse().map(r=>`
+    <div class="rev-row">
+      <div class="rev-type" style="background:${r.type==='revenue'?'var(--teal)':'var(--danger)'}"></div>
+      <div class="rev-src">${r.source||r.type}</div>
+      <div class="rev-amt" style="color:${r.type==='revenue'?'var(--teal)':'var(--danger)'}">₹${(r.amount||0).toLocaleString('en-IN')}</div>
+    </div>`).join('')||'<div class="empty">No revenue entries yet.</div>';
+}
+const CLIENT_STAGES=[{id:'prospect',label:'Prospect',color:'#87dfff'},{id:'active',label:'Active',color:'#90f2d2'},{id:'closed_won',label:'Won ✓',color:'#c1a1ff'},{id:'lost',label:'Lost',color:'#ff847d'}];
+function renderClients(){
+  const clients=_hq.clients||[];
+  _$('clientBoard').innerHTML=CLIENT_STAGES.map(s=>{
+    const cards=clients.filter(c=>c.stage===s.id);
+    return `<div class="ck-col"><div class="ck-head">
+      <span class="ck-title" style="color:${s.color}">${s.label}</span>
+      <span class="ck-n">${cards.length}</span></div>
+      <div class="ck-cards">${cards.map(c=>`<div class="ccard" style="border-left-color:${s.color}">
+        <div class="ccard-name" title="${c.name}">${c.name}</div>
+        <div class="ccard-ind">${c.industry||''}${c.contact?' · '+c.contact:''}</div>
+        ${c.value?`<div class="ccard-val">₹${c.value.toLocaleString('en-IN')}</div>`:''}
+        <div class="ccard-btns">
+          ${CLIENT_STAGES.filter(x=>x.id!==s.id).map(x=>`<button class="cmb" onclick="moveClient('${c.id}','${x.id}')">${x.label.replace(' ✓','')}</button>`).join('')}
+          <button class="cdel" onclick="delClient('${c.id}')">✕</button>
+        </div>
+      </div>`).join('')||'<div style="color:var(--muted);font-size:.72rem;text-align:center;padding:8px">Empty</div>'}
+      </div></div>`;
+  }).join('');
+}
+function renderRevenue(){
+  const revenue=_hq.revenue||[];
+  const totalRev=revenue.filter(r=>r.type==='revenue').reduce((a,b)=>a+b.amount,0);
+  const totalExp=revenue.filter(r=>r.type==='expense').reduce((a,b)=>a+b.amount,0);
+  _$('revMetrics').innerHTML=[
+    ['₹'+totalRev.toLocaleString('en-IN'),'Revenue','var(--teal)'],
+    ['₹'+totalExp.toLocaleString('en-IN'),'Expenses','var(--danger)'],
+    ['₹'+(totalRev-totalExp).toLocaleString('en-IN'),'Net',totalRev>=totalExp?'var(--teal)':'var(--danger)'],
+    [revenue.length,'Entries','var(--gold)'],
+  ].map(([v,l,c])=>`<div class="metric-card glass"><div class="metric-val" style="color:${c}">${v}</div><div class="metric-lbl">${l}</div></div>`).join('');
+  _$('revList').innerHTML=revenue.slice().reverse().slice(0,20).map(r=>`
+    <div class="rev-row glass">
+      <div class="rev-type" style="background:${r.type==='revenue'?'var(--teal)':'var(--danger)'}"></div>
+      <div class="rev-src">${r.source||r.category||r.type}</div>
+      <div class="rev-date">${new Date(r.created_at).toLocaleDateString('en-IN')}</div>
+      <div class="rev-amt" style="color:${r.type==='revenue'?'var(--teal)':'var(--danger)'}">₹${(r.amount||0).toLocaleString('en-IN')}</div>
+    </div>`).join('')||'<div class="empty">No revenue entries yet.</div>';
+}
+function renderTeam(){
+  const team=_hq.team||[];
+  _$('teamGrid').innerHTML=team.map(m=>`<div class="team-card glass">
+    <div class="team-av">${(m.name||'?')[0]}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:800;font-size:.9rem">${m.name}</div>
+      <div style="font-size:.75rem;color:var(--muted)">${m.role||''}</div>
+      ${m.department?`<div style="font-size:.7rem;color:var(--gold);margin-top:3px">${m.department}</div>`:''}
+    </div>
+    <button class="team-del" onclick="delTeam('${m.id}')">✕</button>
+  </div>`).join('')||'<div class="empty">No team members yet.</div>';
+}
+
+async function addClient(){
+  const name=_$('cl-name').value.trim();if(!name){toast('Enter company name');return;}
+  await api('/api/hq/clients','POST',{name,industry:_$('cl-ind').value,value:parseFloat(_$('cl-val').value)||0,stage:_$('cl-stage').value,contact:_$('cl-contact').value});
+  ['cl-name','cl-ind','cl-val','cl-contact'].forEach(id=>_$(id).value='');
+  toggleForm('clientForm');toast('Client added!');await load();renderClients();
+}
+async function moveClient(id,stage){await api(`/api/hq/clients/${id}/stage`,'PUT',{stage});await load();renderClients();}
+async function delClient(id){if(!confirm('Remove?'))return;await api(`/api/hq/clients/${id}`,'DELETE');await load();renderClients();toast('Removed');}
+async function addRevenue(){
+  const amt=parseFloat(_$('rv-amt').value);if(!amt){toast('Enter amount');return;}
+  await api('/api/hq/revenue','POST',{type:_$('rv-type').value,amount:amt,source:_$('rv-src').value});
+  _$('rv-amt').value='';_$('rv-src').value='';
+  toggleForm('revForm');toast('Revenue entry added!');await load();renderRevenue();
+}
+async function addTeam(){
+  const name=_$('tm-name').value.trim();if(!name){toast('Enter name');return;}
+  await api('/api/hq/team','POST',{name,role:_$('tm-role').value,email:_$('tm-email').value,department:_$('tm-dept').value});
+  ['tm-name','tm-role','tm-email','tm-dept'].forEach(id=>_$(id).value='');
+  toggleForm('teamForm');toast('Team member added!');await load();renderTeam();
+}
+async function delTeam(id){await api(`/api/hq/team/${id}`,'DELETE');await load();renderTeam();toast('Removed');}
+async function runStrategy(){
+  const goal=_$('stratGoal').value.trim()||'What is the highest-leverage action for TechBuzz Systems this week?';
+  const btn=_$('stratBtn');btn.disabled=true;btn.innerHTML=`<span class="spin"></span> ${_stratMode==='diamond'?'💎 Deep focus...':'Analyzing...'}`;
+  const res=_$('stratResult');res.style.display='block';res.textContent='Thinking...';
+  try{const d=await api('/api/hq/strategy','POST',{goal,mode:_stratMode});res.textContent=d.result;toast('Analysis complete!');}
+  catch(e){res.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Run Strategic Analysis';
+}
+async function runSwarmMission(){
+  const goal=_$('stratGoal').value.trim()||'Optimize TechBuzz revenue and client acquisition';
+  const res=_$('stratResult');res.style.display='block';res.textContent='Deploying swarm...';
+  try{const d=await api('/api/swarm/mission','POST',{mission:goal});res.textContent=d.report;toast('Swarm mission complete!');}
+  catch(e){res.textContent='Error: '+e.message;}
+}
+async function runBrainPulse(){
+  const res=_$('stratResult');res.style.display='block';res.textContent='Pulsing brain...';
+  try{const d=await api('/api/brain/pulse','POST',{focus:'all',goal:_$('stratGoal').value||'advance the empire'});res.textContent=d.report;toast('Brain pulse complete!');}
+  catch(e){res.textContent='Error: '+e.message;}
+}
+
+// Carbon stream
+const es=new EventSource(API+'/api/carbon/stream');
+es.onmessage=e=>{try{const d=JSON.parse(e.data);const mb=_$('modeBadge');if(mb)mb.textContent=`${d.carbon_mode}-Mind · ${d.identity} · ${(d.avatars||[]).join(' + ')}`;}catch{}};
+
+(async()=>{
+  try{
+    const r=await fetch(API+'/api/auth/me',{credentials:'include'});
+    if(!r.ok){window.location.href='/login?next=/hq';return;}
+    const me=await r.json();
+    if(!me.authenticated||me.user?.role!=='master'){window.location.href='/login?next=/hq';return;}
+    await load();
+  }catch{window.location.href='/login?next=/hq';}
+})();
+</script>
+</body>
+</html>

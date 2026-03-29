@@ -1,0 +1,11 @@
+TITLE: Carbon Molecule Relay Test
+CREATED_AT: 2026-03-26T20:16:09.486063+00:00
+APPROVED_AT: 2026-03-27T10:16:33.632193+00:00
+
+DESCRIPTION:
+Deduped proposal for smoke testing.
+
+CODE_SNIPPET:
+def carbon_molecule_relay():
+    return {"status": "ok"}
+
