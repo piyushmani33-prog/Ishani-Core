@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resume Builder — TechBuzz AI</title>
+<meta name="theme-color" content="#04060c">
+<style>
+:root{--bg:#04060c;--surface:#0b0f1e;--line:rgba(255,255,255,.08);--text:#edf2ff;--muted:#8899b8;--dim:#3a4a64;--gold:#f1ca6b;--teal:#90f2d2;--vio:#c1a1ff;--rose:#f39ddd;--blue:#87dfff;--amber:#ffb347;--danger:#ff847d}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Trebuchet MS",sans-serif;min-height:100vh}
+.top-nav{padding:14px 5%;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);background:rgba(4,6,18,.9);position:sticky;top:0;z-index:50;backdrop-filter:blur(16px)}
+.tn-brand{font-family:"Palatino Linotype",Georgia,serif;font-weight:900;font-size:1rem}
+.tn-links{display:flex;gap:16px;font-size:.83rem;margin-left:auto}
+.tn-links a{color:var(--muted);text-decoration:none;transition:color .15s}.tn-links a:hover{color:var(--text)}
+.shell{max-width:1100px;margin:0 auto;padding:32px 5% 80px}
+.hero{text-align:center;padding:48px 0 40px}
+.hero h1{font-family:"Palatino Linotype",Georgia,serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;line-height:1.2;margin-bottom:14px}
+.hero h1 span{background:linear-gradient(135deg,var(--teal),var(--vio));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:.95rem;max-width:520px;margin:0 auto;line-height:1.75}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.panel{border-radius:22px;padding:22px;border:1px solid var(--line);background:var(--surface)}
+.ph{font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+label{display:block;font-size:.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;margin-top:12px}
+label:first-of-type{margin-top:0}
+.fi{width:100%;padding:10px 13px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit;font-size:.88rem;outline:none;transition:border-color .15s}
+.fi:focus{border-color:rgba(144,242,210,.35)}
+textarea.fi{min-height:110px;resize:vertical;font-size:.85rem;line-height:1.6}
+.btn-row{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.abtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:120px;padding:12px;border-radius:13px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.9rem;border:none;cursor:pointer;transition:all .15s}
+.abtn:hover{filter:brightness(1.1)}.abtn:disabled{opacity:.4;cursor:not-allowed}
+.abtn.secondary{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--line)}
+.abtn.secondary:hover{background:rgba(255,255,255,.11)}
+.notice{padding:10px 14px;border-radius:11px;font-size:.83rem;margin-top:12px;line-height:1.6}
+.notice.ok{background:rgba(144,242,210,.08);border:1px solid rgba(144,242,210,.2);color:var(--teal)}
+.notice.err{background:rgba(255,132,125,.08);border:1px solid rgba(255,132,125,.2);color:var(--danger)}
+.resume-card{border-radius:18px;padding:20px;border:1px solid rgba(144,242,210,.15);background:rgba(144,242,210,.04)}
+.rc-name{font-family:"Palatino Linotype",Georgia,serif;font-size:1.4rem;font-weight:900;margin-bottom:4px}
+.rc-title{color:var(--teal);font-size:.88rem;font-weight:700;margin-bottom:14px}
+.rc-section{margin-bottom:14px}
+.rc-section-label{font-size:.66rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rc-section-body{font-size:.87rem;color:var(--muted);line-height:1.7;white-space:pre-wrap}
+.tag-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tag{font-size:.72rem;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);font-weight:700}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.resume-id-row{font-size:.74rem;color:var(--dim);margin-top:8px;word-break:break-all}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="tn-brand">⬡ TechBuzz AI</div>
+  <div class="tn-links">
+    <a href="/">Home</a>
+    <a href="/jobs">Jobs</a>
+    <a href="/career">Career AI</a>
+    <a href="/resume" style="color:var(--teal)">Resume Builder</a>
+    <a href="/login">Sign In</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="hero">
+    <h1>Build Your <span>Resume</span><br>with AI.</h1>
+    <p>Create a professional resume in seconds. Optionally let AI polish your summary and experience sections.</p>
+  </div>
+
+  <div class="grid">
+    <!-- Left: Form -->
+    <div>
+      <div class="panel">
+        <div class="ph" id="form-heading">Create Resume</div>
+
+        <label for="f-name">Full Name *</label>
+        <input class="fi" id="f-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name">
+
+        <label for="f-title">Professional Title</label>
+        <input class="fi" id="f-title" type="text" placeholder="e.g. Senior Software Engineer">
+
+        <label for="f-summary">Summary</label>
+        <textarea class="fi" id="f-summary" placeholder="A brief professional summary about yourself…"></textarea>
+
+        <label for="f-skills">Skills</label>
+        <textarea class="fi" id="f-skills" placeholder="Python, React, AWS, Docker, SQL…" style="min-height:70px"></textarea>
+
+        <label for="f-experience">Experience</label>
+        <textarea class="fi" id="f-experience" placeholder="List your work experience, roles, and key achievements…" style="min-height:130px"></textarea>
+
+        <div class="btn-row">
+          <button class="abtn" id="save-btn" onclick="saveResume()">💾 Save Resume</button>
+          <button class="abtn secondary" id="improve-btn" onclick="improveResume()" style="display:none">✨ AI Improve</button>
+          <button class="abtn secondary" id="new-btn" onclick="newResume()" style="display:none">＋ New</button>
+        </div>
+
+        <div id="form-notice"></div>
+      </div>
+    </div>
+
+    <!-- Right: Preview -->
+    <div>
+      <div class="panel" id="preview-panel">
+        <div class="ph">Resume Preview</div>
+        <div id="preview-empty" style="text-align:center;padding:40px 20px;color:var(--dim)">
+          <div style="font-size:2rem;margin-bottom:12px">📄</div>
+          <div style="font-weight:700;margin-bottom:8px">No Resume Yet</div>
+          <div style="font-size:.83rem;line-height:1.7">Fill in the form and click <strong style="color:var(--text)">Save Resume</strong> to create and preview your resume here.</div>
+        </div>
+        <div id="resume-display" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentResumeId = null;
+
+  function setNotice(msg, type) {
+    const el = document.getElementById('form-notice');
+    el.className = 'notice ' + type;
+    el.textContent = msg;
+    el.style.display = msg ? '' : 'none';
+  }
+
+  function setBusy(btn, busy, label) {
+    const el = document.getElementById(btn);
+    if (!el) return;
+    el.disabled = busy;
+    el.innerHTML = busy ? '<span class="spin"></span>' : label;
+  }
+
+  function renderResume(r) {
+    const skills = (r.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+    const tagsHtml = skills.length
+      ? `<div class="tag-list">${skills.map(s => `<span class="tag">${esc(s)}</span>`).join('')}</div>`
+      : `<div style="color:var(--dim);font-size:.83rem">—</div>`;
+
+    document.getElementById('preview-empty').style.display = 'none';
+    document.getElementById('resume-display').style.display = '';
+    document.getElementById('resume-display').innerHTML = `
+      <div class="resume-card">
+        <div class="rc-name">${esc(r.name)}</div>
+        <div class="rc-title">${esc(r.title || '—')}</div>
+        ${r.summary ? `
+        <div class="rc-section">
+          <div class="rc-section-label">Summary</div>
+          <div class="rc-section-body">${esc(r.summary)}</div>
+        </div>` : ''}
+        <div class="rc-section">
+          <div class="rc-section-label">Skills</div>
+          ${tagsHtml}
+        </div>
+        ${r.experience ? `
+        <div class="rc-section">
+          <div class="rc-section-label">Experience</div>
+          <div class="rc-section-body">${esc(r.experience)}</div>
+        </div>` : ''}
+        <div class="resume-id-row">ID: ${esc(r.id)} &nbsp;·&nbsp; Updated: ${esc(r.updated_at || '')}</div>
+      </div>`;
+  }
+
+  function populateForm(r) {
+    document.getElementById('f-name').value = r.name || '';
+    document.getElementById('f-title').value = r.title || '';
+    document.getElementById('f-summary').value = r.summary || '';
+    document.getElementById('f-skills').value = r.skills || '';
+    document.getElementById('f-experience').value = r.experience || '';
+    document.getElementById('form-heading').textContent = 'Edit Resume';
+    document.getElementById('improve-btn').style.display = '';
+    document.getElementById('new-btn').style.display = '';
+    document.getElementById('save-btn').textContent = '💾 Update Resume';
+  }
+
+  function esc(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function saveResume() {
+    const name = document.getElementById('f-name').value.trim();
+    if (!name) { setNotice('Full name is required.', 'err'); return; }
+    setNotice('', '');
+    setBusy('save-btn', true, '');
+
+    const body = {
+      name,
+      title: document.getElementById('f-title').value.trim(),
+      summary: document.getElementById('f-summary').value.trim(),
+      skills: document.getElementById('f-skills').value.trim(),
+      experience: document.getElementById('f-experience').value.trim(),
+    };
+
+    try {
+      let url, method;
+      if (currentResumeId) {
+        url = `/api/resume/${currentResumeId}`;
+        method = 'PUT';
+      } else {
+        url = '/api/resume/create';
+        method = 'POST';
+      }
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Save failed.');
+      const isCreate = !currentResumeId;
+      currentResumeId = data.resume.id;
+      renderResume(data.resume);
+      populateForm(data.resume);
+      setNotice(isCreate ? '✅ Resume saved!' : '✅ Resume updated.', 'ok');
+    } catch (err) {
+      setNotice('❌ ' + err.message, 'err');
+    } finally {
+      setBusy('save-btn', false, '💾 Update Resume');
+    }
+  }
+
+  async function improveResume() {
+    if (!currentResumeId) return;
+    setNotice('', '');
+    setBusy('improve-btn', true, '');
+
+    try {
+      const res = await fetch('/api/resume/improve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume_id: currentResumeId, fields: ['summary', 'experience'] }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'AI improvement failed.');
+      renderResume(data.resume);
+      populateForm(data.resume);
+      const improved = data.improved_fields || [];
+      const msg = improved.length
+        ? `✨ AI improved: ${improved.join(', ')}`
+        : '💡 Fields are already optimal — no changes made.';
+      setNotice(msg, 'ok');
+    } catch (err) {
+      setNotice('❌ ' + err.message, 'err');
+    } finally {
+      setBusy('improve-btn', false, '✨ AI Improve');
+    }
+  }
+
+  function newResume() {
+    currentResumeId = null;
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-summary').value = '';
+    document.getElementById('f-skills').value = '';
+    document.getElementById('f-experience').value = '';
+    document.getElementById('form-heading').textContent = 'Create Resume';
+    document.getElementById('improve-btn').style.display = 'none';
+    document.getElementById('new-btn').style.display = 'none';
+    document.getElementById('save-btn').textContent = '💾 Save Resume';
+    document.getElementById('resume-display').style.display = 'none';
+    document.getElementById('preview-empty').style.display = '';
+    setNotice('', '');
+  }
+
+  // Load resume from URL param ?id=...
+  (function() {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if (!id) return;
+    fetch(`/api/resume/${id}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.resume) {
+          currentResumeId = data.resume.id;
+          populateForm(data.resume);
+          renderResume(data.resume);
+        }
+      })
+      .catch(() => {});
+  })();
+</script>
+</body>
+</html>
