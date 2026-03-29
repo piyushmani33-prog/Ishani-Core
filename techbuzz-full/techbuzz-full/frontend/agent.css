@@ -265,6 +265,29 @@ input,select{
 @media (max-width: 1120px){
   .agent-grid.top,.agent-grid.main,.agent-grid.pipeline,.agent-grid.bottom,.agent-grid.accounts{grid-template-columns:1fr}
 }
+@media (max-width: 768px){
+  .agent-shell{padding:16px 10px 56px}
+  .agent-hero{flex-direction:column;gap:12px}
+  .agent-hero h1{font-size:clamp(1.9rem,7vw,2.8rem)}
+  .agent-actions{gap:8px}
+  .agent-btn{min-height:44px;padding:12px 16px;font-size:.95rem}
+  .agent-btn.small{min-height:44px;padding:10px 14px}
+  .quick-link{min-height:44px}
+  .agent-card{padding:16px;border-radius:20px}
+  .card-head h2{font-size:1.35rem}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .form-grid{grid-template-columns:1fr;gap:8px}
+  .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .relay-grid{grid-template-columns:1fr}
+  .chat-compose{grid-template-columns:1fr;gap:8px}
+  .chat-compose textarea{min-height:72px}
+  .stack-list{gap:10px}
+  .report-box{padding:14px;min-height:120px;font-size:.93rem}
+  input,select,textarea{padding:12px 14px;font-size:1rem}
+  .button-row{gap:8px}
+  .hero-badges{gap:8px}
+  .hero-chip{padding:8px 12px;font-size:.8rem}
+}
 @media (max-width: 760px){
   .stats-grid,.quick-grid,.chat-compose,.relay-grid,.form-grid{grid-template-columns:1fr}
   .agent-shell{padding:24px 14px 60px}
