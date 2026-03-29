@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: techbuzz-empire
+    runtime: python
+    buildCommand: pip install -r backend_python/requirements.txt
+    startCommand: cd backend_python && uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MASTER_EMAIL
+        value: piyushmani33@gmail.com
+      - key: MASTER_KEY_SALT
+        sync: false
+      - key: MASTER_KEY_HASH
+        sync: false
+      - key: LEAZY_AI_NAME
+        value: Leazy Jinn
+      - key: LEAZY_COMPANY_NAME
+        value: TechBuzz Systems
+      - key: LEAZY_CORE_IDENTITY
+        value: Ishani
+      - key: ALLOWED_ORIGINS
+        value: "*"

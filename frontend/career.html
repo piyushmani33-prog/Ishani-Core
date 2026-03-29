@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Career AI — TechBuzz AI</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+:root{--bg:#04060c;--line:rgba(255,255,255,.08);--text:#edf2ff;--muted:#8899b8;--gold:#f1ca6b;--teal:#90f2d2;--vio:#c1a1ff;--rose:#f39ddd;--surface:#0b0f1e}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:"Trebuchet MS",sans-serif;min-height:100vh}
+.top-nav{padding:14px 5%;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);background:rgba(4,6,18,.9);position:sticky;top:0;z-index:50;backdrop-filter:blur(16px)}
+.tn-brand{font-family:"Palatino Linotype",Georgia,serif;font-weight:900;font-size:1rem}
+.tn-links{display:flex;gap:16px;font-size:.83rem;margin-left:auto}
+.tn-links a{color:var(--muted);transition:color .15s}.tn-links a:hover{color:var(--text)}
+.shell{max-width:1100px;margin:0 auto;padding:32px 5% 80px}
+.hero{text-align:center;padding:48px 0 40px}
+.hero h1{font-family:"Palatino Linotype",Georgia,serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.2;margin-bottom:14px}
+.hero h1 span{background:linear-gradient(135deg,var(--teal),var(--vio));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:.95rem;max-width:520px;margin:0 auto 32px;line-height:1.75}
+.tab-strip{display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:12px;flex-wrap:wrap}
+.ctab{padding:8px 18px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;font-weight:700;font-size:.85rem;transition:all .15s}
+.ctab.on{background:rgba(144,242,210,.09);border-color:rgba(144,242,210,.25);color:var(--teal)}
+.panel{border-radius:22px;padding:22px;border:1px solid var(--line);background:var(--surface)}
+.ph{font-size:.68rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.fi{width:100%;padding:10px 13px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit;font-size:.88rem;outline:none;margin-bottom:9px;transition:border-color .15s}
+.fi:focus{border-color:rgba(144,242,210,.35)}
+textarea.fi{min-height:100px;resize:vertical;font-size:.82rem;line-height:1.6}
+.abtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;border-radius:13px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.9rem;border:none;cursor:pointer;transition:all .15s}
+.abtn:hover{filter:brightness(1.1)}.abtn:disabled{opacity:.4;cursor:not-allowed}
+.result-card{border-radius:16px;padding:18px;border:1px solid rgba(144,242,210,.15);background:rgba(144,242,210,.05);margin-top:14px}
+.score-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--vio));display:flex;align-items:center;justify-content:center;font-family:"Palatino Linotype",Georgia,serif;font-size:1.6rem;font-weight:900;color:#04060c;margin:0 auto 14px;box-shadow:0 8px 24px rgba(144,242,210,.3)}
+.tag-list{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.tag{font-size:.72rem;padding:3px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);font-weight:700}
+.chat-area{border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.4);padding:14px;min-height:220px;max-height:380px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.bubble{padding:10px 14px;border-radius:14px;font-size:.85rem;line-height:1.65;max-width:88%}
+.bubble.user{background:rgba(144,242,210,.1);border:1px solid rgba(144,242,210,.2);margin-left:auto;text-align:right}
+.bubble.ai{background:rgba(193,161,255,.08);border:1px solid rgba(193,161,255,.15)}
+.chat-input-row{display:flex;gap:8px}
+.chat-inp{flex:1;padding:10px 13px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:var(--text);font:inherit;font-size:.88rem;outline:none;transition:border-color .15s}
+.chat-inp:focus{border-color:rgba(144,242,210,.35)}
+.chat-btn{padding:10px 18px;border-radius:11px;background:linear-gradient(135deg,var(--teal),var(--vio));color:#04060c;font-weight:900;font-size:.85rem;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.chat-btn:hover{filter:brightness(1.1)}.chat-btn:disabled{opacity:.4;cursor:not-allowed}
+.quick-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.qchip{padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:.76rem;cursor:pointer;color:var(--muted);transition:all .15s}
+.qchip:hover{border-color:rgba(144,242,210,.35);color:var(--teal)}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <div class="tn-brand">⬡ TechBuzz AI</div>
+  <div class="tn-links">
+    <a href="/">Home</a><a href="/jobs">Jobs</a><a href="/career" style="color:var(--teal)">Career AI</a>
+    <a href="/company-portal">For Companies</a><a href="/login">Sign In</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="hero">
+    <h1>Your Personal <span>Career AI</span><br>Coach. Free.</h1>
+    <p>Get AI-powered career advice, gap analysis, salary benchmarks, and role targeting — powered by live internet intelligence. No login required.</p>
+  </div>
+
+  <div class="tab-strip">
+    <button class="ctab on" onclick="showTab('ask',this)">💬 Ask AI</button>
+    <button class="ctab" onclick="showTab('profile',this)">📋 Career Assessment</button>
+    <button class="ctab" onclick="showTab('resume',this)">📄 Resume Tips</button>
+    <button class="ctab" onclick="showTab('salary',this)">💰 Salary Checker</button>
+  </div>
+
+  <!-- ASK AI tab -->
+  <div id="tab-ask">
+    <div class="panel" style="max-width:780px;margin:0 auto">
+      <div class="ph">Career Chat — Ask Anything</div>
+      <div class="quick-chips">
+        <span class="qchip" onclick="askCareer('What skills should I learn in 2025 for backend development?')">Backend skills 2025</span>
+        <span class="qchip" onclick="askCareer('How do I negotiate my salary as a fresher in India?')">Salary negotiation</span>
+        <span class="qchip" onclick="askCareer('How to switch from service company to product company?')">Service → Product</span>
+        <span class="qchip" onclick="askCareer('What is the scope of AI/ML careers in India?')">AI/ML scope</span>
+        <span class="qchip" onclick="askCareer('How to prepare for FAANG interviews?')">FAANG prep</span>
+        <span class="qchip" onclick="askCareer('Best remote work opportunities for Indian developers?')">Remote work</span>
+      </div>
+      <div class="chat-area" id="chatArea">
+        <div class="bubble ai">👋 Hello! I'm TechBuzz Career AI, powered by live intelligence from across the internet. Ask me anything about your career — skills, salaries, switching jobs, interview prep, or market trends. I'll give you honest, up-to-date answers.</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-inp" id="chatQ" placeholder="Ask a career question…" onkeydown="if(event.key==='Enter')askCareer()">
+        <button class="chat-btn" id="chatBtn" onclick="askCareer()">Send →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE / ASSESSMENT tab -->
+  <div id="tab-profile" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin:0 auto">
+      <div class="panel">
+        <div class="ph">Your Profile</div>
+        <input class="fi" id="pName" placeholder="Full name *">
+        <input class="fi" id="pRole" placeholder="Current role (e.g. Software Engineer)">
+        <input class="fi" id="pCo" placeholder="Current company">
+        <input class="fi" id="pExp" placeholder="Years of experience" type="number">
+        <input class="fi" id="pLoc" placeholder="City, State">
+        <textarea class="fi" id="pSkills" placeholder="Your skills (comma separated): Python, React, AWS, Docker…"></textarea>
+        <textarea class="fi" id="pBio" placeholder="Brief bio or anything you'd like the AI to know about you…" style="min-height:80px"></textarea>
+        <button class="abtn" id="assessBtn" onclick="runAssessment()">🧠 Get Full Career Assessment</button>
+      </div>
+      <div>
+        <div id="assessmentResult">
+          <div class="panel" style="text-align:center;padding:40px">
+            <div style="font-size:2rem;margin-bottom:14px">🎯</div>
+            <div style="font-weight:700;margin-bottom:8px">Ready for Assessment</div>
+            <div style="font-size:.85rem;color:var(--muted)">Fill your profile and click "Get Career Assessment" to receive a full AI analysis of your career trajectory, strengths, gaps, and recommended next steps.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUME tab -->
+  <div id="tab-resume" style="display:none">
+    <div class="panel" style="max-width:780px;margin:0 auto">
+      <div class="ph">AI Resume Analyzer</div>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:14px;line-height:1.7">Paste your resume once and the AI will align it to the target JD, update your candidate profile, and keep your career journey ready for applications.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <input class="fi" id="rName" placeholder="Full name">
+        <input class="fi" id="rEmail" placeholder="Email for your career profile">
+      </div>
+      <input class="fi" id="rJobTitle" placeholder="Job title you're targeting (e.g. Senior Python Developer)">
+      <textarea class="fi" id="rJD" placeholder="Paste the target JD or must-have skills here." style="min-height:100px"></textarea>
+      <textarea class="fi" id="rResume" placeholder="Paste your resume here…" style="min-height:180px"></textarea>
+      <button class="abtn" id="resumeBtn" onclick="analyzeResume()">📄 Align Resume And Save Profile</button>
+      <div id="resumeResult"></div>
+    </div>
+  </div>
+
+  <!-- SALARY tab -->
+  <div id="tab-salary" style="display:none">
+    <div class="panel" style="max-width:780px;margin:0 auto">
+      <div class="ph">💰 Salary Checker</div>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:14px;line-height:1.7">Find out what you should be earning based on your role, skills, and location.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <input class="fi" id="sRole" placeholder="Job title (e.g. React Developer)">
+        <input class="fi" id="sExp" placeholder="Years of experience" type="number" value="3">
+        <input class="fi" id="sLoc" placeholder="City (e.g. Bangalore, Mumbai, Delhi)">
+        <input class="fi" id="sSkills" placeholder="Key skills: React, Node.js, etc.">
+      </div>
+      <button class="abtn" id="salaryBtn" onclick="checkSalary()">💰 Check My Market Value</button>
+      <div id="salaryResult"></div>
+    </div>
+  </div>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+function toast(m){const el=$('toast');el.textContent=m;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000);}
+function showTab(name,btn){
+  ['ask','profile','resume','salary'].forEach(t=>{const el=$('tab-'+t);if(el)el.style.display=t===name?'block':'none';});
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
+}
+function addBubble(type,text){
+  const area=$('chatArea');const d=document.createElement('div');
+  d.className='bubble '+type;d.textContent=text;area.appendChild(d);
+  area.scrollTop=area.scrollHeight;
+}
+async function askCareer(q){
+  const question=q||$('chatQ').value.trim();if(!question)return;
+  if($('chatQ'))$('chatQ').value='';
+  addBubble('user',question);
+  const btn=$('chatBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  addBubble('ai','Consulting photon intelligence…');
+  try{
+    const r=await fetch('/api/career/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,profile:{}})});
+    const d=await r.json();
+    const answers=$('chatArea').querySelectorAll('.bubble.ai');
+    const last=answers[answers.length-1];
+    if(last)last.textContent=d.advice||d.answer||d.next_step||'No answer available.';
+  }catch(e){const bubbles=$('chatArea').querySelectorAll('.bubble.ai');const last=bubbles[bubbles.length-1];if(last)last.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Send →';
+}
+async function runAssessment(){
+  const name=$('pName').value.trim();if(!name){toast('Enter your name');return;}
+  const btn=$('assessBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span> Analyzing…';
+  const profile={full_name:name,current_role:$('pRole').value,current_company:$('pCo').value,experience_years:parseInt($('pExp').value)||0,location:$('pLoc').value,skills:$('pSkills').value,bio:$('pBio').value};
+  try{
+    const r=await fetch('/api/career/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:'Give me a full career assessment',profile})});
+    const d=await r.json();
+    const score=d.career_score||70;
+    $('assessmentResult').innerHTML=`<div class="result-card">
+      <div class="score-circle">${score}</div>
+      <div style="text-align:center;font-weight:700;margin-bottom:12px">Career Score: ${score}/100</div>
+      <div style="font-size:.85rem;color:var(--muted);line-height:1.75;margin-bottom:12px">${d.advice||''}</div>
+      <div style="margin-bottom:10px"><strong style="font-size:.78rem;color:var(--gold)">💪 STRENGTHS</strong><div class="tag-list">${(d.strengths||[]).map(s=>`<span class="tag" style="color:var(--teal)">${s}</span>`).join('')}</div></div>
+      <div style="margin-bottom:10px"><strong style="font-size:.78rem;color:var(--gold)">📈 GAPS TO FILL</strong><div class="tag-list">${(d.gaps||[]).map(s=>`<span class="tag" style="color:var(--amber)">${s}</span>`).join('')}</div></div>
+      <div style="margin-bottom:10px"><strong style="font-size:.78rem;color:var(--gold)">🎯 ROLES TO TARGET</strong><div class="tag-list">${(d.roles_to_target||[]).map(s=>`<span class="tag" style="color:var(--vio)">${s}</span>`).join('')}</div></div>
+      <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:.82rem;color:var(--muted)"><strong style="color:var(--text)">Next Step:</strong> ${d.next_step||''}</div>
+    </div>`;
+  }catch(e){$('assessmentResult').innerHTML=`<div style="color:var(--danger)">${e.message}</div>`;}
+  btn.disabled=false;btn.textContent='🧠 Get Full Career Assessment';
+}
+async function analyzeResume(){
+  const resume=$('rResume').value.trim();const title=$('rJobTitle').value.trim();const email=$('rEmail').value.trim();
+  if(!resume||!email){toast('Email and resume are required');return;}
+  const btn=$('resumeBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  try{
+    const r=await fetch('/api/candidate/resume-sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      email,
+      full_name:$('rName').value.trim(),
+      resume_text:resume,
+      target_role:title,
+      target_jd:$('rJD').value.trim(),
+      job_change_intent:'active'
+    })});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.detail||'Unable to sync profile');
+    $('rResume').value=d.alignment?.aligned_resume||resume;
+    $('resumeResult').innerHTML=`<div class="result-card" style="margin-top:14px">
+      <div style="font-weight:800;margin-bottom:8px">Profile synced for ${d.profile?.full_name||email}</div>
+      <div style="font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:10px">${d.profile?.summary||''}</div>
+      <div style="margin-bottom:8px"><strong style="color:var(--gold);font-size:.78rem">Missing skills to verify and add only if true</strong><div class="tag-list">${(d.alignment?.missing_skills||[]).map(s=>`<span class="tag">${s}</span>`).join('')||'<span class="tag">No major gap detected</span>'}</div></div>
+      <div style="margin-bottom:8px"><strong style="color:var(--gold);font-size:.78rem">Recommended focus</strong><div style="font-size:.84rem;line-height:1.7">${(d.alignment?.recommendations||[]).join(' ')}</div></div>
+      <div style="padding:10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:.82rem;color:var(--muted)"><strong style="color:var(--text)">Next move:</strong> ${d.next_move||''}</div>
+    </div>`;
+  }catch(e){
+    $('resumeResult').innerHTML=`<div style="color:var(--rose)">${e.message}</div>`;
+  }
+  btn.disabled=false;btn.textContent='📄 Align Resume And Save Profile';
+}
+async function checkSalary(){
+  const role=$('sRole').value.trim();if(!role){toast('Enter your role');return;}
+  const btn=$('salaryBtn');btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  const question=`What is the typical salary range for a ${role} with ${$('sExp').value||3} years of experience in ${$('sLoc').value||'India'}? Skills: ${$('sSkills').value||'general'}. Give min, median, max in INR LPA, and tips to increase salary.`;
+  const r=await fetch('/api/career/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,profile:{}})});
+  const d=await r.json();
+  $('salaryResult').innerHTML=`<div class="result-card" style="margin-top:14px"><div style="font-size:.88rem;line-height:1.75">${d.advice||d.answer||''}</div></div>`;
+  btn.disabled=false;btn.textContent='💰 Check My Market Value';
+}
+</script>
+</body>
+</html>

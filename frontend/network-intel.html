@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechBuzz Network Intel</title>
+<meta name="theme-color" content="#04060c">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+.net-wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 16px 80px;display:grid;grid-template-columns:320px 1fr;gap:16px;min-height:calc(100vh - 64px)}
+.net-rail,.net-main{padding-top:20px;display:flex;flex-direction:column;gap:14px}
+.rail-card,.panel{border-radius:24px;padding:18px}
+.rail-h{font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.net-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ns{padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);text-align:center}
+.ns strong{display:block;font-family:var(--heading);font-size:1.35rem;color:var(--gold)}
+.ns span{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.conn-list,.feed{display:flex;flex-direction:column;gap:10px}
+.conn-item,.signal-card,.post-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04);padding:14px}
+.conn-item{display:flex;align-items:center;gap:10px}
+.conn-av{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(241,202,107,.22),rgba(193,161,255,.16));display:flex;align-items:center;justify-content:center;font-weight:900}
+.conn-meta{flex:1;min-width:0}
+.conn-meta strong,.post-top strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conn-meta span,.post-top span{display:block;font-size:.76rem;color:var(--muted)}
+.fi,.compose-ta{width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit}
+.compose-ta{min-height:92px;resize:vertical;line-height:1.6}
+.fi:focus,.compose-ta:focus{outline:none;border-color:rgba(241,202,107,.34)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.abtn,.gbtn,.chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;font-weight:800;cursor:pointer}
+.abtn{padding:9px 16px;background:linear-gradient(135deg,var(--gold),#ff9c63);color:#0b0f17;border:none}
+.gbtn{padding:8px 14px;background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line)}
+.chip{padding:6px 12px;background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:.76rem}
+.kind-row{display:flex;gap:8px;flex-wrap:wrap}
+.kbtn{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);cursor:pointer;font-weight:700}
+.kbtn.on{border-color:rgba(241,202,107,.34);color:var(--gold);background:rgba(241,202,107,.08)}
+.brain-bar{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(144,242,210,.06);border:1px solid rgba(144,242,210,.15);border-radius:14px;font-size:.82rem;color:var(--muted)}
+.bdot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:bdp 2s ease-in-out infinite}
+.empty{padding:20px;border-radius:16px;border:1px dashed var(--line);color:var(--muted);text-align:center}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.22);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bdp{0%,100%{opacity:.45}50%{opacity:1}}
+@media(max-width:960px){.net-wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="portal-sky">
+  <video autoplay muted loop playsinline src="/frontend-assets/media/nebula-orbit.mp4"></video>
+</div>
+<header class="portal-topbar">
+  <div class="portal-brand">
+    <span class="portal-kicker" id="modeBadge">Graphene-Mind · recruiter intelligence relay</span>
+    <strong>TechBuzz Network Intel</strong>
+  </div>
+  <nav class="portal-links">
+    <a href="/network">Community</a>
+    <a href="/leazy">Leazy</a>
+    <a href="/hq">HQ</a>
+    <a href="/ats">ATS</a>
+    <a href="/network/intel" style="border-color:rgba(241,202,107,.35);color:var(--gold)">Network Intel</a>
+    <a href="/agent">Agent</a>
+    <a href="#" onclick="logout()">Sign Out</a>
+  </nav>
+</header>
+
+<div class="net-wrap">
+  <aside class="net-rail">
+    <section class="rail-card glass">
+      <div class="rail-h">Network Stats</div>
+      <div class="net-stats" id="netStats"></div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Carbon Mode</div>
+      <div class="kind-row">
+        <button class="kbtn on" id="mode-graphene" onclick="setMode('graphene', this)">Graphene</button>
+        <button class="kbtn" id="mode-diamond" onclick="setMode('diamond', this)">Diamond</button>
+        <button class="kbtn" id="mode-nanotube" onclick="setMode('nanotube', this)">Nanotube</button>
+      </div>
+      <div id="modeDesc" style="font-size:.8rem;color:var(--muted);line-height:1.6;margin-top:10px"></div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Signal Scanner</div>
+      <input class="fi" id="sigQuery" placeholder="AI hiring India 2026, React demand..." onkeydown="if(event.key==='Enter')scanSignal()">
+      <div class="row" style="margin-top:10px">
+        <button class="abtn" id="scanBtn" style="flex:1" onclick="scanSignal()">Scan Signals</button>
+      </div>
+      <div id="scanResult" style="margin-top:10px;font-size:.8rem;color:var(--muted)"></div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Add Connection</div>
+      <input class="fi" id="cName" placeholder="Name">
+      <input class="fi" id="cTitle" placeholder="Title · Company" style="margin-top:8px">
+      <input class="fi" id="cLinkedin" placeholder="linkedin.com/in/..." style="margin-top:8px" onkeydown="if(event.key==='Enter')addConn()">
+      <div class="row" style="margin-top:10px">
+        <button class="gbtn" style="width:100%" onclick="addConn()">Connect</button>
+      </div>
+    </section>
+
+    <section class="rail-card glass">
+      <div class="rail-h">Connections</div>
+      <div class="conn-list" id="connList"></div>
+    </section>
+  </aside>
+
+  <main class="net-main">
+    <div class="brain-bar glass"><div class="bdot"></div><span id="brainMsg">Graphene-Mind is synchronizing recruiter intelligence.</span></div>
+
+    <section class="panel glass">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div class="rail-h" style="margin-bottom:6px">Recruiter Signal Desk</div>
+          <h2 style="margin:0;font-family:var(--heading)">Post, scan, and manage the market in one lane.</h2>
+          <p style="margin:8px 0 0;color:var(--muted);max-width:760px">This is the protected recruiter intelligence view. It stays focused on market signals, hiring updates, and connection management for delivery teams.</p>
+        </div>
+        <div class="row">
+          <a class="gbtn" href="/network">Open Community</a>
+          <a class="gbtn" href="/agent/console">Open Agent Console</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel glass">
+      <div class="rail-h">Compose</div>
+      <textarea class="compose-ta" id="postContent" placeholder="Share a hiring update, market insight, or recruiter signal..."></textarea>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <div class="kind-row">
+          <button class="kbtn on" onclick="setKind('post',this)">Post</button>
+          <button class="kbtn" onclick="setKind('hiring',this)">Hiring</button>
+          <button class="kbtn" onclick="setKind('insight',this)">Insight</button>
+          <button class="kbtn" onclick="setKind('signal',this)">Signal</button>
+        </div>
+        <button class="abtn" id="postBtn" onclick="publishPost()">AI Enhance and Post</button>
+      </div>
+    </section>
+
+    <div class="feed" id="feed"></div>
+  </main>
+</div>
+
+<div class="portal-toast" id="toast"></div>
+<script>
+const API = "";
+const $ = id => document.getElementById(id);
+let state = null;
+let currentMode = "graphene";
+let currentKind = "post";
+const MODES = {
+  graphene: {name: "Graphene-Mind", desc: "Broad recruiter intelligence across live market movement."},
+  diamond: {name: "Diamond-Mind", desc: "High-precision focus for difficult hiring signals and pricing moves."},
+  nanotube: {name: "Nanotube-Mind", desc: "Fast relay across pipeline, reporting, and delivery handoffs."}
+};
+
+function toast(message, ms = 2600){
+  const el = $("toast");
+  el.textContent = message;
+  el.style.display = "block";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = "none", ms);
+}
+
+function logout(){
+  fetch("/api/auth/logout", {method:"POST", credentials:"include"}).finally(() => {
+    window.location.href = "/login";
+  });
+}
+
+async function api(url, method = "GET", body){
+  const response = await fetch(API + url, {
+    method,
+    credentials: "include",
+    headers: {"Content-Type":"application/json"},
+    ...(body ? {body: JSON.stringify(body)} : {})
+  });
+  if(response.status === 401 || response.status === 403){
+    window.location.href = "/login?next=/network/intel";
+    throw new Error("Authentication required.");
+  }
+  const data = await response.json().catch(() => ({}));
+  if(!response.ok) throw new Error(data.detail || "Request failed.");
+  return data;
+}
+
+function setMode(mode, btn){
+  currentMode = mode;
+  document.querySelectorAll("[id^='mode-']").forEach(el => el.classList.remove("on"));
+  btn.classList.add("on");
+  $("modeDesc").textContent = MODES[mode].desc;
+}
+
+function setKind(kind, btn){
+  currentKind = kind;
+  document.querySelectorAll(".panel .kind-row .kbtn").forEach(el => el.classList.remove("on"));
+  btn.classList.add("on");
+}
+
+function renderStats(){
+  const stats = state?.stats || {};
+  $("netStats").innerHTML = [
+    ["Connections", stats.connections || 0],
+    ["Posts", stats.posts || 0],
+    ["Signals", stats.signals || 0]
+  ].map(([label, value]) => `<div class="ns"><strong>${value}</strong><span>${label}</span></div>`).join("");
+}
+
+function renderConnections(){
+  const items = state?.connections || [];
+  $("connList").innerHTML = items.length ? items.map(item => `
+    <div class="conn-item">
+      <div class="conn-av">${(item.name || "?").slice(0,1).toUpperCase()}</div>
+      <div class="conn-meta">
+        <strong>${item.name || "Unknown"}</strong>
+        <span>${item.title || ""}${item.company ? " · " + item.company : ""}</span>
+      </div>
+      <button class="gbtn" style="padding:6px 10px" onclick="deleteConn('${item.id}')">Remove</button>
+    </div>
+  `).join("") : `<div class="empty">No recruiter connections stored yet.</div>`;
+}
+
+function renderFeed(){
+  const posts = (state?.posts || []).map(post => ({...post, _type:"post"}));
+  const signals = (state?.signals || []).map(signal => ({...signal, _type:"signal"}));
+  const all = [...posts, ...signals].sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  $("feed").innerHTML = all.length ? all.map(item => {
+    if(item._type === "signal"){
+      return `<section class="signal-card glass">
+        <div class="rail-h">Market Signal</div>
+        <strong>${item.query || "Signal"}</strong>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:4px">${item.carbon_mode || "graphene"} mode · ${new Date(item.created_at || "").toLocaleString("en-IN")}</div>
+        <div style="margin-top:10px;white-space:pre-wrap;line-height:1.7">${item.analysis || ""}</div>
+      </section>`;
+    }
+    return `<section class="post-card glass">
+      <div class="post-top" style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div>
+          <strong>TechBuzz Recruiter Desk</strong>
+          <span>${new Date(item.created_at || "").toLocaleString("en-IN")} · ${item.kind || "post"}</span>
+        </div>
+        <button class="gbtn" style="padding:6px 10px" onclick="likePost('${item.id}', this)">Like ${item.likes || 0}</button>
+      </div>
+      <div style="margin-top:12px;white-space:pre-wrap;line-height:1.7">${item.content || ""}</div>
+      ${item.enhanced ? `<div style="margin-top:10px;padding:12px;border-left:2px solid rgba(241,202,107,.3);background:rgba(255,255,255,.03);font-size:.82rem;color:var(--muted);white-space:pre-wrap">${item.enhanced}</div>` : ""}
+    </section>`;
+  }).join("") : `<div class="empty">Run a signal scan or publish a recruiter update to start the feed.</div>`;
+}
+
+async function load(){
+  state = await api("/api/network/state");
+  $("brainMsg").textContent = `${MODES[currentMode].name} active · ${state.stats?.connections || 0} connections · ${state.stats?.signals || 0} signals`;
+  renderStats();
+  renderConnections();
+  renderFeed();
+}
+
+async function publishPost(){
+  const content = $("postContent").value.trim();
+  if(!content){ toast("Write something first."); return; }
+  const btn = $("postBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Posting';
+  try{
+    await api("/api/network/post", "POST", {content, kind: currentKind});
+    $("postContent").value = "";
+    toast("Recruiter update published.");
+    await load();
+  }catch(error){
+    toast(error.message);
+  }
+  btn.disabled = false;
+  btn.textContent = "AI Enhance and Post";
+}
+
+async function addConn(){
+  const name = $("cName").value.trim();
+  if(!name){ toast("Enter a connection name."); return; }
+  const titleLine = $("cTitle").value.trim();
+  const parts = titleLine.split("·");
+  await api("/api/network/connect", "POST", {
+    name,
+    title: (parts[0] || "").trim(),
+    company: (parts[1] || "").trim(),
+    linkedin: $("cLinkedin").value.trim()
+  });
+  $("cName").value = "";
+  $("cTitle").value = "";
+  $("cLinkedin").value = "";
+  toast("Connection saved.");
+  await load();
+}
+
+async function deleteConn(connectionId){
+  await api(`/api/network/connections/${connectionId}`, "DELETE");
+  toast("Connection removed.");
+  await load();
+}
+
+async function likePost(postId, btn){
+  await api(`/api/network/posts/${postId}/like`, "POST", {});
+  const next = Number((btn.textContent.match(/\\d+/) || ["0"])[0]) + 1;
+  btn.textContent = `Like ${next}`;
+}
+
+async function scanSignal(){
+  const query = $("sigQuery").value.trim();
+  if(!query){ toast("Enter a market query."); return; }
+  const btn = $("scanBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Scanning';
+  $("scanResult").textContent = "Scanning market movement...";
+  try{
+    const result = await api("/api/network/signal", "POST", {query, mode: currentMode});
+    $("scanResult").textContent = result.analysis || "";
+    toast("Signal scan complete.");
+    $("sigQuery").value = "";
+    await load();
+  }catch(error){
+    $("scanResult").textContent = "";
+    toast(error.message);
+  }
+  btn.disabled = false;
+  btn.textContent = "Scan Signals";
+}
+
+setMode("graphene", $("mode-graphene"));
+(async() => {
+  try{
+    const me = await fetch("/api/auth/me", {credentials:"include"});
+    if(!me.ok){
+      window.location.href = "/login?next=/network/intel";
+      return;
+    }
+    const auth = await me.json();
+    if(!auth.authenticated || auth.user?.role !== "master"){
+      window.location.href = "/login?next=/network/intel";
+      return;
+    }
+    await load();
+  }catch(_error){
+    window.location.href = "/login?next=/network/intel";
+  }
+})();
+</script>
+</body>
+</html>

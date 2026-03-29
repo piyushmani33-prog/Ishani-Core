@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TechBuzz Navigator | Sourcing And Research Workspace</title>
+<meta name="theme-color" content="#08111d">
+<link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<style>
+:root{
+  --bg:#08111d;
+  --line:rgba(255,255,255,.1);
+  --text:#eef6ff;
+  --muted:#98afca;
+  --gold:#f1ca6b;
+  --cyan:#8ce8ff;
+  --vio:#bea9ff;
+  --teal:#8ff3cf;
+}
+body{margin:0;background:linear-gradient(180deg,#08111d,#0c1524 48%,#08111d);color:var(--text);font-family:"Trebuchet MS",sans-serif}
+.sky,.sky video,.sky::after{position:fixed;inset:0}
+.sky{z-index:0;overflow:hidden}
+.sky video{width:100%;height:100%;object-fit:cover;opacity:.2}
+.sky::after{content:"";background:radial-gradient(circle at 18% 20%,rgba(140,232,255,.18),transparent 24%),radial-gradient(circle at 80% 24%,rgba(190,169,255,.14),transparent 26%),linear-gradient(180deg,rgba(8,17,29,.2),rgba(8,17,29,.9))}
+.shell{position:relative;z-index:1;max-width:1550px;margin:0 auto;padding:0 16px 80px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 0;position:sticky;top:0;background:linear-gradient(180deg,rgba(8,17,29,.92),rgba(8,17,29,.76));backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.06);z-index:10}
+.brand strong{display:block;font-family:"Palatino Linotype",Georgia,serif;font-size:1.08rem}
+.brand span{display:block;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:10px;flex-wrap:wrap}
+.nav-links a{padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);text-decoration:none;font-weight:700;font-size:.82rem}
+.nav-links a:hover{border-color:rgba(140,232,255,.3);color:var(--cyan)}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;padding:24px 0 10px}
+.glass{border:1px solid rgba(255,255,255,.09);background:rgba(10,18,32,.62);backdrop-filter:blur(18px);box-shadow:0 24px 80px rgba(0,0,0,.28)}
+.hero-card{border-radius:28px;padding:26px}
+.eyebrow{display:inline-flex;padding:6px 12px;border-radius:999px;background:rgba(143,243,207,.08);border:1px solid rgba(143,243,207,.18);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:800;margin-bottom:14px}
+.hero h1{margin:0 0 12px;font-family:"Palatino Linotype",Georgia,serif;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08}
+.hero h1 span{background:linear-gradient(135deg,var(--cyan),var(--vio),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{margin:0;color:var(--muted);line-height:1.82}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.stat{padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+.stat strong{display:block;font-family:"Palatino Linotype",Georgia,serif;font-size:1.5rem;color:var(--gold);line-height:1}
+.stat span{display:block;margin-top:5px;font-size:.74rem;color:var(--muted);letter-spacing:.13em;text-transform:uppercase}
+.hero-side{border-radius:28px;padding:22px}
+.hero-side h3{margin:0 0 12px}
+.hero-side ul{margin:0;padding-left:18px;color:var(--muted);line-height:1.8;font-size:.88rem}
+.workspace{display:grid;grid-template-columns:320px 1fr 360px;gap:14px;margin-top:16px}
+.panel{border-radius:24px;padding:18px}
+.panel h2,.panel h3{margin:0 0 10px;font-size:1rem}
+.muted{color:var(--muted);font-size:.84rem;line-height:1.7}
+.quick-sites{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.quick-site{padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);cursor:pointer;transition:.18s}
+.quick-site:hover{border-color:rgba(140,232,255,.3);transform:translateY(-1px)}
+.quick-site strong{display:block;font-size:.88rem}
+.quick-site span{display:block;margin-top:4px;color:var(--muted);font-size:.76rem}
+.field,.notes{width:100%;padding:11px 13px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit}
+.notes{min-height:140px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row > *{flex:1}
+.btn{padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font-weight:800;cursor:pointer}
+.btn.primary{border:none;background:linear-gradient(135deg,var(--cyan),var(--vio));color:#07111f}
+.btn.gold{border:none;background:linear-gradient(135deg,var(--gold),#ffad69);color:#07111f}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.frame-wrap{border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(5,10,18,.75);overflow:hidden;min-height:720px;display:flex;flex-direction:column}
+.frame-toolbar{display:flex;gap:8px;align-items:center;padding:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.frame-toolbar input{flex:1}
+.frame-status{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem;color:var(--muted)}
+iframe{flex:1;width:100%;min-height:620px;border:none;background:#fff}
+.workspace-guide{margin:14px;border-radius:18px;border:1px solid rgba(140,232,255,.18);background:linear-gradient(180deg,rgba(140,232,255,.08),rgba(190,169,255,.05));padding:18px}
+.workspace-guide strong{display:block;font-size:1rem}
+.workspace-guide p{margin:10px 0 0;color:var(--muted);line-height:1.7}
+.workspace-guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.guide-card{padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+.guide-card span{display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.guide-card strong{font-size:.9rem}
+.workspace-guide .row{margin-top:14px}
+.session-list{display:flex;flex-direction:column;gap:8px;max-height:430px;overflow:auto}
+.session{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04)}
+.session strong{display:block;font-size:.88rem}
+.session .meta{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0;color:var(--muted);font-size:.74rem}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:.72rem;color:var(--muted)}
+.status-box{border-radius:16px;padding:14px;border:1px solid rgba(143,243,207,.16);background:rgba(143,243,207,.05);margin-top:12px;font-size:.82rem;color:var(--muted);line-height:1.7}
+@media(max-width:1250px){.workspace{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.frame-wrap{min-height:540px}iframe{min-height:420px}}
+@media(max-width:760px){.workspace-guide-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sky"><video autoplay muted loop playsinline src="/frontend-assets/media/nebula-orbit.mp4"></video></div>
+
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <strong>TechBuzz Navigator</strong>
+      <span>Explicit sourcing • browser workspace • approved learning</span>
+    </div>
+    <nav class="nav-links">
+      <a href="/agent/console">Agent Console</a>
+      <a href="/leazy">Leazy</a>
+      <a href="/company/portal">Public HQ</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <article class="hero-card glass">
+      <div class="eyebrow">Recruitment Browser Workspace</div>
+      <h1>Research, source, and capture learning through a <span>visible operator-controlled browser lane.</span></h1>
+      <p>This workspace is where sourcing and market research can happen cleanly. You choose the site, you choose what to capture, and only the approved learning gets written back into the shared brain mesh. No silent scraping, no hidden sending, no invisible surveillance.</p>
+      <div class="stats" id="navigatorStats">
+        <div class="stat"><strong>--</strong><span>Saved Captures</span></div>
+        <div class="stat"><strong>--</strong><span>Brain Lessons</span></div>
+        <div class="stat"><strong>--</strong><span>Mode</span></div>
+      </div>
+    </article>
+    <aside class="hero-side glass">
+      <h3>What this lane does</h3>
+      <ul>
+        <li>Opens approved sourcing and communication targets in one workspace</li>
+        <li>Lets operators keep precise research notes for a candidate, role, or market movement</li>
+        <li>Broadcasts approved learnings into the shared brain mesh so every connected brain can improve</li>
+        <li>Supports explicit opening of a local Naukri launcher when available on this machine</li>
+      </ul>
+      <div class="status-box" id="navigatorHeadline">Navigator status is loading.</div>
+    </aside>
+  </section>
+
+  <section class="workspace">
+    <aside class="panel glass">
+      <h2>Quick Sites</h2>
+      <p class="muted">Choose a target, open it inside the frame when allowed, or launch it in a normal tab when the site blocks embedding.</p>
+      <div class="quick-sites" id="quickSites"></div>
+      <div class="status-box" id="launcherStatus">Checking local sourcing launcher availability...</div>
+      <button class="btn gold" id="openLauncherBtn" onclick="openLocalLauncher()" disabled>Open Naukri Launcher</button>
+    </aside>
+
+    <main class="panel glass">
+      <div class="frame-wrap">
+        <div class="frame-toolbar">
+          <input class="field" id="navigatorUrl" placeholder="Enter a URL or choose a quick site">
+          <button class="btn" onclick="openEmbedded()">Open In Workspace</button>
+          <button class="btn primary" onclick="openExternal()">Open External</button>
+        </div>
+        <div class="frame-status" id="frameStatus">Open an internal page or an external site. Some sites block embedding and will work better through the external button.</div>
+        <div class="workspace-guide" id="workspaceGuide" hidden>
+          <strong id="workspaceGuideTitle">Research Workspace Guide</strong>
+          <p id="workspaceGuideCopy">This site works best through the visible external handoff. Preserve only the exact learning you want to keep.</p>
+          <div class="workspace-guide-grid">
+            <div class="guide-card">
+              <span>Best Path</span>
+              <strong id="workspaceGuidePath">Open External</strong>
+            </div>
+            <div class="guide-card">
+              <span>Learning Focus</span>
+              <strong id="workspaceGuideFocus">Role mapping, signals, and approved notes</strong>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn primary" onclick="openExternal()">Open External Now</button>
+            <button class="btn" onclick="forceEmbeddedOpen()">Try Frame Anyway</button>
+            <button class="btn" onclick="seedCapture()">Seed Capture</button>
+          </div>
+        </div>
+        <iframe id="navigatorFrame" src="/company/portal" title="TechBuzz Navigator Frame"></iframe>
+      </div>
+    </main>
+
+    <aside class="panel glass">
+      <h2>Learning Capture</h2>
+      <p class="muted">Save only the precise insight you want Ishani to learn. This is the safest way to let the system grow from real sourcing and research work.</p>
+      <input class="field" id="captureTitle" placeholder="Capture title">
+      <input class="field" id="captureTags" placeholder="Tags (comma separated): sourcing, naukri, react, delhi">
+      <select class="field" id="captureMode">
+        <option value="learning">Learning note</option>
+        <option value="candidate_signal">Candidate signal</option>
+        <option value="market_signal">Market signal</option>
+        <option value="client_note">Client note</option>
+      </select>
+      <textarea class="notes" id="captureNotes" placeholder="Write what mattered here: profile quality, response pattern, salary expectation, market movement, role insight, or next action."></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" onclick="saveCapture()">Save Learning</button>
+        <button class="btn" onclick="seedCapture()">Use Sample</button>
+      </div>
+      <div class="status-box" id="captureStatus">No learning saved yet in this session.</div>
+      <h3 style="margin-top:18px">Recent Captures</h3>
+      <div class="session-list" id="recentSessions"></div>
+    </aside>
+  </section>
+</div>
+
+<script src="/frontend-assets/navigator.js"></script>
+</body>
+</html>

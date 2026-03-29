@@ -1,0 +1,31 @@
+# Extracted/inspected zip artifacts – not part of the live workspace
+techbuzz-full/
+techbuzz-full-final.zip
+_zip_inspect_browser_complete/
+tmp_browser_complete_1/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files with secrets
+.env
+
+# SQLite runtime database
+backend_python/data/ishani_core.db
+
+# All runtime data (created at startup, never committed)
+backend_python/data/
+
+# Large media binaries
+frontend/media/
+
+# OS artefacts
+.DS_Store
+Thumbs.db
