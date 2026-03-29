@@ -3491,6 +3491,10 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "Remarks",
         ]
 
+    def _tsv_cell(value: Any) -> str:
+        """Sanitise a value for safe inclusion in a TSV cell (no tabs or newlines)."""
+        return str(value or "").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").replace("\t", " ")
+
     def tracker_export_lines(rows: List[Dict[str, Any]]) -> List[str]:
         lines = ["\t".join(tracker_export_headers())]
         for index, row in enumerate(rows, start=1):
@@ -3499,29 +3503,73 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
                     [
                         str(index),
                         str(row.get("updated_at", "") or row.get("profile_sharing_date", ""))[:19],
-                        str(row.get("recruiter", "")),
-                        str(row.get("client_name", "")),
-                        str(row.get("position", "")),
-                        str(row.get("candidate_name", "")),
-                        str(row.get("contact_no", "")),
-                        str(row.get("mail_id", "")),
-                        str(row.get("current_company", "")),
-                        str(row.get("current_location", "")),
-                        str(row.get("preferred_location", "")),
-                        str(row.get("total_exp", "")),
-                        str(row.get("relevant_exp", "")),
-                        str(row.get("notice_period", "")),
-                        str(row.get("current_ctc", "")),
-                        str(row.get("expected_ctc", "")),
-                        str((row.get("skill_snapshot", "") or "").replace("\t", " ")),
-                        str((row.get("role_scope", "") or "").replace("\t", " ")),
-                        str(row.get("sourced_from", "")),
-                        str(row.get("process_stage", "")),
-                        str(row.get("response_status", "")),
-                        str(row.get("submission_state", "")),
-                        str(row.get("follow_up_due_at", "")),
-                        str(row.get("client_spoc", "")),
-                        str((row.get("remarks", "") or "").replace("\t", " ")),
+                        _tsv_cell(row.get("recruiter", "")),
+                        _tsv_cell(row.get("client_name", "")),
+                        _tsv_cell(row.get("position", "")),
+                        _tsv_cell(row.get("candidate_name", "")),
+                        _tsv_cell(row.get("contact_no", "")),
+                        _tsv_cell(row.get("mail_id", "")),
+                        _tsv_cell(row.get("current_company", "")),
+                        _tsv_cell(row.get("current_location", "")),
+                        _tsv_cell(row.get("preferred_location", "")),
+                        _tsv_cell(row.get("total_exp", "")),
+                        _tsv_cell(row.get("relevant_exp", "")),
+                        _tsv_cell(row.get("notice_period", "")),
+                        _tsv_cell(row.get("current_ctc", "")),
+                        _tsv_cell(row.get("expected_ctc", "")),
+                        _tsv_cell(row.get("skill_snapshot", "")),
+                        _tsv_cell(row.get("role_scope", "")),
+                        _tsv_cell(row.get("sourced_from", "")),
+                        _tsv_cell(row.get("process_stage", "")),
+                        _tsv_cell(row.get("response_status", "")),
+                        _tsv_cell(row.get("submission_state", "")),
+                        _tsv_cell(row.get("follow_up_due_at", "")),
+                        _tsv_cell(row.get("client_spoc", "")),
+                        _tsv_cell(row.get("remarks", "")),
+                    ]
+                )
+            )
+        return lines
+
+    def _csv_cell(value: Any) -> str:
+        """Wrap a value in double-quotes for RFC 4180 CSV, escaping internal quotes."""
+        text = str(value or "").replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+        if "," in text or '"' in text:
+            text = '"' + text.replace('"', '""') + '"'
+        return text
+
+    def tracker_export_csv_lines(rows: List[Dict[str, Any]]) -> List[str]:
+        """Return CSV (comma-separated) lines for the same tracker data as the TSV export."""
+        lines = [",".join(_csv_cell(h) for h in tracker_export_headers())]
+        for index, row in enumerate(rows, start=1):
+            lines.append(
+                ",".join(
+                    [
+                        str(index),
+                        _csv_cell(str(row.get("updated_at", "") or row.get("profile_sharing_date", ""))[:19]),
+                        _csv_cell(row.get("recruiter", "")),
+                        _csv_cell(row.get("client_name", "")),
+                        _csv_cell(row.get("position", "")),
+                        _csv_cell(row.get("candidate_name", "")),
+                        _csv_cell(row.get("contact_no", "")),
+                        _csv_cell(row.get("mail_id", "")),
+                        _csv_cell(row.get("current_company", "")),
+                        _csv_cell(row.get("current_location", "")),
+                        _csv_cell(row.get("preferred_location", "")),
+                        _csv_cell(row.get("total_exp", "")),
+                        _csv_cell(row.get("relevant_exp", "")),
+                        _csv_cell(row.get("notice_period", "")),
+                        _csv_cell(row.get("current_ctc", "")),
+                        _csv_cell(row.get("expected_ctc", "")),
+                        _csv_cell(row.get("skill_snapshot", "")),
+                        _csv_cell(row.get("role_scope", "")),
+                        _csv_cell(row.get("sourced_from", "")),
+                        _csv_cell(row.get("process_stage", "")),
+                        _csv_cell(row.get("response_status", "")),
+                        _csv_cell(row.get("submission_state", "")),
+                        _csv_cell(row.get("follow_up_due_at", "")),
+                        _csv_cell(row.get("client_spoc", "")),
+                        _csv_cell(row.get("remarks", "")),
                     ]
                 )
             )
@@ -5252,6 +5300,7 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             filters=scoped_filters,
         )
         lines = tracker_export_lines(rows)
+        csv_lines = tracker_export_csv_lines(rows)
         window = report_window_for_scope(scope, scoped_filters)
         scope_label = {"tracker": "Tracker", "dsr": "DSR", "hsr": "HSR"}.get(scope, "Tracker")
         summary = tracker_summary_payload(rows)
@@ -5260,6 +5309,7 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "label": f"{scope_label} export",
             "row_count": len(rows),
             "tsv": "\n".join(lines),
+            "csv": "\n".join(csv_lines),
             "headline": f"{scope_label} copy sheet is ready. Paste the tab-separated block into Excel or chat.",
             "summary": summary,
             "filters": scoped_filters,

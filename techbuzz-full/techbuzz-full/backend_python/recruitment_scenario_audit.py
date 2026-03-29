@@ -493,6 +493,43 @@ def main() -> int:
     check(tracker_export.get("row_count", 0) >= 1, "Tracker export should include the candidate.")
     check("Candidate Name" in (tracker_export.get("tsv") or ""), "Tracker export should return Excel-style TSV headers.")
 
+    # CSV key and format checks
+    check("csv" in tracker_export, "Tracker export should include a csv key.")
+    check("Candidate Name" in (tracker_export.get("csv") or ""), "Tracker export CSV should include headers.")
+    tsv_lines = (tracker_export.get("tsv") or "").splitlines()
+    csv_lines = (tracker_export.get("csv") or "").splitlines()
+    check(len(tsv_lines) == len(csv_lines), "TSV and CSV exports should have the same number of rows.")
+    tsv_cols = tsv_lines[0].split("\t") if tsv_lines else []
+    csv_first = csv_lines[0] if csv_lines else ""
+    check(len(tsv_cols) == 25, "TSV header row should have 25 columns.")
+    check("Candidate Name" in csv_first, "CSV header should include Candidate Name column.")
+
+    # TSV integrity: no row should span multiple lines (newline contamination check)
+    for line_idx, tsv_line in enumerate(tsv_lines[1:], start=1):
+        col_count = len(tsv_line.split("\t"))
+        check(col_count == 25, f"TSV data row {line_idx} should have exactly 25 tab-separated columns (got {col_count}).")
+
+    # Empty transcript should be rejected with 400
+    response = member_client.post("/api/recruitment-tracker/capture", json={"transcript": ""})
+    check(response.status_code == 400, "Capture with empty transcript should return 400.")
+    response = member_client.post("/api/recruitment-tracker/capture", json={"transcript": "   "})
+    check(response.status_code == 400, "Capture with whitespace-only transcript should return 400.")
+
+    # User data isolation: a second member should not see first member's tracker rows
+    second_member_email = f"second.{suffix}@example.com"
+    second_client = TestClient(techbuzz_app.app)
+    second_client.post(
+        "/api/auth/register",
+        json={"name": "Second User", "email": second_member_email, "password": "TechBuzz123!", "plan_id": "starter"},
+    )
+    second_client.post("/api/auth/login", json={"email": second_member_email, "password": "TechBuzz123!"})
+    response = second_client.get("/api/recruitment-tracker/export?scope=tracker&search=Rahul%20Sharma")
+    second_export = json_of(response)
+    check(response.status_code in {200, 403}, "Second member export should not crash.")
+    if response.status_code == 200:
+        check(second_export.get("row_count", 0) == 0, "Second member should not see first member's tracker rows.")
+
+
     response = member_client.get("/api/recruitment-tracker/export?scope=dsr&search=Rahul%20Sharma")
     dsr_export = json_of(response)
     check(response.status_code == 200, "DSR export should work.")
