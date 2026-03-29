@@ -6772,6 +6772,224 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         events = recent_action_events(user["id"])
         return {"events": events, "count": len(events)}
 
+    class RecruiterStatusGenerateReq(BaseModel):
+        mode: str = "summary"
+        format: str = "plain_text"
+        filters: Optional[Dict[str, Any]] = None
+
+    @app.post("/api/recruiter-status/generate")
+    async def recruiter_status_generate(req: RecruiterStatusGenerateReq, request: Request):
+        user = require_member(request)
+        filters = dict(req.filters or {})
+        mode = req.mode if req.mode in ("summary", "sheet") else "summary"
+        fmt = req.format if req.format in ("plain_text", "tsv", "csv") else "plain_text"
+
+        if mode == "sheet":
+            date_from = parse_filter_date(filters.get("date_from", ""))
+            date_to = parse_filter_date(filters.get("date_to", ""))
+            recruiter_filter = clean_text(filters.get("recruiter", ""), 200)
+            client_filter = clean_text(filters.get("client_name", ""), 200)
+            position_filter = clean_text(filters.get("position", ""), 200)
+
+            params: List[Any] = [user["id"]]
+            where_clauses = ["user_id=?"]
+            if date_from:
+                where_clauses.append("(updated_at >= ? OR profile_sharing_date >= ?)")
+                params.extend([date_from.isoformat(), date_from.isoformat()])
+            if date_to:
+                where_clauses.append("(updated_at <= ? OR profile_sharing_date <= ?)")
+                params.extend([date_to.isoformat(), date_to.isoformat()])
+            if recruiter_filter:
+                where_clauses.append("LOWER(recruiter) LIKE ?")
+                params.append(f"%{recruiter_filter.lower()}%")
+            if client_filter:
+                where_clauses.append("LOWER(client_name) LIKE ?")
+                params.append(f"%{client_filter.lower()}%")
+            if position_filter:
+                where_clauses.append("LOWER(position) LIKE ?")
+                params.append(f"%{position_filter.lower()}%")
+
+            where_sql = " AND ".join(where_clauses)
+            rows = db_all(
+                f"SELECT position, process_stage, remarks FROM recruitment_tracker_rows WHERE {where_sql} ORDER BY position",
+                tuple(params),
+            ) or []
+
+            SHORTLIST_STAGES = {"shortlisted", "interview", "offer", "hired", "closed"}
+            INTERVIEW_STAGES = {"interview", "offer", "hired", "closed"}
+            OFFER_STAGES = {"offer", "hired", "closed"}
+            CLOSURE_STAGES = {"hired", "closed"}
+
+            from collections import defaultdict
+            role_data: Dict[str, Dict[str, Any]] = defaultdict(lambda: {
+                "sourced": 0,
+                "shortlisted": 0,
+                "interviews": 0,
+                "offers": 0,
+                "closures": 0,
+                "remarks_set": set(),
+            })
+            for row in rows:
+                role = clean_text(row.get("position", ""), 120) or "Unknown Role"
+                stage = clean_text(row.get("process_stage", ""), 60).lower()
+                remark = clean_text(row.get("remarks", ""), 80)
+                role_data[role]["sourced"] += 1
+                if stage in SHORTLIST_STAGES:
+                    role_data[role]["shortlisted"] += 1
+                if stage in INTERVIEW_STAGES:
+                    role_data[role]["interviews"] += 1
+                if stage in OFFER_STAGES:
+                    role_data[role]["offers"] += 1
+                if stage in CLOSURE_STAGES:
+                    role_data[role]["closures"] += 1
+                if remark:
+                    role_data[role]["remarks_set"].add(remark[:60])
+
+            headers = ["Role", "Profiles Sourced", "Shortlisted", "Interviews Scheduled", "Offers", "Closures", "Notes"]
+            sheet_rows = []
+            for role, counts in sorted(role_data.items()):
+                notes = ", ".join(sorted(counts["remarks_set"]))[:120]
+                sheet_rows.append([
+                    role,
+                    str(counts["sourced"]),
+                    str(counts["shortlisted"]),
+                    str(counts["interviews"]),
+                    str(counts["offers"]),
+                    str(counts["closures"]),
+                    notes,
+                ])
+
+            if fmt == "tsv":
+                lines = ["\t".join(headers)]
+                for r in sheet_rows:
+                    lines.append("\t".join(c.replace("\t", " ") for c in r))
+                output = "\n".join(lines)
+            elif fmt == "csv":
+                import csv as csv_mod
+                import io as io_mod
+
+                buf = io_mod.StringIO()
+                writer = csv_mod.writer(buf, lineterminator="\n")
+                writer.writerow(headers)
+                for r in sheet_rows:
+                    writer.writerow(r)
+                output = buf.getvalue()
+            else:
+                col_widths = [max(len(headers[i]), max((len(r[i]) for r in sheet_rows), default=0)) for i in range(len(headers))]
+                sep = "+" + "+".join("-" * (w + 2) for w in col_widths) + "+"
+                def fmt_row(cells: List[str]) -> str:
+                    return "|" + "|".join(f" {c:<{col_widths[i]}} " for i, c in enumerate(cells)) + "|"
+                lines = [sep, fmt_row(headers), sep]
+                for r in sheet_rows:
+                    lines.append(fmt_row(r))
+                lines.append(sep)
+                output = "\n".join(lines)
+
+            return {
+                "output": output,
+                "format": fmt,
+                "mode": "sheet",
+                "row_count": len(rows),
+                "role_count": len(role_data),
+                "generated_at": now_iso(),
+            }
+
+        # summary mode
+        export = tracker_export_payload(user, scope="tracker", filters=filters)
+        summary = export.get("summary", {})
+        totals = summary.get("totals", {})
+        dsr = summary.get("dsr", {})
+        hsr = summary.get("hsr", {})
+        rows_count = export.get("row_count", 0)
+        headline = export.get("headline", "")
+
+        lines_out = [
+            f"Recruiter Status Summary — {now_iso()[:10]}",
+            "",
+            f"Total tracker rows: {totals.get('rows', 0)}",
+            f"Submitted profiles: {totals.get('submitted', 0)}",
+            f"Interested candidates: {totals.get('interested', 0)}",
+            f"Ack sent: {totals.get('ack_sent', 0)}",
+            f"Ack confirmed: {totals.get('ack_confirmed', 0)}",
+            f"Drafts: {totals.get('drafts', 0)}",
+            f"Follow-ups due: {totals.get('follow_ups_due', 0)}",
+            "",
+            f"DSR (today): {dsr.get('profiles_processed', 0)} profiles, {dsr.get('interested', 0)} interested, {dsr.get('no_response', 0)} no response",
+            f"HSR (last 2h): {hsr.get('profiles_processed', 0)} profiles, {hsr.get('submitted', 0)} submitted, {hsr.get('ack_sent', 0)} ack sent",
+            "",
+            headline,
+        ]
+        output_text = "\n".join(lines_out)
+        if fmt == "tsv":
+            tsv_data = export.get("tsv", "")
+            output_text = tsv_data if tsv_data else output_text
+        elif fmt == "csv":
+            tsv_data = export.get("tsv", "")
+            if tsv_data:
+                output_text = "\n".join(
+                    ",".join('"' + c.replace('"', '""') + '"' for c in line.split("\t"))
+                    for line in tsv_data.splitlines()
+                )
+
+        return {
+            "output": output_text,
+            "format": fmt,
+            "mode": "summary",
+            "row_count": rows_count,
+            "generated_at": now_iso(),
+        }
+
+    @app.get("/api/recruiter-status/quick-stats")
+    async def recruiter_status_quick_stats(request: Request):
+        user = require_member(request)
+        user_id = user["id"]
+
+        total_rows_result = db_all(
+            "SELECT COUNT(*) AS cnt FROM recruitment_tracker_rows WHERE user_id=?",
+            (user_id,),
+        ) or []
+        total_rows = int((total_rows_result[0] or {}).get("cnt", 0) or 0) if total_rows_result else 0
+
+        stage_rows = db_all(
+            """
+            SELECT process_stage, COUNT(*) AS cnt
+            FROM recruitment_tracker_rows
+            WHERE user_id=?
+            GROUP BY process_stage
+            ORDER BY cnt DESC
+            """,
+            (user_id,),
+        ) or []
+        by_stage = {r.get("process_stage", "") or "sourced": int(r.get("cnt", 0) or 0) for r in stage_rows}
+
+        recent_rows = db_all(
+            """
+            SELECT candidate_name, position, process_stage, updated_at
+            FROM recruitment_tracker_rows
+            WHERE user_id=?
+            ORDER BY updated_at DESC
+            LIMIT 5
+            """,
+            (user_id,),
+        ) or []
+        recent = [
+            {
+                "candidate_name": r.get("candidate_name", ""),
+                "position": r.get("position", ""),
+                "process_stage": r.get("process_stage", ""),
+                "updated_at": r.get("updated_at", ""),
+            }
+            for r in recent_rows
+        ]
+
+        return {
+            "total_rows": total_rows,
+            "by_stage": by_stage,
+            "recent": recent,
+            "user_id": user_id,
+            "generated_at": now_iso(),
+        }
+
     return {
         "seed_brief": seed_brief,
         "learning_health_snapshot": learning_health_snapshot,

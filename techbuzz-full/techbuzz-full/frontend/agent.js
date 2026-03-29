@@ -1872,6 +1872,144 @@ async function sendAgentMessage() {
   await refreshAgentConsole();
 }
 
+// ── Recruiter Status Output ──────────────────────────────────────────────────
+
+let recruiterStatusOutput = "";
+
+async function generateRecruiterStatus() {
+  const mode = $("statusOutputMode")?.value || "summary";
+  const format = $("statusOutputFormat")?.value || "plain_text";
+  const filters = {
+    date_from: $("statusDateFrom")?.value || "",
+    date_to: $("statusDateTo")?.value || "",
+    recruiter: $("statusRecruiterFilter")?.value?.trim() || "",
+    client_name: $("statusClientFilter")?.value?.trim() || "",
+    position: $("statusPositionFilter")?.value?.trim() || "",
+  };
+  if ($("statusOutputArea")) {
+    $("statusOutputArea").textContent = "Generating " + mode + " output...";
+  }
+  if ($("statusGenerateInfo")) {
+    $("statusGenerateInfo").textContent = "";
+  }
+  try {
+    const data = await api("/api/recruiter-status/generate", {
+      method: "POST",
+      body: JSON.stringify({ mode, format, filters }),
+    });
+    recruiterStatusOutput = data.output || "";
+    if ($("statusOutputArea")) {
+      $("statusOutputArea").textContent = recruiterStatusOutput;
+    }
+    const info = [];
+    if (data.row_count !== undefined) info.push(`${data.row_count} tracker rows`);
+    if (data.role_count !== undefined) info.push(`${data.role_count} roles`);
+    info.push(`Generated at ${(data.generated_at || "").slice(0, 19).replace("T", " ")}`);
+    if ($("statusGenerateInfo")) {
+      $("statusGenerateInfo").textContent = info.join(" · ");
+    }
+    if ($("statusShareBtn") && navigator.share) {
+      $("statusShareBtn").style.display = "";
+    }
+  } catch (error) {
+    if ($("statusOutputArea")) {
+      $("statusOutputArea").textContent = error.message || "Generation failed.";
+    }
+  }
+}
+
+async function copyStatusOutput() {
+  if (!recruiterStatusOutput) {
+    if ($("statusGenerateInfo")) {
+      $("statusGenerateInfo").textContent = "Nothing to copy. Click Generate first.";
+    }
+    return;
+  }
+  const copied = await copyTextToClipboard(recruiterStatusOutput);
+  if ($("statusGenerateInfo")) {
+    $("statusGenerateInfo").textContent = copied ? "Copied to clipboard." : "Clipboard access blocked — select and copy manually.";
+  }
+}
+
+async function copyForTeams() {
+  if (!recruiterStatusOutput) {
+    if ($("statusGenerateInfo")) {
+      $("statusGenerateInfo").textContent = "Nothing to copy. Click Generate first.";
+    }
+    return;
+  }
+  const lines = recruiterStatusOutput.split("\n");
+  const teamsLines = lines.map((line, idx) => {
+    if (idx === 0 && line.trim()) return `**${line.trim()}**`;
+    if (line.startsWith("|") && line.endsWith("|")) return line;
+    if (line.startsWith("+-") || line.startsWith("+=")) return line;
+    return line;
+  });
+  const teamsText = teamsLines.join("\n");
+  const copied = await copyTextToClipboard(teamsText);
+  if ($("statusGenerateInfo")) {
+    $("statusGenerateInfo").textContent = copied ? "Teams-formatted output copied." : "Clipboard access blocked.";
+  }
+}
+
+async function copyForWhatsApp() {
+  if (!recruiterStatusOutput) {
+    if ($("statusGenerateInfo")) {
+      $("statusGenerateInfo").textContent = "Nothing to copy. Click Generate first.";
+    }
+    return;
+  }
+  const waText = "```\n" + recruiterStatusOutput + "\n```";
+  const copied = await copyTextToClipboard(waText);
+  if ($("statusGenerateInfo")) {
+    $("statusGenerateInfo").textContent = copied ? "WhatsApp-formatted output copied." : "Clipboard access blocked.";
+  }
+}
+
+async function shareStatus() {
+  if (!recruiterStatusOutput) {
+    if ($("statusGenerateInfo")) {
+      $("statusGenerateInfo").textContent = "Nothing to share. Click Generate first.";
+    }
+    return;
+  }
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "Recruiter Status", text: recruiterStatusOutput });
+      if ($("statusGenerateInfo")) {
+        $("statusGenerateInfo").textContent = "Shared successfully.";
+      }
+      return;
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error(error);
+      }
+    }
+  }
+  await copyStatusOutput();
+}
+
+async function loadRecruiterQuickStats() {
+  try {
+    const data = await api("/api/recruiter-status/quick-stats");
+    if ($("statusQuickStats")) {
+      const MAX_STAGE_STATS = 4; // show top stages to keep the stats grid compact
+      const stats = [
+        ["Total Rows", data.total_rows || 0],
+        ...Object.entries(data.by_stage || {}).slice(0, MAX_STAGE_STATS).map(([stage, cnt]) => [
+          stage.replace(/_/g, " "),
+          cnt,
+        ]),
+      ];
+      $("statusQuickStats").innerHTML = stats
+        .map(item => `<div class="stat"><span>${escapeHtml(String(item[0]))}</span><strong>${escapeHtml(String(item[1]))}</strong></div>`)
+        .join("");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function bootAgent() {
   try {
     const snapshot = await loadRecruitmentVaultSnapshot();
@@ -1967,6 +2105,7 @@ async function bootAgent() {
   });
   appendAgentBubble("ai", "Agent Console is online. I can now turn recruiter conversation notes into draft tracker memory, move confirmed resumes into finalized tracker rows after acknowledgment, keep the journey and interview desk updated, and prepare copy-ready DSR or HSR output.");
   await refreshAgentConsole();
+  loadRecruiterQuickStats().catch(error => console.error(error));
   connectAgentStream();
   setInterval(refreshAgentConsole, 15000);
   setInterval(() => {

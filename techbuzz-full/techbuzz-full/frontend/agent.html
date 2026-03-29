@@ -67,6 +67,7 @@
         <button class="quick-link" onclick="window.location.href='/ats#candidates'">ATS</button>
         <button class="quick-link" onclick="window.location.href='/media'">Media</button>
         <button class="quick-link" onclick="document.getElementById('actionCenterSection').scrollIntoView({behavior:'smooth'})">Action Center</button>
+        <button class="quick-link" onclick="document.getElementById('recruiterStatusSection').scrollIntoView({behavior:'smooth'})">Status Output</button>
       </div>
       <div class="stack-list compact" id="agentCabinetSummary"></div>
       <p class="muted" id="agentGuardian">Loading guardian status...</p>
@@ -277,6 +278,41 @@
       <div class="stack-list compact" id="discussionTrailList"></div>
       <div class="stack-list compact" id="reportHistoryList"></div>
       <div class="report-box" id="reportDeskExportBox">Filtered tracker or report export will appear here for copy-paste into Excel or chat.</div>
+    </article>
+  </section>
+
+  <section class="agent-grid pipeline" id="recruiterStatusSection">
+    <article class="agent-card" style="grid-column:1/-1">
+      <div class="card-head">
+        <h2>Recruiter Status Output</h2>
+        <button class="agent-btn small" onclick="generateRecruiterStatus()">Generate</button>
+      </div>
+      <div class="form-grid">
+        <select id="statusOutputMode">
+          <option value="summary">Summary (manager-ready text)</option>
+          <option value="sheet">Sheet (role-wise table)</option>
+        </select>
+        <select id="statusOutputFormat">
+          <option value="plain_text">Plain text</option>
+          <option value="tsv">TSV (paste into Excel)</option>
+          <option value="csv">CSV (file export)</option>
+        </select>
+        <input id="statusDateFrom" type="date" placeholder="From date">
+        <input id="statusDateTo" type="date" placeholder="To date">
+        <input id="statusRecruiterFilter" type="text" placeholder="Recruiter">
+        <input id="statusClientFilter" type="text" placeholder="Client name">
+        <input id="statusPositionFilter" type="text" placeholder="Position">
+      </div>
+      <div class="button-row">
+        <button class="agent-btn primary" onclick="generateRecruiterStatus()">Generate Output</button>
+        <button class="agent-btn" onclick="copyStatusOutput()">Copy Output</button>
+        <button class="agent-btn" onclick="copyForTeams()">Copy for Teams</button>
+        <button class="agent-btn" onclick="copyForWhatsApp()">Copy for WhatsApp</button>
+        <button class="agent-btn" id="statusShareBtn" onclick="shareStatus()" style="display:none">Share</button>
+      </div>
+      <div class="report-box" id="statusOutputArea" style="min-height:200px;font-family:monospace;font-size:.93rem">Recruiter Status Output will appear here. Choose a mode and click Generate.</div>
+      <p class="muted" id="statusGenerateInfo"></p>
+      <div class="stats-grid" id="statusQuickStats"></div>
     </article>
   </section>
 
