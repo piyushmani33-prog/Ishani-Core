@@ -510,10 +510,16 @@ def install_brain_contract_registry_layer(app, ctx: Dict[str, Any]) -> Dict[str,
                 "VALUES (?,0,0,0,0,0,0,0,0.0,1.0,?)",
                 (brain_id, ts),
             )
-        db_exec(
-            f"UPDATE brain_health_metrics SET {metric} = {metric} + ?, updated_at=? WHERE brain_id=?",
-            (increment, ts, brain_id),
-        )
+        # Use pre-built queries keyed by validated metric name to avoid f-string SQL
+        _METRIC_QUERIES = {
+            "tasks_created":       "UPDATE brain_health_metrics SET tasks_created = tasks_created + ?, updated_at=? WHERE brain_id=?",
+            "tasks_resolved":      "UPDATE brain_health_metrics SET tasks_resolved = tasks_resolved + ?, updated_at=? WHERE brain_id=?",
+            "actions_approved":    "UPDATE brain_health_metrics SET actions_approved = actions_approved + ?, updated_at=? WHERE brain_id=?",
+            "actions_rejected":    "UPDATE brain_health_metrics SET actions_rejected = actions_rejected + ?, updated_at=? WHERE brain_id=?",
+            "conflicts_generated": "UPDATE brain_health_metrics SET conflicts_generated = conflicts_generated + ?, updated_at=? WHERE brain_id=?",
+            "events_processed":    "UPDATE brain_health_metrics SET events_processed = events_processed + ?, updated_at=? WHERE brain_id=?",
+        }
+        db_exec(_METRIC_QUERIES[metric], (increment, ts, brain_id))
         # Recompute health score
         _recompute_health(brain_id)
 
