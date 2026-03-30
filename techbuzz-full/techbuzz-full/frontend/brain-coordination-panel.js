@@ -78,6 +78,12 @@ const BrainCoordPanel = {
         case "reject-insight":  await BrainCoordPanel.rejectInsight(id); break;
         case "accept-proposal": await BrainCoordPanel.acceptProposal(id); break;
         case "reject-proposal": await BrainCoordPanel.rejectProposal(id); break;
+        case "trigger-followup": await BrainCoordPanel.triggerFollowUp(); break;
+        case "trigger-ack":      await BrainCoordPanel.triggerAck(); break;
+        case "trigger-status":   await BrainCoordPanel.triggerStatus(); break;
+        case "autopilot-approve": await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "approve"); break;
+        case "autopilot-reject":  await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "reject"); break;
+        case "autopilot-copy":    await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "copy"); break;
         case "refresh": await BrainCoordPanel.refresh(); break;
         default: break;
       }
@@ -100,6 +106,7 @@ const BrainCoordPanel = {
       BrainCoordPanel._loadSafety(),
       BrainCoordPanel._loadLearning(),
       BrainCoordPanel._loadEvolution(),
+      BrainCoordPanel._loadAutopilot(),
     ]);
   },
 
@@ -316,6 +323,52 @@ const BrainCoordPanel = {
     }
   },
 
+  async _loadAutopilot() {
+    try {
+      const data = await _bcpApi("/api/recruitment/autopilot/runs?limit=10");
+      const container = document.getElementById("bcp-autopilot-list");
+      if (!container) return;
+      if (!data.runs || data.runs.length === 0) {
+        container.innerHTML = "<p class='bcp-empty'>No autopilot runs yet. Use the buttons above to trigger a workflow.</p>";
+        return;
+      }
+      let html = "";
+      for (const run of data.runs) {
+        const workflowBadge = {
+          follow_up: "bcp-badge-yellow",
+          acknowledgment: "bcp-badge-blue",
+          daily_status: "bcp-badge-purple",
+        }[run.workflow] || "bcp-badge-blue";
+
+        const statusBadge = run.status === "completed" ? "bcp-badge-green"
+          : run.status === "awaiting_approval" ? "bcp-badge-orange"
+          : "bcp-badge-gray";
+
+        html += `<div class="bcp-card">
+          <span class="bcp-badge ${workflowBadge}">${_esc(run.workflow)}</span>
+          <span class="bcp-badge ${statusBadge}">${_esc(run.status)}</span>
+          <span class="bcp-meta">event: ${_esc(run.event_id)} &nbsp;|&nbsp; ${_esc(run.created_at)}</span>`;
+
+        // Show action IDs with approve/reject buttons for pending runs
+        const actionIds = (run.summary && run.summary.action_ids) || [];
+        if (run.status === "awaiting_approval" && actionIds.length > 0) {
+          for (const aid of actionIds) {
+            html += `<div class="bcp-actions" style="margin-top:4px;">
+              <span class="bcp-meta" style="flex:1">${_esc(aid)}</span>
+              <button class="bcp-btn bcp-btn-green" data-action="autopilot-approve" data-id="${_esc(aid)}" data-run-id="${_esc(run.id)}">✓ Approve</button>
+              <button class="bcp-btn bcp-btn-red"   data-action="autopilot-reject"  data-id="${_esc(aid)}" data-run-id="${_esc(run.id)}">✗ Reject</button>
+              <button class="bcp-btn bcp-btn-blue"  data-action="autopilot-copy"    data-id="${_esc(aid)}" data-run-id="${_esc(run.id)}">📋 Copy</button>
+            </div>`;
+          }
+        }
+        html += `</div>`;
+      }
+      container.innerHTML = html;
+    } catch (err) {
+      console.error("[BCP] autopilot error:", err);
+    }
+  },
+
   // -----------------------------------------------------------------------
   // Button handlers
   // -----------------------------------------------------------------------
@@ -413,6 +466,56 @@ const BrainCoordPanel = {
     } catch (err) { _bcpToast("Error: " + err.message); }
   },
 
+  async triggerFollowUp() {
+    const name = prompt("Candidate name for follow-up:", "");
+    if (!name) return;
+    const position = prompt("Position:", "Open Role");
+    try {
+      await _bcpApi("/api/recruitment/autopilot/follow-up", {
+        method: "POST",
+        body: JSON.stringify({ candidate_name: name, position: position || "" }),
+      });
+      _bcpToast("Follow-up loop triggered ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async triggerAck() {
+    const name = prompt("Candidate name for acknowledgment:", "");
+    if (!name) return;
+    const position = prompt("Position:", "Open Role");
+    try {
+      await _bcpApi("/api/recruitment/autopilot/acknowledgment", {
+        method: "POST",
+        body: JSON.stringify({ candidate_name: name, position: position || "" }),
+      });
+      _bcpToast("Acknowledgment loop triggered ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async triggerStatus() {
+    try {
+      await _bcpApi("/api/recruitment/autopilot/status", {
+        method: "POST",
+        body: JSON.stringify({ scope: "daily", format: "both" }),
+      });
+      _bcpToast("Status loop triggered ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async autopilotAction(runId, actionId, action) {
+    try {
+      await _bcpApi(`/api/recruitment/autopilot/runs/${runId}/actions/${actionId}`, {
+        method: "POST",
+        body: JSON.stringify({ action }),
+      });
+      _bcpToast(`Action ${action}d ✓`);
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
   // -----------------------------------------------------------------------
   // HTML skeleton
   // -----------------------------------------------------------------------
@@ -459,6 +562,16 @@ const BrainCoordPanel = {
           <section class="bcp-section">
             <h3>🧬 Evolution Proposals</h3>
             <div id="bcp-evolution-list"><p class="bcp-empty">Loading…</p></div>
+          </section>
+
+          <section class="bcp-section bcp-section-wide">
+            <h3>🚀 Recruitment Autopilot</h3>
+            <div class="bcp-actions" style="margin-bottom:8px;">
+              <button class="bcp-btn bcp-btn-yellow" data-action="trigger-followup">📩 Follow-Up Loop</button>
+              <button class="bcp-btn bcp-btn-blue"   data-action="trigger-ack">✉️ Acknowledgment Loop</button>
+              <button class="bcp-btn bcp-btn-green"  data-action="trigger-status">📊 Daily Status Loop</button>
+            </div>
+            <div id="bcp-autopilot-list"><p class="bcp-empty">Loading…</p></div>
           </section>
         </div>
       </div>
