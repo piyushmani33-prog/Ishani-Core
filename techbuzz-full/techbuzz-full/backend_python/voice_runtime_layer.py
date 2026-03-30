@@ -108,6 +108,12 @@ def install_voice_runtime_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             headline_parts.append("Local TTS ready")
         else:
             headline_parts.append("Browser TTS fallback")
+        tts_ok = pyttsx3_available or melo_available
+        browser_fallback_active = not tts_ok
+        # ready_for_user: user can interact via voice if STT is present OR browser fallback covers TTS
+        ready_for_user = stt_available or browser_fallback_active
+        # ready_for_automation: requires both STT and local TTS to avoid human-in-the-loop
+        ready_for_automation = stt_available and tts_ok
         return {
             "enabled": True,
             "stt_engine": config.get("stt_engine", "faster_whisper"),
@@ -117,14 +123,18 @@ def install_voice_runtime_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "vad_available": vad_available,
             "use_vad": bool(config.get("use_vad", True)),
             "tts_engine": preferred_tts,
-            "tts_available": pyttsx3_available or melo_available,
+            "tts_available": tts_ok,
             "pyttsx3_available": pyttsx3_available,
             "melo_available": melo_available,
+            "browser_tts_fallback_active": browser_fallback_active,
             "streaming_enabled": bool(config.get("streaming_enabled", True)),
             "language": config.get("language", "en-IN"),
             "response_style": config.get("response_style", "concise_enterprise"),
             "gpu": gpu_status(),
             "headline": " | ".join(headline_parts),
+            "degraded": not stt_available or not tts_ok,
+            "ready_for_user": ready_for_user,
+            "ready_for_automation": ready_for_automation,
             "notes": [
                 "The local voice loop is capture -> transcribe -> think -> synthesize.",
                 "Whisper handles speech-to-text, VAD trims silence, and the main brain produces concise replies.",
