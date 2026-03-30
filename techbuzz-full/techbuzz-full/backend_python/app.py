@@ -47,6 +47,8 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from phase_exposure_layer import install_phase_exposure_layer
+from role_router_layer import install_role_router_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10261,6 +10263,22 @@ try:
     seed_market_ready_brains()
 except Exception as exc:
     log.warning("Unable to seed market-ready brains: %s", exc)
+
+_PHASE_LAYER_CTX = install_phase_exposure_layer(
+    app,
+    {
+        "session_user": session_user,
+        "DATA_DIR": DATA_DIR,
+    },
+)
+
+_ROLE_ROUTER_CTX = install_role_router_layer(
+    app,
+    {
+        "session_user": session_user,
+        "get_phase": _PHASE_LAYER_CTX["get_phase"],
+    },
+)
 
 
 if __name__ == "__main__":
