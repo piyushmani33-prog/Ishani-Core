@@ -47,6 +47,8 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from phase_exposure_layer import install_phase_exposure_layer
+from role_router_layer import install_role_router_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10255,6 +10257,27 @@ register_recruiter_status_routes(
     session_user=session_user,
     generate_text=generate_text,
     log=log,
+)
+
+PHASE_EXPOSURE_LAYER = install_phase_exposure_layer(
+    app,
+    {
+        "session_user": session_user,
+        "DATA_DIR": DATA_DIR,
+        "log": log,
+    },
+)
+
+ROLE_ROUTER_LAYER = install_role_router_layer(
+    app,
+    {
+        "session_user": session_user,
+        "log": log,
+        "load_phase": PHASE_EXPOSURE_LAYER.get("load_phase"),
+        "save_phase": PHASE_EXPOSURE_LAYER.get("save_phase"),
+        "phase_config": PHASE_EXPOSURE_LAYER.get("phase_config"),
+        "visibility_for_role": PHASE_EXPOSURE_LAYER.get("visibility_for_role"),
+    },
 )
 
 try:
