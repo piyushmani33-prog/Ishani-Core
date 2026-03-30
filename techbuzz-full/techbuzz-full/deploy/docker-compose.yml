@@ -4,23 +4,31 @@ services:
   techbuzz-empire:
     build: ..
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:8000"
+    env_file:
+      - .env.production
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - MASTER_EMAIL=piyushmani33@gmail.com
-      - MASTER_KEY_SALT=7da6609f793750fa55889aa5953517a1
-      - MASTER_KEY_HASH=13939481a08f3607cf527a8bc790d77388fcccc692f6c68b5492ab8bc5fb2003
-      - LEAZY_AI_NAME=Leazy Jinn
-      - LEAZY_COMPANY_NAME=TechBuzz Systems
-      - LEAZY_CORE_IDENTITY=Ishani
-      - ALLOWED_ORIGINS=*
+      - MASTER_ACCOUNT_EMAIL=${MASTER_ACCOUNT_EMAIL}
+      - MASTER_PASSWORD_SALT=${MASTER_PASSWORD_SALT}
+      - MASTER_PASSWORD_HASH=${MASTER_PASSWORD_HASH}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - LEAZY_AI_NAME=${LEAZY_AI_NAME:-Leazy Jinn}
+      - LEAZY_COMPANY_NAME=${LEAZY_COMPANY_NAME:-TechBuzz Systems}
+      - LEAZY_CORE_IDENTITY=${LEAZY_CORE_IDENTITY:-Ishani}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost,http://127.0.0.1}
+      - DEMO_MODE=${DEMO_MODE:-false}
+      - ADMIN_ROUTES_ENABLED=${ADMIN_ROUTES_ENABLED:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-30}
+      - PORT=8000
     volumes:
       - empire_data:/app/backend_python/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
