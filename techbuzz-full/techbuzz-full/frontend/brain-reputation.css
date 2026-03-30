@@ -1,0 +1,297 @@
+/* Brain Reputation Dashboard — dark theme with neon accents */
+
+:root {
+  --br-bg:      #05070d;
+  --br-surface: #0d1120;
+  --br-panel:   rgba(14, 16, 30, 0.92);
+  --br-line:    rgba(255, 255, 255, 0.1);
+  --br-text:    #edf2ff;
+  --br-muted:   #8899b8;
+  --br-dim:     #3a4a64;
+  --br-green:   #90f2d2;
+  --br-gold:    #f1ca6b;
+  --br-blue:    #87dfff;
+  --br-rose:    #f39ddd;
+  --br-violet:  #c1a1ff;
+  --br-danger:  #ff847d;
+  --br-r:       14px;
+  --br-r-sm:    8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--br-bg);
+  color: var(--br-text);
+  font-family: "Trebuchet MS", "Segoe UI Variable", ui-sans-serif, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* ── Layout shell ── */
+.br-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 16px 80px;
+}
+
+/* ── Header ── */
+.br-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid var(--br-line);
+  margin-bottom: 20px;
+}
+.br-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--br-blue);
+}
+.br-brand-orb {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--br-violet), var(--br-blue) 70%);
+  box-shadow: 0 0 12px rgba(135,223,255,.5);
+  flex-shrink: 0;
+}
+.br-btn {
+  padding: 7px 14px;
+  border-radius: var(--br-r-sm);
+  border: 1px solid var(--br-line);
+  background: rgba(255,255,255,.04);
+  color: var(--br-muted);
+  font-size: .82rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.br-btn:hover { background: rgba(135,223,255,.08); color: var(--br-blue); }
+.br-btn.primary {
+  background: rgba(135,223,255,.12);
+  color: var(--br-blue);
+  border-color: rgba(135,223,255,.3);
+}
+
+/* ── Section headings ── */
+.br-section {
+  margin-bottom: 28px;
+}
+.br-section-title {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--br-muted);
+  margin: 0 0 10px;
+}
+
+/* ── Cards / panels ── */
+.br-card {
+  background: var(--br-panel);
+  border: 1px solid var(--br-line);
+  border-radius: var(--br-r);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.br-card-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--br-blue);
+  margin: 0 0 4px;
+}
+.br-card-sub {
+  font-size: .78rem;
+  color: var(--br-muted);
+  margin-bottom: 10px;
+}
+
+/* ── Trust Score Bars ── */
+.br-brain-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: var(--br-r-sm);
+  background: rgba(255,255,255,.025);
+  border: 1px solid var(--br-line);
+  margin-bottom: 8px;
+}
+.br-brain-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.br-brain-id {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--br-text);
+}
+.br-trust-badge {
+  font-size: .75rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+.br-trust-badge.high   { background: rgba(144,242,210,.15); color: var(--br-green); }
+.br-trust-badge.medium { background: rgba(241,202,107,.12); color: var(--br-gold); }
+.br-trust-badge.low    { background: rgba(255,132,125,.12); color: var(--br-danger); }
+
+.br-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .75rem;
+  color: var(--br-muted);
+}
+.br-bar-label { width: 90px; flex-shrink: 0; }
+.br-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.br-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .4s;
+}
+.br-bar-fill.reliability { background: var(--br-blue); }
+.br-bar-fill.usefulness  { background: var(--br-violet); }
+.br-bar-fill.trust       { background: var(--br-green); }
+.br-bar-fill.low         { background: var(--br-danger); }
+.br-bar-val { width: 36px; text-align: right; color: var(--br-text); font-weight: 600; }
+
+/* ── Schedules table ── */
+.br-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+.br-table th {
+  text-align: left;
+  padding: 6px 10px;
+  color: var(--br-muted);
+  border-bottom: 1px solid var(--br-line);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.br-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  vertical-align: middle;
+}
+.br-table tr:last-child td { border-bottom: none; }
+.br-table tbody tr:hover td { background: rgba(255,255,255,.025); }
+
+/* ── Status pills ── */
+.br-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.br-pill.success { background: rgba(144,242,210,.15); color: var(--br-green); }
+.br-pill.failure { background: rgba(255,132,125,.15); color: var(--br-danger); }
+.br-pill.skipped { background: rgba(241,202,107,.12); color: var(--br-gold); }
+.br-pill.active  { background: rgba(135,223,255,.12); color: var(--br-blue); }
+
+/* ── Weak brains ── */
+.br-weak-card {
+  border-left: 3px solid var(--br-danger);
+  padding: 10px 14px;
+  border-radius: var(--br-r-sm);
+  background: rgba(255,132,125,.05);
+  margin-bottom: 8px;
+  font-size: .83rem;
+}
+.br-weak-name { font-weight: 700; color: var(--br-danger); }
+.br-weak-rec  { color: var(--br-muted); margin-top: 3px; font-size: .79rem; }
+
+/* ── Routing log ── */
+.br-routing-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--br-r-sm);
+  border: 1px solid var(--br-line);
+  background: rgba(255,255,255,.02);
+  margin-bottom: 6px;
+  font-size: .8rem;
+}
+.br-routing-chosen {
+  font-weight: 700;
+  color: var(--br-blue);
+  min-width: 120px;
+}
+.br-routing-type {
+  color: var(--br-violet);
+  min-width: 90px;
+}
+.br-routing-reason {
+  color: var(--br-muted);
+  flex: 1;
+}
+.br-routing-ts {
+  color: var(--br-dim);
+  font-size: .73rem;
+  white-space: nowrap;
+}
+
+/* ── Empty states ── */
+.br-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--br-muted);
+  font-size: .85rem;
+}
+
+/* ── Loading spinner ── */
+.br-loading {
+  color: var(--br-muted);
+  font-size: .82rem;
+  padding: 12px 0;
+}
+
+/* ── Grid layout ── */
+.br-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* ── Scheduler status bar ── */
+.br-sched-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .82rem;
+  color: var(--br-muted);
+  margin-bottom: 10px;
+}
+.br-sched-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--br-dim);
+}
+.br-sched-dot.running { background: var(--br-green); box-shadow: 0 0 6px var(--br-green); }
+
+@media (max-width: 640px) {
+  .br-grid { grid-template-columns: 1fr; }
+  .br-table { font-size: .75rem; }
+  .br-routing-row { flex-direction: column; gap: 2px; }
+}
