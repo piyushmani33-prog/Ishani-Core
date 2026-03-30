@@ -4,7 +4,7 @@ import re
 import xml.etree.ElementTree as ET
 from html import unescape
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus
 
 import httpx
@@ -167,6 +167,7 @@ def install_empire_merge_layer(app, ctx: Dict[str, Any]) -> None:
     now_iso = ctx["now_iso"]
     session_user = ctx["session_user"]
     generate_text = ctx["generate_text"]
+    brain_aware_generate = ctx.get("brain_aware_generate")
     get_state = ctx["get_state"]
     frontend_dir = Path(ctx["FRONTEND_DIR"])
     ai_name = ctx["AI_NAME"]
@@ -195,7 +196,17 @@ def install_empire_merge_layer(app, ctx: Dict[str, Any]) -> None:
         source: str,
         max_tokens: int = 500,
         use_web_search: bool = False,
+        brain_id: Optional[str] = None,
     ) -> Dict[str, Any]:
+        if brain_id and brain_aware_generate:
+            return await brain_aware_generate(
+                prompt,
+                brain_id=brain_id,
+                max_tokens=max_tokens,
+                use_web_search=use_web_search,
+                source=source,
+                workspace=workspace,
+            )
         return await generate_text(
             prompt,
             system=(

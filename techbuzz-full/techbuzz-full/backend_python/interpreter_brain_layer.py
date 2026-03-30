@@ -52,6 +52,8 @@ def install_interpreter_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
     provider_config = ctx["provider_config"]
     active_provider_label = ctx["active_provider_label"]
     external_ai_allowed_for_source = ctx["external_ai_allowed_for_source"]
+    brain_aware_generate = ctx.get("brain_aware_generate")
+    brain_aware_local_llm = ctx.get("brain_aware_local_llm")
     AI_NAME = ctx["AI_NAME"]
     CORE_IDENTITY = ctx["CORE_IDENTITY"]
     log = ctx["log"]
@@ -296,12 +298,20 @@ def install_interpreter_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         )
         local_provider_chain = ["built-in"]
         try:
-            local = await call_local_llm(
-                system=system_prompt,
-                prompt=user_prompt,
-                max_tokens=96 if source == "voice" else 180,
-            )
-            local_provider_chain = [f"ollama/{local.get('model', 'local')}"]
+            active_brain_id = (target_brain or "interpreter_brain")
+            if brain_aware_local_llm:
+                local = await brain_aware_local_llm(
+                    user_prompt,
+                    brain_id=active_brain_id,
+                    max_tokens=96 if source == "voice" else 180,
+                )
+            else:
+                local = await call_local_llm(
+                    system=system_prompt,
+                    prompt=user_prompt,
+                    max_tokens=96 if source == "voice" else 180,
+                )
+            local_provider_chain = [local.get("provider", f"ollama/{local.get('model', 'local')}".strip("/"))]
             parsed = parse_json_blob(local.get("text", ""))
             if isinstance(parsed, dict):
                 translation.update(parsed)
