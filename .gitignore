@@ -1,3 +1,44 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Environment / Secrets
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data / DB
+*.db
+*.sqlite3
+data/*.db
+
+# Temporary / Generated
+tmp_*/
+_zip_*/
+*.zip
+
+# Node (if any frontend tooling)
+node_modules/
+
+# Logs
+*.log
