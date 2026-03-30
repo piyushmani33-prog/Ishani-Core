@@ -58,6 +58,7 @@ from learning_engine_layer import install_learning_engine_layer
 from evolution_layer import install_evolution_layer
 from recruitment_autopilot_layer import install_recruitment_autopilot_layer
 from autonomous_brain_loop_layer import install_autonomous_brain_loop_layer
+from brain_contract_registry_layer import install_brain_contract_registry_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10332,6 +10333,11 @@ try:
     install_autonomous_brain_loop_layer(app, _COORD_CTX)
 except Exception as _e:
     log.warning("install_autonomous_brain_loop_layer failed: %s", _e)
+
+try:
+    install_brain_contract_registry_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_brain_contract_registry_layer failed: %s", _e)
 
 
 if __name__ == "__main__":

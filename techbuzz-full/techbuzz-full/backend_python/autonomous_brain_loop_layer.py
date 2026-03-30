@@ -62,6 +62,21 @@ def install_autonomous_brain_loop_layer(app, ctx: Dict[str, Any]) -> Dict[str, A
     evolution_submit_proposal = ctx.get("evolution_submit_proposal")
     memory_set              = ctx.get("memory_set")
 
+    # Contract helpers — resolved lazily since contract layer installs after us
+    def _contract_check_event(brain_id: str, event_type: str) -> bool:
+        fn = ctx.get("contract_check_event")
+        return fn(brain_id, event_type) if fn else True
+
+    def _contract_record_metric(brain_id: str, metric: str, increment: int = 1) -> None:
+        fn = ctx.get("contract_record_metric")
+        if fn:
+            fn(brain_id, metric, increment)
+
+    def _contract_log_violation(brain_id: str, vtype: str, detail: Optional[Dict] = None) -> None:
+        fn = ctx.get("contract_log_violation")
+        if fn:
+            fn(brain_id, vtype, detail)
+
     # ------------------------------------------------------------------
     # DB setup
     # ------------------------------------------------------------------
@@ -281,13 +296,25 @@ def install_autonomous_brain_loop_layer(app, ctx: Dict[str, Any]) -> Dict[str, A
                     # --- 5. Generate action drafts from aggregated tasks ---
                     if action_create_from_task:
                         for task in result.get("final_actions", []):
+                            brain_id = task.get("brain_id", "")
+                            task_type = task.get("task_type", "")
+
+                            # Contract enforcement: check if brain may resolve this task type
+                            if brain_id and not _contract_check_event(brain_id, task_type):
+                                _contract_log_violation(
+                                    brain_id,
+                                    "task_type_not_allowed",
+                                    {"task_type": task_type, "task_id": task.get("id", "")},
+                                )
+                                continue
+
                             # Safety dedup check
                             content_json = json.dumps(task.get("output_data", {}))
                             target = task.get("input_data", {}).get("row_id", "")
                             if safety_check_duplicate:
                                 dup_result = safety_check_duplicate(
                                     task.get("id", ""),
-                                    task.get("task_type", ""),
+                                    task_type,
                                     target,
                                     content_json,
                                 )
@@ -300,6 +327,10 @@ def install_autonomous_brain_loop_layer(app, ctx: Dict[str, Any]) -> Dict[str, A
                                 "action_id": action.get("id", ""),
                                 "type": action.get("action_type", ""),
                             })
+
+                            # Record metric
+                            if brain_id:
+                                _contract_record_metric(brain_id, "tasks_resolved")
         except Exception as exc:
             errors += 1
             log.warning("[AutonomousLoop] task processing error: %s", exc)

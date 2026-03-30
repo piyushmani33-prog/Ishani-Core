@@ -83,7 +83,11 @@ def install_brain_executor_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         log.info("[BrainExecutor] registered brain '%s' for events: %s", brain_id, event_types)
 
     def _make_dispatch(brain_id: str, handler_fn: Callable) -> Callable:
-        """Wrap *handler_fn* so each invocation is logged and fault-isolated."""
+        """Wrap *handler_fn* so each invocation is logged and fault-isolated.
+
+        Consults brain contracts (if available) to verify the brain is
+        allowed to process the event type before invoking the handler.
+        """
         async def _dispatch(event: Dict[str, Any]) -> None:
             exec_id = new_id("bexec")
             created_at = now_iso()
@@ -91,10 +95,31 @@ def install_brain_executor_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             event_type = event.get("event_type", "")
             status = "ok"
             error_msg = None
+
+            # --- Contract enforcement ---
+            contract_check = ctx.get("contract_check_event")
+            if contract_check and not contract_check(brain_id, event_type):
+                status = "blocked"
+                error_msg = f"Contract violation: brain '{brain_id}' not allowed to process '{event_type}'"
+                log.info("[BrainExecutor] %s", error_msg)
+                # Log violation
+                violation_fn = ctx.get("contract_log_violation")
+                if violation_fn:
+                    violation_fn(brain_id, "event_not_allowed", {"event_type": event_type, "event_id": event_id})
+                db_exec(
+                    "INSERT INTO brain_execution_log (id, brain_id, event_id, event_type, status, error_msg, created_at) VALUES (?,?,?,?,?,?,?)",
+                    (exec_id, brain_id, event_id, event_type, status, error_msg, created_at),
+                )
+                return
+
             try:
                 result = handler_fn(event)
                 if asyncio.isfuture(result) or asyncio.iscoroutine(result):
                     await result
+                # Record metric
+                metric_fn = ctx.get("contract_record_metric")
+                if metric_fn:
+                    metric_fn(brain_id, "events_processed")
             except Exception as exc:
                 status = "error"
                 error_msg = str(exc)

@@ -111,6 +111,7 @@ const BrainCoordPanel = {
       BrainCoordPanel._loadEvolution(),
       BrainCoordPanel._loadAutopilot(),
       BrainCoordPanel._loadAutonomousLoop(),
+      BrainCoordPanel._loadBrainContracts(),
     ]);
   },
 
@@ -582,6 +583,94 @@ const BrainCoordPanel = {
     } catch (err) { _bcpToast("Error: " + err.message); }
   },
 
+  async _loadBrainContracts() {
+    try {
+      const data = await _bcpApi("/api/brain-contracts");
+      const healthData = await _bcpApi("/api/brain-contracts/health/all");
+      const container = document.getElementById("bcp-contracts-list");
+      if (!container) return;
+
+      const contracts = data.contracts || [];
+      const healthMap = {};
+      (healthData.health || []).forEach(h => { healthMap[h.brain_id] = h; });
+
+      if (!contracts.length) {
+        container.innerHTML = "<p class='bcp-empty'>No brain contracts registered.</p>";
+        return;
+      }
+
+      // Group by layer
+      const byLayer = {};
+      contracts.forEach(c => {
+        const layer = c.layer || "unknown";
+        if (!byLayer[layer]) byLayer[layer] = [];
+        byLayer[layer].push(c);
+      });
+
+      const layerOrder = ["mother", "executive", "secretary", "domain", "machine", "tool", "atom"];
+      const layerEmoji = {mother:"🌌",executive:"⚡",secretary:"🎯",tool:"🔧",domain:"🌐",machine:"⚙️",atom:"⚛️"};
+
+      let html = "";
+      for (const layer of layerOrder) {
+        const group = byLayer[layer];
+        if (!group || !group.length) continue;
+        html += `<div class="bcp-contract-layer"><h4>${layerEmoji[layer] || "🧩"} ${_esc(layer.charAt(0).toUpperCase() + layer.slice(1))} Layer</h4>`;
+        for (const c of group) {
+          const h = healthMap[c.brain_id] || {};
+          const healthPct = Math.round((h.health_score || 1) * 100);
+          const learningPct = Math.round((h.learning_score || 0) * 100);
+          const healthColor = healthPct >= 80 ? "bcp-badge-green" : healthPct >= 50 ? "bcp-badge-yellow" : "bcp-badge-red";
+          html += `
+            <div class="bcp-card bcp-contract-card">
+              <div class="bcp-contract-header">
+                <strong>${_esc(c.name || c.brain_id)}</strong>
+                <span class="bcp-badge ${healthColor}">Health ${healthPct}%</span>
+              </div>
+              <span class="bcp-meta"><em>${_esc(c.role)}</em> &nbsp;|&nbsp; Disclosure: ${_esc(c.disclosure_level)}</span>
+              <p class="bcp-msg" style="margin:4px 0 6px">${_esc(c.mission)}</p>
+              <div class="bcp-contract-metrics">
+                <span title="Tasks Created">📝 ${h.tasks_created || 0}</span>
+                <span title="Tasks Resolved">✅ ${h.tasks_resolved || 0}</span>
+                <span title="Approved">👍 ${h.actions_approved || 0}</span>
+                <span title="Rejected">👎 ${h.actions_rejected || 0}</span>
+                <span title="Conflicts">⚠️ ${h.conflicts_generated || 0}</span>
+                <span title="Events Processed">📡 ${h.events_processed || 0}</span>
+                <span title="Violations">🚫 ${h.violations || 0}</span>
+                <span title="Learning">📊 ${learningPct}%</span>
+              </div>
+              <div class="bcp-contract-detail">
+                <span class="bcp-meta">Events: ${(c.allowed_events || []).join(", ")}</span>
+                <span class="bcp-meta">Create: ${(c.task_types_can_create || []).join(", ")}</span>
+                <span class="bcp-meta">Resolve: ${(c.task_types_can_resolve || []).join(", ")}</span>
+                <span class="bcp-meta">Evolution: ${_esc(c.evolution_scope)} &nbsp;|&nbsp; Learning: ${(c.learning_targets || []).join(", ")}</span>
+              </div>
+            </div>`;
+        }
+        html += "</div>";
+      }
+
+      // Violations preview
+      try {
+        const vData = await _bcpApi("/api/brain-contracts/violations/recent?limit=5");
+        if (vData.violations && vData.violations.length) {
+          html += `<div class="bcp-contract-layer"><h4>🚫 Recent Violations</h4>`;
+          for (const v of vData.violations) {
+            html += `<div class="bcp-card bcp-card-danger">
+              <span class="bcp-badge bcp-badge-red">${_esc(v.violation_type)}</span>
+              <span class="bcp-meta">brain: ${_esc(v.brain_id)} &nbsp;|&nbsp; ${_esc(v.created_at)}</span>
+              <pre class="bcp-json">${_esc(JSON.stringify(v.detail, null, 2))}</pre>
+            </div>`;
+          }
+          html += "</div>";
+        }
+      } catch (_) { /* violations optional */ }
+
+      container.innerHTML = html;
+    } catch (err) {
+      console.error("[BCP] brain contracts error:", err);
+    }
+  },
+
   // -----------------------------------------------------------------------
   // HTML skeleton
   // -----------------------------------------------------------------------
@@ -649,6 +738,11 @@ const BrainCoordPanel = {
             </div>
             <div id="bcp-loop-status"><p class="bcp-empty">Loading…</p></div>
           </section>
+
+          <section class="bcp-section bcp-section-wide">
+            <h3>📜 Brain Contracts &amp; Health</h3>
+            <div id="bcp-contracts-list"><p class="bcp-empty">Loading…</p></div>
+          </section>
         </div>
       </div>
     `;
@@ -693,6 +787,14 @@ const BrainCoordPanel = {
       .bcp-btn-red    { background: #dc2626; color: #fff; }
       .bcp-btn-gray   { background: #475569; color: #fff; }
       .bcp-btn-yellow { background: #d97706; color: #fff; }
+      .bcp-badge-gray  { background: #475569; color: #fff; }
+      .bcp-contract-layer { margin-bottom: 12px; }
+      .bcp-contract-layer h4 { margin: 0 0 6px; font-size: 0.85rem; color: #94a3b8; }
+      .bcp-contract-card { border-left: 3px solid #334155; }
+      .bcp-contract-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+      .bcp-contract-header strong { font-size: 0.85rem; }
+      .bcp-contract-metrics { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.7rem; color: #94a3b8; margin: 4px 0; }
+      .bcp-contract-detail { border-top: 1px solid #1e293b; margin-top: 4px; padding-top: 4px; }
     `;
     document.head.appendChild(style);
   },
