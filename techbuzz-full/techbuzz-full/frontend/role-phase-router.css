@@ -1,0 +1,162 @@
+/*
+ * role-phase-router.css
+ * =====================
+ * Styles for the Role + Phase Router system in Ishani Core / TechBuzz.
+ *
+ * Provides:
+ *   - .rp-hidden       — hides nav items/elements that are not in the current phase
+ *   - .rp-role-badge   — role indicator chip shown in the nav header
+ *   - .rp-phase-badge  — phase indicator chip shown in the nav header
+ *   - .rp-restricted   — wrapper for a dashboard not yet unlocked
+ *   - .rp-restricted-overlay — full-cover overlay for restricted dashboards
+ */
+
+/* -------------------------------------------------------------------------
+   Hidden elements (visibility-gated by role/phase)
+   ------------------------------------------------------------------------- */
+.rp-hidden {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------------------
+   Role badge
+   ------------------------------------------------------------------------- */
+.rp-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(143, 243, 207, 0.28);
+  background: rgba(143, 243, 207, 0.08);
+  color: #8ff3cf;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+.rp-role-badge::before {
+  content: "●";
+  font-size: 0.55rem;
+  color: #8ff3cf;
+}
+
+/* Role-specific colours */
+.rp-role-badge[data-role="founder_admin"] {
+  border-color: rgba(241, 202, 107, 0.35);
+  background: rgba(241, 202, 107, 0.09);
+  color: #f1ca6b;
+}
+
+.rp-role-badge[data-role="founder_admin"]::before {
+  color: #f1ca6b;
+}
+
+.rp-role-badge[data-role="recruiter"] {
+  border-color: rgba(140, 232, 255, 0.3);
+  background: rgba(140, 232, 255, 0.08);
+  color: #8ce8ff;
+}
+
+.rp-role-badge[data-role="recruiter"]::before {
+  color: #8ce8ff;
+}
+
+.rp-role-badge[data-role="candidate"] {
+  border-color: rgba(190, 169, 255, 0.3);
+  background: rgba(190, 169, 255, 0.08);
+  color: #bea9ff;
+}
+
+.rp-role-badge[data-role="candidate"]::before {
+  color: #bea9ff;
+}
+
+/* -------------------------------------------------------------------------
+   Phase badge
+   ------------------------------------------------------------------------- */
+.rp-phase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.70rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(190, 169, 255, 0.28);
+  background: rgba(190, 169, 255, 0.07);
+  color: #bea9ff;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+.rp-phase-badge[data-phase="5"] {
+  border-color: rgba(241, 202, 107, 0.35);
+  background: rgba(241, 202, 107, 0.08);
+  color: #f1ca6b;
+}
+
+/* -------------------------------------------------------------------------
+   Restricted-dashboard overlay
+   ------------------------------------------------------------------------- */
+.rp-restricted {
+  position: relative;
+  overflow: hidden;
+}
+
+.rp-restricted-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 17, 29, 0.82);
+  backdrop-filter: blur(8px);
+  border-radius: inherit;
+}
+
+.rp-restricted-message {
+  text-align: center;
+  padding: 24px 32px;
+  max-width: 340px;
+}
+
+.rp-lock-icon {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.rp-restricted-message strong {
+  display: block;
+  font-family: "Palatino Linotype", Georgia, serif;
+  font-size: 1.1rem;
+  color: #eef6ff;
+  margin-bottom: 8px;
+}
+
+.rp-restricted-message p {
+  margin: 0;
+  color: #98afca;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+/* -------------------------------------------------------------------------
+   Nav row helper — wraps role + phase badges in the topbar
+   ------------------------------------------------------------------------- */
+.rp-nav-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
