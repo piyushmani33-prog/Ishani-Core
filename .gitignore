@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.pyo
+*.db
+techbuzz-full/techbuzz-full/backend_python/data/empire_state.json

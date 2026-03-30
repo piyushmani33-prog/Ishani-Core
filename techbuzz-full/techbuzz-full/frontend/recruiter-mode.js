@@ -146,6 +146,10 @@ async function rmLoadStats() {
   document.getElementById("statInterviews").textContent = data.interviews_scheduled ?? "—";
   document.getElementById("statOffers").textContent     = data.offers           ?? "—";
   document.getElementById("statClosures").textContent   = data.closures         ?? "—";
+  const fuCount = data.followups_pending ?? 0;
+  document.getElementById("statFollowups").textContent  = fuCount;
+  const fuStat = document.querySelector(".rm-stat-followup");
+  if (fuStat) fuStat.classList.toggle("has-alerts", fuCount > 0);
 }
 
 // ── Tracker rows ──────────────────────────────────────────────────────────────
@@ -315,9 +319,132 @@ function rmToggleForm() {
   if (toggle) toggle.classList.toggle("collapsed", !rmFormVisible);
 }
 
+// ── Follow-Up Assistant ───────────────────────────────────────────────────────
+async function rmScanFollowups() {
+  const list = document.getElementById("rmFollowupList");
+  list.innerHTML = '<div class="rm-tracker-empty"><span class="rm-spin"></span> Scanning for inactive candidates…</div>';
+  const panel = document.getElementById("rmFollowupPanel");
+  if (panel) panel.style.display = "";
+
+  const data = await rmApi("/api/recruitment/followup-assistant/scan");
+  if (!data) {
+    list.innerHTML = '<div class="rm-tracker-empty">Could not scan — try again.</div>';
+    return;
+  }
+  rmRenderFollowups(data.tasks || []);
+  if (data.new_detected > 0) {
+    rmToast(`🔔 ${data.new_detected} new follow-up(s) detected`);
+  } else if ((data.tasks || []).length === 0) {
+    rmToast("✓ No follow-ups needed right now");
+  }
+  rmLoadStats();
+}
+
+async function rmLoadFollowups() {
+  const data = await rmApi("/api/recruitment/followup-assistant/tasks?status=pending");
+  if (!data) return;
+  const panel = document.getElementById("rmFollowupPanel");
+  if (panel) panel.style.display = (data.tasks && data.tasks.length > 0) ? "" : "none";
+  rmRenderFollowups(data.tasks || []);
+}
+
+function rmRenderFollowups(tasks) {
+  const list = document.getElementById("rmFollowupList");
+  if (!tasks.length) {
+    list.innerHTML = '<div class="rm-tracker-empty">No pending follow-ups. Use 🔍 Scan to check for inactive candidates.</div>';
+    return;
+  }
+  list.innerHTML = tasks.map(t => `
+    <div class="rm-followup-item" data-task-id="${esc(t.id)}">
+      <div class="rm-followup-header">
+        <div>
+          <div class="rm-followup-name">${esc(t.candidate_name || "Unknown")}</div>
+          <div class="rm-followup-meta">${esc(t.position || "—")} · ${esc(t.reason || "Follow-up needed")}</div>
+        </div>
+        <span class="rm-badge rm-badge-followup">Follow-up</span>
+      </div>
+      <div class="rm-followup-draft">
+        <label>Message Draft:</label>
+        <div class="rm-followup-message">${esc(t.message_draft || "No draft available.")}</div>
+      </div>
+      <div class="rm-followup-actions">
+        <button class="rm-btn small rm-fu-action" data-action="copy" data-task="${esc(t.id)}" title="Copy message to clipboard">📋 Copy</button>
+        <button class="rm-btn small rm-fu-action" data-action="regenerate" data-task="${esc(t.id)}" title="Regenerate with AI">🔄 Regenerate</button>
+        <button class="rm-btn small green rm-fu-action" data-action="complete" data-task="${esc(t.id)}" title="Mark as done">✅ Done</button>
+        <button class="rm-btn small rm-fu-action" data-action="dismiss" data-task="${esc(t.id)}" title="Dismiss this alert">✕ Dismiss</button>
+      </div>
+    </div>
+  `).join("");
+
+  // Attach event listeners via delegation
+  list.querySelectorAll(".rm-fu-action").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const taskId = btn.dataset.task;
+      const action = btn.dataset.action;
+      if (action === "copy") rmCopyFollowup(taskId);
+      else if (action === "regenerate") rmRegenerateFollowup(taskId);
+      else if (action === "complete") rmCompleteFollowup(taskId);
+      else if (action === "dismiss") rmDismissFollowup(taskId);
+    });
+  });
+}
+
+function rmCopyFollowup(taskId) {
+  const item = document.querySelector(`.rm-followup-item[data-task-id="${CSS.escape(taskId)}"]`);
+  if (!item) return;
+  const msg = item.querySelector(".rm-followup-message");
+  if (!msg) return;
+  rmCopyText(msg.textContent.trim());
+  rmToast("✓ Follow-up message copied");
+}
+
+async function rmCompleteFollowup(taskId) {
+  const data = await rmApi("/api/recruitment/followup-assistant/complete", {
+    method: "POST",
+    body: JSON.stringify({ task_id: taskId }),
+  });
+  if (!data) { rmToast("⚠ Could not mark as complete"); return; }
+  rmToast("✓ Follow-up marked as completed");
+  rmLoadFollowups();
+  rmLoadStats();
+}
+
+async function rmDismissFollowup(taskId) {
+  const data = await rmApi("/api/recruitment/followup-assistant/dismiss", {
+    method: "POST",
+    body: JSON.stringify({ task_id: taskId }),
+  });
+  if (!data) { rmToast("⚠ Could not dismiss"); return; }
+  rmToast("✓ Follow-up dismissed");
+  rmLoadFollowups();
+  rmLoadStats();
+}
+
+async function rmRegenerateFollowup(taskId) {
+  const item = document.querySelector(`.rm-followup-item[data-task-id="${CSS.escape(taskId)}"]`);
+  if (item) {
+    const msg = item.querySelector(".rm-followup-message");
+    if (msg) msg.innerHTML = '<span class="rm-spin"></span> Regenerating…';
+  }
+  const data = await rmApi("/api/recruitment/followup-assistant/regenerate", {
+    method: "POST",
+    body: JSON.stringify({ task_id: taskId }),
+  });
+  if (!data || !data.task) {
+    rmToast("⚠ Could not regenerate message");
+    rmLoadFollowups();
+    return;
+  }
+  if (item) {
+    const msg = item.querySelector(".rm-followup-message");
+    if (msg) msg.textContent = data.task.message_draft || "No draft available.";
+  }
+  rmToast("✓ Message regenerated");
+}
+
 // ── Refresh all data ──────────────────────────────────────────────────────────
 async function rmRefreshAll() {
-  await Promise.all([rmLoadStats(), rmLoadTracker()]);
+  await Promise.all([rmLoadStats(), rmLoadTracker(), rmLoadFollowups()]);
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

@@ -29,7 +29,22 @@
     <div class="rm-stat"><strong id="statInterviews">—</strong><span>Interviews</span></div>
     <div class="rm-stat"><strong id="statOffers">—</strong><span>Offers</span></div>
     <div class="rm-stat"><strong id="statClosures">—</strong><span>Closures</span></div>
+    <div class="rm-stat rm-stat-followup"><strong id="statFollowups">—</strong><span>Follow-ups</span></div>
   </div>
+
+  <!-- Follow-Up Alert Panel -->
+  <article class="rm-card rm-followup-panel" id="rmFollowupPanel" style="display:none">
+    <div class="rm-card-head">
+      <h2>🔔 Follow-Up Needed</h2>
+      <div style="display:flex;gap:8px">
+        <button class="rm-btn small" onclick="rmScanFollowups()">🔍 Scan</button>
+        <button class="rm-btn small" onclick="rmLoadFollowups()">⟳ Refresh</button>
+      </div>
+    </div>
+    <div class="rm-followup-list" id="rmFollowupList">
+      <div class="rm-tracker-empty">No pending follow-ups.</div>
+    </div>
+  </article>
 
   <!-- Top action bar -->
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">

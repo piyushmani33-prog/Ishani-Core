@@ -7771,6 +7771,7 @@ async def api_root():
             "/api/leazy/chat",
             "/api/brain/status",
             "/api/brain/hierarchy",
+            "/api/brain/list",
             "/api/brain/pulse",
             "/api/cabinet/status",
             "/api/cabinet/prime-minister",
@@ -9094,6 +9095,42 @@ async def nervous_system_status():
 @app.get("/api/brain/hierarchy")
 async def brain_hierarchy_status():
     return brain_hierarchy_payload()
+
+
+@app.get("/api/brain/list")
+async def brain_list():
+    """Return a concise catalog of every brain in the hierarchy."""
+    hierarchy = brain_hierarchy_payload()
+    brains = hierarchy.get("brains", [])
+    layer_order = {"mother": 0, "executive": 1, "secretary": 2, "domain": 3, "machine": 4, "tool": 5, "atom": 6}
+    catalog = []
+    for brain in brains:
+        catalog.append({
+            "id": brain.get("id", ""),
+            "name": brain.get("name", ""),
+            "layer": brain.get("layer", ""),
+            "kind": brain.get("kind", brain.get("identity", "")),
+            "status": brain.get("status", ""),
+            "parent_id": brain.get("parent_id", ""),
+            "domain": brain.get("domain", ""),
+            "role_title": brain.get("role_title", ""),
+            "emoji": brain.get("emoji", "🧩"),
+            "learning_score": brain.get("learning_score", 0),
+            "children_count": brain.get("children_count", 0),
+        })
+    catalog.sort(key=lambda b: (layer_order.get(b["layer"], 7), b["name"]))
+    layers_summary = {}
+    for brain in catalog:
+        layer = brain["layer"]
+        if layer not in layers_summary:
+            layers_summary[layer] = {"count": 0, "brains": []}
+        layers_summary[layer]["count"] += 1
+        layers_summary[layer]["brains"].append(brain["id"])
+    return {
+        "total": len(catalog),
+        "layers": layers_summary,
+        "brains": catalog,
+    }
 
 
 @app.get("/api/brain/auto-repair/status")
