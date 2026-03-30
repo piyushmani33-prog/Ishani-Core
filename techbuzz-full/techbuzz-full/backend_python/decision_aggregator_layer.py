@@ -103,14 +103,18 @@ def install_decision_aggregator_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
             # Sort by authority (most authoritative first), then priority (lower = higher priority)
             tasks_sorted = sorted(tasks, key=lambda t: (_brain_authority(t["brain_id"]), t["priority"]))
 
-            # Check for contradictions: if output_data differs in intent, flag conflict
-            # Simple heuristic: if tasks have different "message" prefixes
-            unique_messages = set()
-            for t in tasks_sorted:
-                msg = t.get("output_data", {}).get("message", "")
-                unique_messages.add(msg[:60])  # compare first 60 chars as rough intent key
+            # Check for contradictions: tasks with different primary output fields
+            # are considered conflicting for non-idempotent task types.
+            # alert and status_update are idempotent by nature — always merge.
+            # A 'conflict' is defined as tasks having mutually exclusive top-level
+            # output keys (e.g. one says "action": "send" vs "action": "wait").
+            def _conflict_key(t: Dict) -> str:
+                od = t.get("output_data", {})
+                return od.get("action", od.get("intent", od.get("message", "")[:80]))
 
-            if len(unique_messages) > 1 and task_type not in ("alert", "status_update"):
+            unique_intent_keys = set(_conflict_key(t) for t in tasks_sorted)
+
+            if len(unique_intent_keys) > 1 and task_type not in ("alert", "status_update"):
                 # Potential conflict — flag all, create resolution task
                 for t in tasks_sorted:
                     update_task_status(t["id"], "conflict")

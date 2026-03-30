@@ -6,6 +6,7 @@ and exposes REST APIs for publishing, querying the log, and listing subscription
 """
 
 import asyncio
+import inspect
 import json
 from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional
@@ -88,9 +89,12 @@ def install_event_bus_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         if handlers:
             async def _safe_call(fn, ev):
                 try:
-                    result = fn(ev)
-                    if asyncio.isfuture(result) or asyncio.iscoroutine(result):
-                        await result
+                    if inspect.iscoroutinefunction(fn):
+                        await fn(ev)
+                    else:
+                        result = fn(ev)
+                        if asyncio.isfuture(result) or asyncio.iscoroutine(result):
+                            await result
                 except Exception as exc:
                     log.warning("[EventBus] handler %s failed for event %s: %s", getattr(fn, "__name__", fn), event_id, exc)
 

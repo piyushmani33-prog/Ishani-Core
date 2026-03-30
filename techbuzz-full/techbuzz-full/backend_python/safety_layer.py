@@ -82,27 +82,28 @@ def install_safety_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
     def check_duplicate(action_id: str, action_type: str, target: str, content_json: str, window_seconds: int = _DEDUP_WINDOW_SECONDS) -> Dict[str, Any]:
         """Check if an identical action was executed recently.
 
+        Deduplication key = SHA-256(action_type | target | content_json).
+        The *target* argument should identify the entity the action targets
+        (e.g. candidate_id, row_id).  Pass an empty string if not applicable.
+
         Returns {"passed": True} or {"passed": False, "reason": "..."}
         """
         content_hash = _content_hash(action_type, target, content_json)
         cutoff = (datetime.now(timezone.utc) - timedelta(seconds=window_seconds)).isoformat()
 
-        # Check action_drafts for recently executed matching hash
+        # Compare against recently executed actions using the same hash
         rows = db_all(
-            "SELECT id, action_type, content_json, executed_at FROM action_drafts WHERE action_type=? AND status='executed' AND executed_at >= ?",
-            (action_type, cutoff),
+            "SELECT id FROM safety_blocks WHERE content_hash=? AND overridden=0 AND created_at >= ?",
+            (content_hash, cutoff),
         )
-        for row in rows:
-            existing_hash = _content_hash(row[1], target, row[2])
-            if existing_hash == content_hash:
-                reason = f"Duplicate of already-executed action {row[0]} within {window_seconds}s window"
-                _log_check(action_id, "duplicate", "blocked", reason)
-                # Record block
-                db_exec(
-                    "INSERT OR IGNORE INTO safety_blocks (id, action_id, content_hash, reason, overridden, created_at) VALUES (?,?,?,?,0,?)",
-                    (new_id("blk"), action_id, content_hash, reason, now_iso()),
-                )
-                return {"passed": False, "reason": reason, "content_hash": content_hash}
+        if rows:
+            reason = f"Duplicate of recently blocked/executed action (hash={content_hash[:12]}…) within {window_seconds}s window"
+            _log_check(action_id, "duplicate", "blocked", reason)
+            db_exec(
+                "INSERT OR IGNORE INTO safety_blocks (id, action_id, content_hash, reason, overridden, created_at) VALUES (?,?,?,?,0,?)",
+                (new_id("blk"), action_id, content_hash, reason, now_iso()),
+            )
+            return {"passed": False, "reason": reason, "content_hash": content_hash}
 
         _log_check(action_id, "duplicate", "passed")
         return {"passed": True, "content_hash": content_hash}

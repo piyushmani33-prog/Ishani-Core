@@ -56,8 +56,28 @@ const BrainCoordPanel = {
 
     el.innerHTML = BrainCoordPanel._buildSkeleton();
     BrainCoordPanel._attachStyles();
+    BrainCoordPanel._attachDelegation(el);
     BrainCoordPanel.refresh();
     BrainCoordPanel._pollHandle = setInterval(BrainCoordPanel.refresh, BrainCoordPanel._pollInterval);
+  },
+
+  /** Event delegation — handles all data-action buttons to avoid XSS-prone inline handlers. */
+  _attachDelegation(rootEl) {
+    rootEl.addEventListener("click", async (evt) => {
+      const btn = evt.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id || "";
+      switch (action) {
+        case "approve-task":   await BrainCoordPanel.approveTask(id); break;
+        case "reject-task":    await BrainCoordPanel.rejectTask(id); break;
+        case "execute-action": await BrainCoordPanel.executeAction(id); break;
+        case "dismiss-action": await BrainCoordPanel.dismissAction(id); break;
+        case "override-safety": await BrainCoordPanel.overrideSafety(id); break;
+        case "refresh": await BrainCoordPanel.refresh(); break;
+        default: break;
+      }
+    });
   },
 
   unmount() {
@@ -118,8 +138,8 @@ const BrainCoordPanel = {
           <span class="bcp-meta">brain: ${_esc(t.brain_id)} &nbsp;|&nbsp; priority: ${t.priority} &nbsp;|&nbsp; ${_esc(t.created_at)}</span>
           <p class="bcp-msg">${_esc(t.output_data && t.output_data.message ? t.output_data.message : JSON.stringify(t.output_data))}</p>
           <div class="bcp-actions">
-            <button class="bcp-btn bcp-btn-green" onclick="BrainCoordPanel.approveTask('${_esc(t.id)}')">Approve</button>
-            <button class="bcp-btn bcp-btn-red"   onclick="BrainCoordPanel.rejectTask('${_esc(t.id)}')">Reject</button>
+            <button class="bcp-btn bcp-btn-green" data-action="approve-task" data-id="${_esc(t.id)}">Approve</button>
+            <button class="bcp-btn bcp-btn-red"   data-action="reject-task"  data-id="${_esc(t.id)}">Reject</button>
           </div>
         </div>
       `).join("");
@@ -168,8 +188,8 @@ const BrainCoordPanel = {
           <span class="bcp-meta">task: ${_esc(a.task_id)} &nbsp;|&nbsp; ${_esc(a.created_at)}</span>
           <p class="bcp-msg">${_esc(a.content && a.content.message ? a.content.message : JSON.stringify(a.content))}</p>
           <div class="bcp-actions">
-            <button class="bcp-btn bcp-btn-green" onclick="BrainCoordPanel.executeAction('${_esc(a.id)}')">Execute</button>
-            <button class="bcp-btn bcp-btn-gray"  onclick="BrainCoordPanel.dismissAction('${_esc(a.id)}')">Dismiss</button>
+            <button class="bcp-btn bcp-btn-green" data-action="execute-action" data-id="${_esc(a.id)}">Execute</button>
+            <button class="bcp-btn bcp-btn-gray"  data-action="dismiss-action" data-id="${_esc(a.id)}">Dismiss</button>
           </div>
         </div>
       `).join("");
@@ -195,7 +215,7 @@ const BrainCoordPanel = {
             <span class="bcp-badge bcp-badge-red">BLOCKED</span>
             <span class="bcp-meta">action: ${_esc(b.action_id)} &nbsp;|&nbsp; ${_esc(b.created_at)}</span>
             <p class="bcp-msg">${_esc(b.reason)}</p>
-            <button class="bcp-btn bcp-btn-yellow" onclick="BrainCoordPanel.overrideSafety('${_esc(b.action_id)}')">Override</button>
+            <button class="bcp-btn bcp-btn-yellow" data-action="override-safety" data-id="${_esc(b.action_id)}">Override</button>
           </div>
         `).join("");
       }
@@ -254,8 +274,10 @@ const BrainCoordPanel = {
   },
 
   async overrideSafety(actionId) {
-    const reason = prompt("Override reason (master only):", "Manual master override");
-    if (reason === null) return;
+    // Use confirm() for a simpler, non-blocking-prompt approach.
+    // This avoids multi-step modal infrastructure while remaining explicit.
+    if (!confirm(`Override safety block for action "${actionId}"?\n\nThis is a master-only operation. Confirm to proceed.`)) return;
+    const reason = "Manual master override";
     try {
       await _bcpApi(`/api/safety/override/${actionId}`, { method: "POST", body: JSON.stringify({ reason }) });
       _bcpToast("Safety block overridden ✓");
@@ -283,7 +305,7 @@ const BrainCoordPanel = {
       <div class="bcp-panel">
         <div class="bcp-header">
           <h2>🧠 Brain Coordination Dashboard</h2>
-          <button class="bcp-btn bcp-btn-blue" onclick="BrainCoordPanel.refresh()">⟳ Refresh</button>
+          <button class="bcp-btn bcp-btn-blue" data-action="refresh">⟳ Refresh</button>
         </div>
 
         <div class="bcp-grid">

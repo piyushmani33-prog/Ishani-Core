@@ -173,7 +173,7 @@ def install_task_system_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
         params.append(limit)
         rows = db_all(
-            f"SELECT id, brain_id, event_id, task_type, input_json, output_json, priority, status, created_at, resolved_at FROM brain_tasks {where} ORDER BY priority ASC, created_at DESC LIMIT ?",
+            f"SELECT id, brain_id, event_id, task_type, input_json, output_json, priority, status, created_at, resolved_at FROM brain_tasks {where} ORDER BY priority ASC, created_at ASC LIMIT ?",
             tuple(params),
         )
         return {"ok": True, "tasks": [_row_to_dict(r) for r in rows]}
