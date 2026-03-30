@@ -314,12 +314,19 @@ def register_recruiter_status_routes(
             (uid, f"{today_pfx}%"),
         ) or {}
 
+        followups = db_one(
+            "SELECT COUNT(*) AS n FROM follow_up_tasks "
+            "WHERE user_id=? AND status='pending'",
+            (uid,),
+        ) or {}
+
         return {
             "total_rows": _safe_int(total_rows.get("n")),
             "today_updated": _safe_int(today_updated.get("n")),
             "interviews_scheduled": _safe_int(interviews.get("n")),
             "offers": _safe_int(offers.get("n")),
             "closures": _safe_int(closures.get("n")),
+            "followups_pending": _safe_int(followups.get("n")),
         }
 
     # ------------------------------------------------------------------
