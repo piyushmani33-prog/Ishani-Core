@@ -21,7 +21,7 @@ No auto-send — every user-facing action needs explicit approval.
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, Request
@@ -196,21 +196,18 @@ def install_recruitment_autopilot_layer(app, ctx: Dict[str, Any]) -> Dict[str, A
         fmt = payload.get("format", "summary")
 
         # Build summary from available tracker data (safe: table may not exist yet)
-        total = active = pending = interested = 0
-        try:
-            total_rows = db_all("SELECT COUNT(*) FROM recruitment_tracker_rows") or []
-            total = total_rows[0][0] if total_rows and total_rows[0] else 0
+        def _count(query: str) -> int:
+            """Safe scalar count — returns 0 on any error."""
+            try:
+                rows = db_all(query) or []
+                return rows[0][0] if rows and rows[0] else 0
+            except Exception:
+                return 0
 
-            active_rows = db_all("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status NOT IN ('rejected','dropped','ghosted')") or []
-            active = active_rows[0][0] if active_rows and active_rows[0] else 0
-
-            pending_rows = db_all("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status IN ('pending_review','no_response')") or []
-            pending = pending_rows[0][0] if pending_rows and pending_rows[0] else 0
-
-            interested_rows = db_all("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status='interested'") or []
-            interested = interested_rows[0][0] if interested_rows and interested_rows[0] else 0
-        except Exception:
-            pass  # Table may not exist; proceed with zero counts
+        total = _count("SELECT COUNT(*) FROM recruitment_tracker_rows")
+        active = _count("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status NOT IN ('rejected','dropped','ghosted')")
+        pending = _count("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status IN ('pending_review','no_response')")
+        interested = _count("SELECT COUNT(*) FROM recruitment_tracker_rows WHERE response_status='interested'")
 
         summary_text = (
             f"Recruitment {scope.title()} Status:\n"
@@ -462,8 +459,10 @@ def install_recruitment_autopilot_layer(app, ctx: Dict[str, Any]) -> Dict[str, A
         # Propose evolution improvement after repeated rejections
         if user_action == "reject" and evolution_submit_proposal:
             # Count recent rejections for this workflow
+            seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
             rejection_count_rows = db_all(
-                "SELECT COUNT(*) FROM learning_signals WHERE signal_type='action_rejected' AND source_brain='recruitment_autopilot' AND created_at > datetime('now', '-7 days')"
+                "SELECT COUNT(*) FROM learning_signals WHERE signal_type='action_rejected' AND source_brain='recruitment_autopilot' AND created_at > ?",
+                (seven_days_ago,),
             ) or []
             rejection_count = rejection_count_rows[0][0] if rejection_count_rows and rejection_count_rows[0] else 0
             if rejection_count >= 3:

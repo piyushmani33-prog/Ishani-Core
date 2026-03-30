@@ -511,7 +511,8 @@ const BrainCoordPanel = {
         method: "POST",
         body: JSON.stringify({ action }),
       });
-      _bcpToast(`Action ${action}d ✓`);
+      const pastTense = { approve: "approved", reject: "rejected", copy: "copied", edit: "edited" }[action] || action;
+      _bcpToast(`Action ${pastTense} ✓`);
       BrainCoordPanel.refresh();
     } catch (err) { _bcpToast("Error: " + err.message); }
   },
