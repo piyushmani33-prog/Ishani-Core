@@ -269,6 +269,7 @@ def register_recruiter_status_routes(
     now_iso: Callable,
     session_user: Callable,
     generate_text: Optional[Callable] = None,
+    ishani_llm: Optional[Dict[str, Any]] = None,
     log=None,
 ) -> None:
     """Register all /api/recruiter-status/* routes onto *app*."""
@@ -370,7 +371,20 @@ def register_recruiter_status_routes(
             )
 
             output = ""
-            if generate_text:
+            # Prefer Ishani LLM runtime if available; fall back to generate_text
+            ishani_summarize = (ishani_llm or {}).get("ishani_summarize")
+            if ishani_summarize:
+                try:
+                    result = await ishani_summarize(
+                        prompt,
+                        brain_id="recruiter_status_brain",
+                        options={"max_tokens": 400},
+                    )
+                    output = result.get("text", "") if isinstance(result, dict) else str(result)
+                except Exception as exc:
+                    if log:
+                        log.warning("recruiter_status ishani_summarize error: %s", exc)
+            if not output and generate_text:
                 try:
                     result = await generate_text(
                         prompt,

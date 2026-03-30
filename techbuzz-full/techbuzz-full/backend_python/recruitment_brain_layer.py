@@ -836,6 +836,7 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
     document_dir = Path(ctx["DOCUMENT_DIR"])
     world_brain_context = ctx.get("world_brain_context")
     world_brain_status = ctx.get("world_brain_status")
+    ishani_generate_text = ctx.get("ishani_generate_text")
     vault_dir = data_dir / "recruitment_vaults"
     vault_dir.mkdir(parents=True, exist_ok=True)
 
@@ -6895,14 +6896,24 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
                 f"Keep it warm, professional, and under 100 words. Include a clear call to action."
             )
             try:
-                generated = await generate_text(
-                    prompt,
-                    system="You are a professional recruitment assistant. Write concise, warm, and professional follow-up messages.",
-                    max_tokens=200,
-                    use_web_search=False,
-                    workspace="agent",
-                    source="followup_assistant",
-                )
+                if ishani_generate_text:
+                    generated = await ishani_generate_text(
+                        prompt,
+                        brain_id="recruitment_brain",
+                        options={
+                            "max_tokens": 200,
+                            "mode": "hybrid",
+                        },
+                    )
+                else:
+                    generated = await generate_text(
+                        prompt,
+                        system="You are a professional recruitment assistant. Write concise, warm, and professional follow-up messages.",
+                        max_tokens=200,
+                        use_web_search=False,
+                        workspace="agent",
+                        source="followup_assistant",
+                    )
                 message_draft = generated.get("text", "").strip()
             except Exception:
                 message_draft = (
