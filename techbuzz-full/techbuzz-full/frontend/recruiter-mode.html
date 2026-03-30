@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recruiter Mode — TechBuzz</title>
+<meta name="theme-color" content="#05070d">
+<link rel="stylesheet" href="/frontend-assets/recruiter-mode.css">
+</head>
+<body>
+
+<div class="rm-shell">
+
+  <!-- Header -->
+  <header class="rm-header">
+    <div class="rm-brand">
+      <div class="rm-brand-orb"></div>
+      TechBuzz Recruiter Mode
+    </div>
+    <div class="rm-header-actions">
+      <a href="/agent/console" class="rm-btn small">Full Workspace →</a>
+    </div>
+  </header>
+
+  <!-- Quick stats -->
+  <div class="rm-stats-bar" id="rmStatsBar">
+    <div class="rm-stat"><strong id="statTotal">—</strong><span>Total</span></div>
+    <div class="rm-stat"><strong id="statToday">—</strong><span>Today</span></div>
+    <div class="rm-stat"><strong id="statInterviews">—</strong><span>Interviews</span></div>
+    <div class="rm-stat"><strong id="statOffers">—</strong><span>Offers</span></div>
+    <div class="rm-stat"><strong id="statClosures">—</strong><span>Closures</span></div>
+  </div>
+
+  <!-- Top action bar -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="rm-btn green" onclick="rmToggleForm()">+ Add Row</button>
+    <button class="rm-btn" onclick="rmRefreshAll()">⟳ Refresh</button>
+  </div>
+
+  <!-- Quick Add / Update form (collapsible) -->
+  <article class="rm-card" id="rmAddCard">
+    <div class="rm-card-head">
+      <h2 class="rm-collapsible-toggle" id="rmFormToggle" onclick="rmToggleForm()">Quick Add / Update Tracker</h2>
+      <span id="rmFormStatus" style="font-size:.82rem;color:var(--rm-muted)"></span>
+    </div>
+
+    <div id="rmFormBody">
+      <form id="rmTrackerForm" onsubmit="rmSaveRow(event)">
+        <input type="hidden" id="rmRowId" value="">
+
+        <div class="rm-form-grid">
+          <div class="rm-field">
+            <label for="rmCandidateName">Candidate Name</label>
+            <input type="text" id="rmCandidateName" placeholder="Full name" autocomplete="name">
+          </div>
+          <div class="rm-field">
+            <label for="rmPosition">Position / Role</label>
+            <input type="text" id="rmPosition" placeholder="e.g. Sr Developer">
+          </div>
+          <div class="rm-field">
+            <label for="rmStage">Stage</label>
+            <select id="rmStage">
+              <option value="sourced">Sourced</option>
+              <option value="screening">Screening</option>
+              <option value="interview">Interview</option>
+              <option value="offer">Offer</option>
+              <option value="hired">Hired</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div class="rm-field">
+            <label for="rmStatus">Status</label>
+            <select id="rmStatus">
+              <option value="pending_review">Pending Review</option>
+              <option value="interested">Interested</option>
+              <option value="no_response">No Response</option>
+              <option value="not_interested">Not Interested</option>
+              <option value="screen_rejected">Screen Rejected</option>
+            </select>
+          </div>
+          <div class="rm-field rm-field-full">
+            <label for="rmRemarks">Notes / Remarks</label>
+            <textarea id="rmRemarks" placeholder="Brief notes about this candidate…"></textarea>
+          </div>
+        </div>
+
+        <div class="rm-form-actions">
+          <button type="submit" class="rm-btn primary" id="rmSaveBtn">Save to Tracker</button>
+          <button type="button" class="rm-btn small" onclick="rmClearForm()">Clear</button>
+        </div>
+      </form>
+    </div>
+  </article>
+
+  <!-- Tracker list -->
+  <article class="rm-card">
+    <div class="rm-card-head">
+      <h2>Tracker Rows</h2>
+      <button class="rm-btn small" onclick="rmLoadTracker()">Refresh</button>
+    </div>
+    <div class="rm-tracker-list" id="rmTrackerList">
+      <div class="rm-tracker-empty">Loading tracker…</div>
+    </div>
+  </article>
+
+  <!-- Generate Status -->
+  <article class="rm-card">
+    <div class="rm-card-head">
+      <h2>Generate Status</h2>
+    </div>
+
+    <div class="rm-mode-row">
+      <button class="rm-mode-btn active" data-mode="sheet" onclick="rmSetMode('sheet',this)">📊 Sheet</button>
+      <button class="rm-mode-btn" data-mode="summary" onclick="rmSetMode('summary',this)">🤖 Summary (AI)</button>
+    </div>
+
+    <div id="rmFormatRow" class="rm-format-row">
+      <button class="rm-fmt-btn active" data-fmt="plain_text" onclick="rmSetFmt('plain_text',this)">Plain Text</button>
+      <button class="rm-fmt-btn" data-fmt="tsv" onclick="rmSetFmt('tsv',this)">TSV (Excel)</button>
+      <button class="rm-fmt-btn" data-fmt="csv" onclick="rmSetFmt('csv',this)">CSV</button>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="rm-btn primary" onclick="rmGenerate()" id="rmGenerateBtn">Generate</button>
+    </div>
+
+    <textarea class="rm-output" id="rmOutput" placeholder="Generated output will appear here…" readonly></textarea>
+
+    <!-- Share buttons -->
+    <div class="rm-share-row">
+      <button class="rm-btn small" onclick="rmCopy('raw')" title="Copy output">📋 Copy</button>
+      <button class="rm-btn small" onclick="rmCopy('teams')" title="Copy for Microsoft Teams">📱 Teams</button>
+      <button class="rm-btn small" onclick="rmCopy('whatsapp')" title="Copy for WhatsApp">💬 WhatsApp</button>
+      <button class="rm-btn small" onclick="rmShare()" title="Share via native share sheet">📤 Share</button>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer class="rm-footer">
+    <a href="/agent/console">← Full Workspace</a>
+    &nbsp;·&nbsp;
+    <a href="/leazy">Leazy Jinn</a>
+    &nbsp;·&nbsp;
+    <a href="/ats">ATS</a>
+  </footer>
+
+</div><!-- .rm-shell -->
+
+<!-- Toast notification -->
+<div class="rm-toast" id="rmToast"></div>
+
+<script src="/frontend-assets/recruiter-mode.js"></script>
+</body>
+</html>

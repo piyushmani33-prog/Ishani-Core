@@ -45,6 +45,7 @@ from interpreter_brain_layer import install_interpreter_brain_layer
 from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
+from recruiter_status_layer import register_recruiter_status_routes
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -1946,6 +1947,8 @@ def path_requires_member(path: str) -> bool:
         return True
     if path == "/agent/console" or path.startswith("/agent/console/"):
         return True
+    if path == "/recruiter-mode" or path.startswith("/recruiter-mode/"):
+        return True
     for prefix in (
         "/api/leazy/chat",
         "/api/agent/seed-pack",
@@ -1961,6 +1964,7 @@ def path_requires_member(path: str) -> bool:
         "/api/accounts",
         "/api/billing/checkout",
         "/api/billing/orders",
+        "/api/recruiter-status",
     ):
         if path.startswith(prefix):
             return True
@@ -8647,6 +8651,11 @@ async def ats_page():
     return serve_frontend_page("ats.html")
 
 
+@app.get("/recruiter-mode")
+async def recruiter_mode_page():
+    return serve_frontend_page("recruiter-mode.html")
+
+
 @app.get("/company/ats.html", include_in_schema=False)
 async def company_ats_html():
     return RedirectResponse(url="/ats", status_code=307)
@@ -10220,6 +10229,18 @@ VOICE_RUNTIME_LAYER = install_voice_runtime_layer(
 )
 
 warm_ollama_background()
+
+register_recruiter_status_routes(
+    app,
+    db_all=db_all,
+    db_one=db_one,
+    db_exec=db_exec,
+    new_id=new_id,
+    now_iso=now_iso,
+    session_user=session_user,
+    generate_text=generate_text,
+    log=log,
+)
 
 try:
     seed_market_ready_brains()
