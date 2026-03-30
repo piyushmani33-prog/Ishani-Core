@@ -47,6 +47,9 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from brain_reputation_engine import register_reputation_routes
+from brain_self_scheduling import register_scheduling_routes
+from trust_based_routing import register_routing_routes
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10261,6 +10264,35 @@ try:
     seed_market_ready_brains()
 except Exception as exc:
     log.warning("Unable to seed market-ready brains: %s", exc)
+
+_REPUTATION_DB = DATA_DIR / "brain_reputation.db"
+_SCHEDULES_DB = DATA_DIR / "brain_schedules.db"
+_ROUTING_DB = DATA_DIR / "routing_decisions.db"
+
+register_reputation_routes(
+    app,
+    db_path=_REPUTATION_DB,
+    new_id=new_id,
+    now_iso=now_iso,
+    log=log,
+)
+
+register_scheduling_routes(
+    app,
+    db_path=_SCHEDULES_DB,
+    new_id=new_id,
+    now_iso=now_iso,
+    log=log,
+)
+
+register_routing_routes(
+    app,
+    routing_db_path=_ROUTING_DB,
+    reputation_db_path=_REPUTATION_DB,
+    new_id=new_id,
+    now_iso=now_iso,
+    log=log,
+)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain Reputation &amp; Scheduling — TechBuzz</title>
+<meta name="theme-color" content="#05070d">
+<link rel="stylesheet" href="/frontend-assets/brain-reputation.css">
+</head>
+<body>
+
+<div class="br-shell">
+
+  <!-- Header -->
+  <header class="br-header">
+    <div class="br-brand">
+      <div class="br-brand-orb"></div>
+      Brain Reputation &amp; Scheduling
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="br-btn" id="btnRefresh">↻ Refresh</button>
+      <a href="/agent/console" class="br-btn">Full Workspace →</a>
+    </div>
+  </header>
+
+  <!-- ── Trust Scores Panel ── -->
+  <section class="br-section">
+    <div class="br-section-title">Trust Scores</div>
+    <div id="trustPanel">
+      <div class="br-loading">Loading reputation data…</div>
+    </div>
+  </section>
+
+  <div class="br-grid">
+
+    <!-- ── Scheduled Jobs Panel ── -->
+    <section class="br-section">
+      <div class="br-section-title">Scheduled Jobs</div>
+
+      <div class="br-sched-status">
+        <div class="br-sched-dot" id="schedDot"></div>
+        <span id="schedStatusLabel">Checking scheduler…</span>
+        <button class="br-btn primary" id="btnStartSched" style="margin-left:auto">▶ Start</button>
+        <button class="br-btn" id="btnStopSched">■ Stop</button>
+      </div>
+
+      <div class="br-card" style="padding:0;overflow:hidden;">
+        <table class="br-table" id="schedulesTable">
+          <thead>
+            <tr>
+              <th>Brain</th>
+              <th>Task Type</th>
+              <th>Interval</th>
+              <th>Max/hr</th>
+              <th>Purpose</th>
+              <th>Next Run</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="schedulesBody">
+            <tr><td colspan="7" class="br-empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Weak Brains Panel ── -->
+    <section class="br-section">
+      <div class="br-section-title">Weak Brains <span style="font-weight:400;font-size:.75rem;color:var(--br-muted)">(below trust threshold)</span></div>
+      <div id="weakPanel">
+        <div class="br-loading">Loading…</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ── Recent Self-Work Runs Panel ── -->
+  <section class="br-section">
+    <div class="br-section-title">Recent Scheduler Runs</div>
+    <div class="br-card" style="padding:0;overflow:hidden;">
+      <table class="br-table" id="runsTable">
+        <thead>
+          <tr>
+            <th>Brain</th>
+            <th>Task Type</th>
+            <th>Status</th>
+            <th>Detail</th>
+            <th>Ran At</th>
+          </tr>
+        </thead>
+        <tbody id="runsBody">
+          <tr><td colspan="5" class="br-empty">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Routing Decisions Log ── -->
+  <section class="br-section">
+    <div class="br-section-title">Routing Decisions Log</div>
+    <div id="routingPanel">
+      <div class="br-loading">Loading routing decisions…</div>
+    </div>
+  </section>
+
+</div><!-- /.br-shell -->
+
+<script src="/frontend-assets/brain-reputation.js"></script>
+</body>
+</html>
