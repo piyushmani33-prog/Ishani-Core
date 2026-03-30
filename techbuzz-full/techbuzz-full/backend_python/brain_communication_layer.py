@@ -43,9 +43,29 @@ class ResolveMessageRequest(BaseModel):
     response_payload: Optional[Any] = None
 
 
+class BroadcastSignalRequest(BaseModel):
+    from_brain: str
+    signal_type: str
+    payload: Optional[Any] = None
+
+
+_INTERNAL_FIELDS = {"resolved_by", "response_payload"}
+
+
+def sanitize_message_for_display(message: Dict[str, Any]) -> Dict[str, Any]:
+    """Strip internal-only fields and return a safe-to-display message dict."""
+    safe = {k: v for k, v in message.items() if k not in _INTERNAL_FIELDS}
+    # Respect disclosure_level in payload
+    payload = safe.get("payload", {})
+    if isinstance(payload, dict) and payload.get("disclosure_level") == "internal":
+        safe["payload"] = {"disclosure_level": "internal", "content": "[REDACTED]"}
+    return safe
+
+
 def install_brain_communication_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
     db_exec = ctx["db_exec"]
     db_all = ctx["db_all"]
+    db_one = ctx.get("db_one")
     new_id = ctx["new_id"]
     now_iso = ctx["now_iso"]
     session_user = ctx["session_user"]
@@ -422,5 +442,256 @@ def install_brain_communication_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
             "recent_escalations": recent_escalations,
         }
 
+    @app.get("/api/brain/messages/handoffs")
+    async def list_handoff_messages(request: Request, limit: int = Query(50, ge=1, le=200)):
+        user = session_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+
+        rows = (
+            db_all(
+                "SELECT * FROM brain_messages WHERE message_type='handoff_task' ORDER BY created_at DESC LIMIT ?",
+                (limit,),
+            )
+            or []
+        )
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        return {"messages": _enrich_messages(rows, brains), "total": len(rows)}
+
+    @app.get("/api/brain/messages/escalations")
+    async def list_escalation_messages(request: Request, limit: int = Query(50, ge=1, le=200)):
+        user = session_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+
+        rows = (
+            db_all(
+                "SELECT * FROM brain_messages WHERE message_type='escalate' ORDER BY created_at DESC LIMIT ?",
+                (limit,),
+            )
+            or []
+        )
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        return {"messages": _enrich_messages(rows, brains), "total": len(rows)}
+
+    @app.get("/api/brain/messages/{message_id}")
+    async def get_single_brain_message(message_id: str, request: Request):
+        user = session_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+
+        msg = db_one("SELECT * FROM brain_messages WHERE id=?", (message_id,)) if db_one else (
+            (db_all("SELECT * FROM brain_messages WHERE id=? LIMIT 1", (message_id,)) or [None])[0]
+        )
+        if not msg:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        enriched = _enrich_messages([msg], brains)
+        return {"message": sanitize_message_for_display(enriched[0])}
+
+    @app.post("/api/brain/messages/broadcast")
+    async def broadcast_signal_endpoint(body: BroadcastSignalRequest, request: Request):
+        user = session_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        if user.get("role") != "master":
+            raise HTTPException(status_code=403, detail="Master access required")
+
+        from_brain_obj = find_brain(body.from_brain)
+        if not from_brain_obj:
+            raise HTTPException(status_code=404, detail=f"Sender brain '{body.from_brain}' not found")
+
+        from_layer = _brain_layer(from_brain_obj)
+        if from_layer > 1:
+            _log_violation(body.from_brain, "ALL", "broadcast_signal",
+                           f"Broadcast signals can only be sent by layer 0 or 1 brains (sender is layer {from_layer})")
+            raise HTTPException(status_code=422, detail="Only Mother or Executive brains can broadcast")
+
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        payload_str = _safe_json(body.payload or {"signal_type": body.signal_type})
+        now = now_iso()
+        sent = []
+
+        for brain in brains:
+            if brain["id"] == body.from_brain:
+                continue
+            msg_id = new_id()
+            db_exec(
+                """
+                INSERT INTO brain_messages(id, from_brain, to_brain, message_type, task_id, payload, priority,
+                    status, response_payload, resolved_by, created_at, resolved_at)
+                VALUES(?,?,?,'broadcast_signal','',?,'normal','pending','{}','',?,'')
+                """,
+                (msg_id, body.from_brain, brain["id"], payload_str, now),
+            )
+            sent.append(brain["id"])
+
+        return {"ok": True, "broadcast_to": len(sent), "recipients": sent}
+
+    # ── ctx-exposed runtime functions ─────────────────────────────────────────
+
+    def _ctx_send_brain_message(
+        from_brain: str,
+        to_brain: str,
+        message_type: str,
+        payload: Any,
+        task_id: str = "",
+        priority: str = "normal",
+    ) -> Dict[str, Any]:
+        if message_type not in VALID_MESSAGE_TYPES:
+            return {"error": f"Invalid message_type: {message_type}"}
+        from_obj = find_brain(from_brain)
+        to_obj = find_brain(to_brain)
+        if not from_obj:
+            return {"error": f"Sender brain '{from_brain}' not found"}
+        if not to_obj:
+            return {"error": f"Receiver brain '{to_brain}' not found"}
+        reason = _check_contract(from_obj, to_obj, message_type)
+        if reason:
+            _log_violation(from_brain, to_brain, message_type, reason)
+            return {"error": f"Contract violation: {reason}"}
+        priority = priority if priority in VALID_PRIORITIES else "normal"
+        msg_id = new_id()
+        created = now_iso()
+        db_exec(
+            """
+            INSERT INTO brain_messages(id, from_brain, to_brain, message_type, task_id, payload, priority,
+                status, response_payload, resolved_by, created_at, resolved_at)
+            VALUES(?,?,?,?,?,?,?,'pending','{}','',?,'')
+            """,
+            (msg_id, from_brain, to_brain, message_type, task_id or "", _safe_json(payload), priority, created),
+        )
+        row = (db_one("SELECT * FROM brain_messages WHERE id=?", (msg_id,)) if db_one else
+               (db_all("SELECT * FROM brain_messages WHERE id=? LIMIT 1", (msg_id,)) or [None])[0])
+        return row if row else {"id": msg_id}
+
+    def _ctx_get_pending_messages(brain_id: str) -> List[Dict[str, Any]]:
+        rows = (
+            db_all(
+                "SELECT * FROM brain_messages WHERE status='pending' AND (from_brain=? OR to_brain=?) ORDER BY created_at ASC",
+                (brain_id, brain_id),
+            )
+            or []
+        )
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        return _enrich_messages(rows, brains)
+
+    def _ctx_process_brain_message(
+        message_id: str,
+        response_payload: Any = None,
+        new_status: str = "completed",
+    ) -> Dict[str, Any]:
+        existing = (db_one("SELECT id FROM brain_messages WHERE id=?", (message_id,)) if db_one else
+                    (db_all("SELECT id FROM brain_messages WHERE id=? LIMIT 1", (message_id,)) or [None])[0])
+        if not existing:
+            return {"error": "Message not found"}
+        db_exec(
+            "UPDATE brain_messages SET status=?, response_payload=?, resolved_at=? WHERE id=?",
+            (new_status, _safe_json(response_payload), now_iso(), message_id),
+        )
+        updated = (db_one("SELECT * FROM brain_messages WHERE id=?", (message_id,)) if db_one else
+                   (db_all("SELECT * FROM brain_messages WHERE id=? LIMIT 1", (message_id,)) or [None])[0])
+        return updated if updated else {}
+
+    def _ctx_get_brain_message(message_id: str) -> Optional[Dict[str, Any]]:
+        row = (db_one("SELECT * FROM brain_messages WHERE id=?", (message_id,)) if db_one else
+               (db_all("SELECT * FROM brain_messages WHERE id=? LIMIT 1", (message_id,)) or [None])[0])
+        if not row:
+            return None
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        enriched = _enrich_messages([row], brains)
+        return enriched[0] if enriched else None
+
+    def _ctx_broadcast_signal(from_brain: str, signal_type: str, payload: Any) -> Dict[str, Any]:
+        from_obj = find_brain(from_brain)
+        if not from_obj:
+            return {"error": f"Brain '{from_brain}' not found"}
+        from_layer = _brain_layer(from_obj)
+        if from_layer > 1:
+            _log_violation(from_brain, "ALL", "broadcast_signal",
+                           f"Broadcast signals can only be sent by layer 0 or 1 brains (sender is layer {from_layer})")
+            return {"error": "Only Mother or Executive brains can broadcast"}
+        hierarchy = brain_hierarchy_payload()
+        brains = hierarchy.get("brains", [])
+        payload_merged = _safe_json(payload or {"signal_type": signal_type})
+        now = now_iso()
+        sent = []
+        for brain in brains:
+            if brain["id"] == from_brain:
+                continue
+            msg_id = new_id()
+            db_exec(
+                """
+                INSERT INTO brain_messages(id, from_brain, to_brain, message_type, task_id, payload, priority,
+                    status, response_payload, resolved_by, created_at, resolved_at)
+                VALUES(?,?,?,'broadcast_signal','',?,'normal','pending','{}','',?,'')
+                """,
+                (msg_id, from_brain, brain["id"], payload_merged, now),
+            )
+            sent.append(brain["id"])
+        return {"broadcast_to": len(sent), "recipients": sent}
+
+    def _ctx_process_pending_brain_messages() -> Dict[str, Any]:
+        priority_order = {"critical": 0, "high": 1, "normal": 2, "low": 3}
+        pending = (
+            db_all("SELECT * FROM brain_messages WHERE status='pending' ORDER BY created_at ASC LIMIT 100")
+            or []
+        )
+        pending.sort(key=lambda m: (priority_order.get(m.get("priority", "normal"), 2),))
+        processed = 0
+        handoffs = 0
+        escalations = 0
+        decisions_queued = 0
+        now = now_iso()
+
+        for msg in pending:
+            msg_type = msg.get("message_type", "")
+            msg_id = msg.get("id", "")
+
+            if msg_type == "handoff_task":
+                db_exec(
+                    "UPDATE brain_messages SET status='in_progress', resolved_at=? WHERE id=?",
+                    (now, msg_id),
+                )
+                handoffs += 1
+                processed += 1
+            elif msg_type == "escalate":
+                db_exec(
+                    "UPDATE brain_messages SET status='in_progress', resolved_at=? WHERE id=?",
+                    (now, msg_id),
+                )
+                escalations += 1
+                processed += 1
+            elif msg_type == "request_decision":
+                db_exec(
+                    "UPDATE brain_messages SET status='in_progress', resolved_at=? WHERE id=?",
+                    (now, msg_id),
+                )
+                decisions_queued += 1
+                processed += 1
+
+        return {
+            "processed": processed,
+            "handoffs_initiated": handoffs,
+            "escalations_flagged": escalations,
+            "decisions_queued": decisions_queued,
+            "total_pending": len(pending),
+        }
+
     log.info("Brain communication layer installed")
-    return {}
+    return {
+        "send_brain_message": _ctx_send_brain_message,
+        "get_pending_messages": _ctx_get_pending_messages,
+        "process_brain_message": _ctx_process_brain_message,
+        "get_brain_message": _ctx_get_brain_message,
+        "broadcast_signal": _ctx_broadcast_signal,
+        "process_pending_brain_messages": _ctx_process_pending_brain_messages,
+        "sanitize_message_for_display": sanitize_message_for_display,
+    }

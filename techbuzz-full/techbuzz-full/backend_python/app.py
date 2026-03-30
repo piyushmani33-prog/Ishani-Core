@@ -1966,6 +1966,8 @@ def path_requires_member(path: str) -> bool:
         "/api/billing/checkout",
         "/api/billing/orders",
         "/api/recruiter-status",
+        "/api/brain/messages",
+        "/api/brain/message",
     ):
         if path.startswith(prefix):
             return True
@@ -10170,6 +10172,7 @@ install_brain_communication_layer(
     {
         "db_exec": db_exec,
         "db_all": db_all,
+        "db_one": db_one,
         "new_id": new_id,
         "now_iso": now_iso,
         "session_user": session_user,
