@@ -46,6 +46,19 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from event_bus_layer import install_event_bus_layer
+from shared_memory_layer import install_shared_memory_layer
+from task_system_layer import install_task_system_layer
+from brain_executor_layer import install_brain_executor_layer
+from decision_aggregator_layer import install_decision_aggregator_layer
+from action_output_layer import install_action_output_layer
+from safety_layer import install_safety_layer
+from disclosure_gate_layer import install_disclosure_gate_layer
+from learning_engine_layer import install_learning_engine_layer
+from evolution_layer import install_evolution_layer
+from recruitment_autopilot_layer import install_recruitment_autopilot_layer
+from autonomous_brain_loop_layer import install_autonomous_brain_loop_layer
+from brain_contract_registry_layer import install_brain_contract_registry_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10246,6 +10259,85 @@ try:
     seed_market_ready_brains()
 except Exception as exc:
     log.warning("Unable to seed market-ready brains: %s", exc)
+
+# ---------------------------------------------------------------------------
+# Independent Brain Execution — new coordination layers
+# ---------------------------------------------------------------------------
+
+_COORD_CTX = {
+    "db_exec": db_exec,
+    "db_all": db_all,
+    "db_one": db_one,
+    "new_id": new_id,
+    "now_iso": now_iso,
+    "session_user": session_user,
+    "log": log,
+}
+
+try:
+    install_event_bus_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_event_bus_layer failed: %s", _e)
+
+try:
+    install_shared_memory_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_shared_memory_layer failed: %s", _e)
+
+try:
+    install_task_system_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_task_system_layer failed: %s", _e)
+
+try:
+    install_brain_executor_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_brain_executor_layer failed: %s", _e)
+
+try:
+    install_decision_aggregator_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_decision_aggregator_layer failed: %s", _e)
+
+try:
+    install_action_output_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_action_output_layer failed: %s", _e)
+
+try:
+    install_safety_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_safety_layer failed: %s", _e)
+
+try:
+    install_disclosure_gate_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_disclosure_gate_layer failed: %s", _e)
+
+try:
+    install_learning_engine_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_learning_engine_layer failed: %s", _e)
+
+try:
+    install_evolution_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_evolution_layer failed: %s", _e)
+
+try:
+    install_recruitment_autopilot_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_recruitment_autopilot_layer failed: %s", _e)
+
+try:
+    install_autonomous_brain_loop_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_autonomous_brain_loop_layer failed: %s", _e)
+
+try:
+    install_brain_contract_registry_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_brain_contract_registry_layer failed: %s", _e)
 
 
 if __name__ == "__main__":
