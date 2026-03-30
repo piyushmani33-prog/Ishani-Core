@@ -130,7 +130,8 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         system_prompt: str,
         prompt: str,
         provider: str,
-    ) -> None:
+    ) -> str:
+        log_id = new_id("bll")
         try:
             db_exec(
                 """
@@ -138,7 +139,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
                 VALUES(?,?,?,?,?,?,?,?)
                 """,
                 (
-                    new_id("bll"),
+                    log_id,
                     brain_id,
                     json.dumps(doctrine_keys),
                     hash_system_prompt(system_prompt),
@@ -150,6 +151,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             )
         except Exception as exc:
             log.warning("brain_llm_log insert failed: %s", exc)
+        return log_id
 
     # ------------------------------------------------------------------
     # Core wrappers
@@ -190,7 +192,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             workspace=workspace,
         )
         provider = result.get("provider", "built-in")
-        _log_llm_call(
+        log_id = _log_llm_call(
             brain_id=brain_id,
             doctrine_keys=ctx_data["doctrine_keys"],
             system_prompt=full_system,
@@ -200,6 +202,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         return {
             **result,
             "brain_id": brain_id,
+            "llm_log_id": log_id,
             "doctrine_keys": ctx_data["doctrine_keys"],
             "profile_tone": ctx_data["profile"].get("tone", ""),
             "disclosure_level": ctx_data["profile"].get("disclosure_level", "operator_safe"),
@@ -233,7 +236,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             max_tokens=max_tokens,
         )
         provider = f"ollama/{result.get('model', 'local')}".strip("/")
-        _log_llm_call(
+        log_id = _log_llm_call(
             brain_id=brain_id,
             doctrine_keys=ctx_data["doctrine_keys"],
             system_prompt=full_system,
@@ -243,6 +246,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         return {
             **result,
             "brain_id": brain_id,
+            "llm_log_id": log_id,
             "doctrine_keys": ctx_data["doctrine_keys"],
             "profile_tone": profile.get("tone", ""),
             "disclosure_level": profile.get("disclosure_level", "operator_safe"),

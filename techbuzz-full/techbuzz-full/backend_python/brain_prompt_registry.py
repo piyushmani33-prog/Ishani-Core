@@ -386,3 +386,13 @@ def build_brain_context(
 def hash_system_prompt(system_prompt: str) -> str:
     """Return a short SHA-256 hex hash of a system prompt (for logging)."""
     return hashlib.sha256(system_prompt.encode("utf-8")).hexdigest()[:16]
+
+
+def list_all_doctrine_keys() -> List[str]:
+    """Return all available doctrine pack keys."""
+    return list(DOCTRINE_PACKS.keys())
+
+
+def list_all_brain_ids() -> List[str]:
+    """Return all registered brain IDs."""
+    return list(BRAIN_REGISTRY.keys())
