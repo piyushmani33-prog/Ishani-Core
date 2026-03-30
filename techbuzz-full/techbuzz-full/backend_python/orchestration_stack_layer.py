@@ -2,6 +2,7 @@ import logging
 import hashlib
 import json
 import re
+import time
 import warnings
 from importlib import metadata
 from typing import Any, Dict, List, Optional, TypedDict
@@ -96,6 +97,8 @@ def install_orchestration_stack_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
     build_brain_context = ctx.get("build_brain_context")
     brain_aware_generate = ctx.get("brain_aware_generate")
     brain_aware_local_llm = ctx.get("brain_aware_local_llm")
+    compute_confidence = ctx.get("compute_confidence")
+    record_override = ctx.get("record_override")
     AI_NAME = ctx["AI_NAME"]
     CORE_IDENTITY = ctx["CORE_IDENTITY"]
     log = ctx["log"]
@@ -543,6 +546,7 @@ Deliver:
         user: Dict[str, Any],
         req: OrchestrationAssistRequest,
     ) -> Dict[str, Any]:
+        start_time = time.time()
         target_brain = (req.target_brain or "").strip()
         if target_brain and not can_control_brain(user, target_brain):
             target_brain = "interpreter_brain"
@@ -648,6 +652,18 @@ Deliver:
                 )
 
         response_text = sanitize_operator_multiline(generated.get("text", "")).strip()
+        resilience_meta: Dict[str, Any] = {}
+        if compute_confidence:
+            resilience_meta = compute_confidence(
+                brain_id=state.get("selected_brain", ""),
+                source_action="orchestration_assist",
+                input_text=state.get("message", ""),
+                output_text=response_text,
+                provider=generated.get("provider", ""),
+                fallback_used="fallback" in generated.get("provider", "").lower(),
+                provider_chain=[generated.get("provider", "")],
+                latency_ms=int((time.time() - start_time) * 1000),
+            )
         db_exec(
             """
             INSERT INTO orchestration_runs(
@@ -690,6 +706,7 @@ Deliver:
                 "langgraph": LANGGRAPH_AVAILABLE,
                 "llamaindex": LLAMAINDEX_AVAILABLE,
             },
+            "resilience": resilience_meta,
         }
 
     @app.get("/api/orchestration/status")

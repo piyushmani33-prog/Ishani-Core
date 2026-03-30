@@ -10,6 +10,7 @@ Provides:
 from __future__ import annotations
 
 import json
+import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import HTTPException, Request
@@ -181,6 +182,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         if ctx_data.get("prompt_prefix"):
             full_prompt = ctx_data["prompt_prefix"] + "\n\n" + prompt
 
+        _start = time.time()
         result = await generate_text(
             full_prompt,
             system=full_system,
@@ -189,6 +191,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             source=source,
             workspace=workspace,
         )
+        _latency_ms = int((time.time() - _start) * 1000)
         provider = result.get("provider", "built-in")
         _log_llm_call(
             brain_id=brain_id,
@@ -203,6 +206,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "doctrine_keys": ctx_data["doctrine_keys"],
             "profile_tone": ctx_data["profile"].get("tone", ""),
             "disclosure_level": ctx_data["profile"].get("disclosure_level", "operator_safe"),
+            "latency_ms": _latency_ms,
         }
 
     async def brain_aware_local_llm(
@@ -227,11 +231,13 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         if ctx_data.get("prompt_prefix"):
             full_prompt = ctx_data["prompt_prefix"] + "\n\n" + prompt
 
+        _start = time.time()
         result = await call_local_llm(
             system=full_system,
             prompt=full_prompt,
             max_tokens=max_tokens,
         )
+        _latency_ms = int((time.time() - _start) * 1000)
         provider = f"ollama/{result.get('model', 'local')}".strip("/")
         _log_llm_call(
             brain_id=brain_id,
@@ -246,6 +252,7 @@ def install_brain_prompt_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "doctrine_keys": ctx_data["doctrine_keys"],
             "profile_tone": profile.get("tone", ""),
             "disclosure_level": profile.get("disclosure_level", "operator_safe"),
+            "latency_ms": _latency_ms,
         }
 
     # ------------------------------------------------------------------
