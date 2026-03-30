@@ -93,6 +93,9 @@ def install_orchestration_stack_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
     provider_config = ctx["provider_config"]
     active_provider_label = ctx["active_provider_label"]
     ollama_status = ctx["ollama_status"]
+    build_brain_context = ctx.get("build_brain_context")
+    brain_aware_generate = ctx.get("brain_aware_generate")
+    brain_aware_local_llm = ctx.get("brain_aware_local_llm")
     AI_NAME = ctx["AI_NAME"]
     CORE_IDENTITY = ctx["CORE_IDENTITY"]
     log = ctx["log"]
@@ -371,13 +374,19 @@ def install_orchestration_stack_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
 
     def build_prompt_payload(state: OrchestrationState) -> Dict[str, str]:
         target_brain = find_brain(state.get("selected_brain", "")) or {}
+        selected_brain_id = state.get("selected_brain", "")
         retrieval_text = "\n".join(
             f"- {item.get('name', item.get('brain_id', ''))}: {item.get('snippet', '')}"
             for item in state.get("retrieval", [])[:4]
         )
         workflow_steps = "\n".join(f"- {step}" for step in state.get("workflow_steps", []))
-        system = sanitize_operator_multiline(
-            f"""
+
+        if build_brain_context and selected_brain_id:
+            brain_ctx = build_brain_context(selected_brain_id)
+            system = sanitize_operator_multiline(brain_ctx["system_prompt"]).strip()
+        else:
+            system = sanitize_operator_multiline(
+                f"""
 You are {AI_NAME}, the living operating intelligence of {CORE_IDENTITY}.
 Respond like a sharp human operator, not a ceremonial narrator.
 Speak clearly, directly, and only as long as needed.
@@ -385,7 +394,8 @@ Primary execution brain: {target_brain.get('name', state.get('selected_brain', '
 Brain role: {target_brain.get('role_title', '')}
 Brain mission: {target_brain.get('mission', '')}
 """
-        ).strip()
+            ).strip()
+
         prompt = sanitize_operator_multiline(
             f"""
 Operator request:
@@ -569,37 +579,73 @@ Deliver:
                 **built,
             }
 
+        # Ensure a non-empty brain ID for registry lookup; fall back to interpreter_brain
+        selected_brain_id = state.get("selected_brain", "") or "interpreter_brain"
+        max_tok = max(200, min(req.max_tokens, 900))
+
         generated: Dict[str, Any]
         if req.prefer_local:
             try:
-                local = await call_local_llm(
-                    system=state.get("system", ""),
-                    prompt=state.get("prompt", ""),
-                    max_tokens=max(200, min(req.max_tokens, 900)),
-                )
-                generated = {
-                    "text": local.get("text", ""),
-                    "provider": f"ollama/{local.get('model', '')}".strip("/"),
-                    "usage": local.get("usage", {}),
-                }
+                if brain_aware_local_llm:
+                    local = await brain_aware_local_llm(
+                        state.get("prompt", ""),
+                        brain_id=selected_brain_id,
+                        max_tokens=max_tok,
+                    )
+                    generated = {
+                        "text": local.get("text", ""),
+                        "provider": local.get("provider", f"ollama/{local.get('model', '')}".strip("/")),
+                        "usage": local.get("usage", {}),
+                    }
+                else:
+                    local = await call_local_llm(
+                        system=state.get("system", ""),
+                        prompt=state.get("prompt", ""),
+                        max_tokens=max_tok,
+                    )
+                    generated = {
+                        "text": local.get("text", ""),
+                        "provider": f"ollama/{local.get('model', '')}".strip("/"),
+                        "usage": local.get("usage", {}),
+                    }
             except HTTPException:
-                generated = await generate_text(
+                if brain_aware_generate:
+                    generated = await brain_aware_generate(
+                        state.get("prompt", ""),
+                        brain_id=selected_brain_id,
+                        max_tokens=max_tok,
+                        use_web_search=False,
+                        source=req.source or "manual",
+                        workspace="orchestration",
+                    )
+                else:
+                    generated = await generate_text(
+                        state.get("prompt", ""),
+                        system=state.get("system", ""),
+                        max_tokens=max_tok,
+                        use_web_search=False,
+                        source=req.source or "manual",
+                        workspace="orchestration",
+                    )
+        else:
+            if brain_aware_generate:
+                generated = await brain_aware_generate(
                     state.get("prompt", ""),
-                    system=state.get("system", ""),
-                    max_tokens=max(200, min(req.max_tokens, 900)),
+                    brain_id=selected_brain_id,
+                    max_tokens=max_tok,
                     use_web_search=False,
                     source=req.source or "manual",
                     workspace="orchestration",
                 )
-        else:
-            generated = await generate_text(
-                state.get("prompt", ""),
-                system=state.get("system", ""),
-                max_tokens=max(200, min(req.max_tokens, 900)),
-                use_web_search=False,
-                source=req.source or "manual",
-                workspace="orchestration",
-            )
+            else:
+                generated = await generate_text(
+                    state.get("prompt", ""),
+                    system=state.get("system", ""),
+                    max_tokens=max_tok,
+                    use_web_search=False,
+                    source=req.source or "manual",
+                    workspace="orchestration",
+                )
 
         response_text = sanitize_operator_multiline(generated.get("text", "")).strip()
         db_exec(
