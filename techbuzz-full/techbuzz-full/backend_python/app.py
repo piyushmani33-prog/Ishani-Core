@@ -41,6 +41,7 @@ from empire_merge_layer import install_empire_merge_layer
 from global_recruitment_brain_layer import install_global_recruitment_brain_layer
 from recruitment_brain_layer import install_recruitment_brain_layer
 from browser_suite_layer import install_browser_suite_layer
+from brain_communication_layer import install_brain_communication_layer
 from interpreter_brain_layer import install_interpreter_brain_layer
 from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
@@ -10160,6 +10161,20 @@ INTERPRETER_LAYER = install_interpreter_brain_layer(
         "external_ai_allowed_for_source": external_ai_allowed_for_source,
         "AI_NAME": AI_NAME,
         "CORE_IDENTITY": CORE_IDENTITY,
+        "log": log,
+    },
+)
+
+install_brain_communication_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "find_brain": find_brain,
+        "brain_hierarchy_payload": brain_hierarchy_payload,
         "log": log,
     },
 )
