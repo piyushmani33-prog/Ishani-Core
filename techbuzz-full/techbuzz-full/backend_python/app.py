@@ -37,6 +37,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from ishani_llm_layer import install_ishani_llm_layer
 from empire_merge_layer import install_empire_merge_layer
 from global_recruitment_brain_layer import install_global_recruitment_brain_layer
 from recruitment_brain_layer import install_recruitment_brain_layer
@@ -10060,6 +10061,25 @@ async def get_stats(x_admin_token: Optional[str] = Header(None)):
     }
 
 
+ISHANI_LLM_LAYER = install_ishani_llm_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "call_ollama": call_ollama,
+        "extract_ollama_text": extract_ollama_text,
+        "generate_text": generate_text,
+        "sanitize_operator_multiline": sanitize_operator_multiline,
+        "OLLAMA_MODEL": OLLAMA_MODEL,
+        "AI_NAME": AI_NAME,
+        "CORE_IDENTITY": CORE_IDENTITY,
+        "log": log,
+    },
+)
+
 install_empire_merge_layer(
     app,
     {
@@ -10110,6 +10130,7 @@ RECRUITMENT_LAYER = install_recruitment_brain_layer(
         "CORE_IDENTITY": CORE_IDENTITY,
         "world_brain_context": GLOBAL_RECRUITMENT_LAYER.get("context_brief"),
         "world_brain_status": GLOBAL_RECRUITMENT_LAYER.get("status_payload"),
+        "ishani_generate_text": ISHANI_LLM_LAYER.get("ishani_generate_text"),
     },
 )
 
@@ -10256,6 +10277,7 @@ register_recruiter_status_routes(
     now_iso=now_iso,
     session_user=session_user,
     generate_text=generate_text,
+    ishani_llm=ISHANI_LLM_LAYER,
     log=log,
 )
 
