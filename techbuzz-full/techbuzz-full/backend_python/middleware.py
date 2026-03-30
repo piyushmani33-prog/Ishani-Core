@@ -13,7 +13,6 @@ Usage (in app.py, before any route registration):
     apply_middleware(app, config)
 """
 
-import json
 import logging
 import threading
 import time

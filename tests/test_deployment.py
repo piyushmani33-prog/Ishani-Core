@@ -11,8 +11,6 @@ Verifies:
 import os
 import re
 
-import pytest
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEPLOY_DIR = os.path.join(ROOT, "techbuzz-full", "techbuzz-full", "deploy")
 BACKEND_DIR = os.path.join(ROOT, "techbuzz-full", "techbuzz-full", "backend_python")

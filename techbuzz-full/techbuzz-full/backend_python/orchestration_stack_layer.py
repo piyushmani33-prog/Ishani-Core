@@ -383,6 +383,7 @@ def install_orchestration_stack_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
             for item in state.get("retrieval", [])[:4]
         )
         workflow_steps = "\n".join(f"- {step}" for step in state.get("workflow_steps", []))
+        _default_workflow = "- Understand the request.\n- Answer directly.\n- Keep the system aligned."
 
         if build_brain_context and selected_brain_id:
             brain_ctx = build_brain_context(selected_brain_id)
@@ -411,7 +412,7 @@ Retrieved brain context:
 {retrieval_text or '- No retrieved context available.'}
 
 Suggested workflow:
-{workflow_steps or '- Understand the request.\n- Answer directly.\n- Keep the system aligned.'}
+{workflow_steps or _default_workflow}
 
 Deliver:
 - a precise answer
