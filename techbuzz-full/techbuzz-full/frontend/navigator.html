@@ -6,6 +6,7 @@
 <title>TechBuzz Navigator | Sourcing And Research Workspace</title>
 <meta name="theme-color" content="#08111d">
 <link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<link rel="stylesheet" href="/frontend-assets/role-phase-router.css">
 <style>
 :root{
   --bg:#08111d;
@@ -94,10 +95,14 @@ iframe{flex:1;width:100%;min-height:620px;border:none;background:#fff}
       <span>Explicit sourcing • browser workspace • approved learning</span>
     </div>
     <nav class="nav-links">
-      <a href="/agent/console">Agent Console</a>
-      <a href="/leazy">Leazy</a>
-      <a href="/company/portal">Public HQ</a>
+      <a href="/agent/console" data-module="agent" data-dashboard="agent">Agent Console</a>
+      <a href="/leazy" data-module="neural" data-dashboard="leazy">Leazy</a>
+      <a href="/company/portal" data-dashboard="company-portal">Public HQ</a>
     </nav>
+    <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+      <span class="rpr-role-badge"></span>
+      <span class="rpr-phase-badge"></span>
+    </div>
   </header>
 
   <section class="hero">
@@ -187,5 +192,6 @@ iframe{flex:1;width:100%;min-height:620px;border:none;background:#fff}
 </div>
 
 <script src="/frontend-assets/navigator.js"></script>
+<script src="/frontend-assets/role-phase-router.js"></script>
 </body>
 </html>

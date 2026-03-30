@@ -1,0 +1,146 @@
+/*
+ * role-phase-router.css
+ *
+ * Styles for the Role-Phase Router UI system in TechBuzz / Ishani Core.
+ *
+ * Classes applied dynamically by role-phase-router.js:
+ *   .rpr-hidden       — nav item not visible in current phase/role
+ *   .rpr-locked       — dashboard section locked (restricted access overlay)
+ *   .rpr-role-badge   — badge showing the current role label
+ *   .rpr-phase-badge  — badge showing the current phase number and name
+ */
+
+/* -------------------------------------------------------------------------
+   Hidden nav items
+   -------------------------------------------------------------------------
+   Items are hidden by removing them from layout entirely.  They remain in
+   the DOM so the router can re-show them when the phase advances.
+*/
+.rpr-hidden {
+  display: none !important;
+}
+
+/* -------------------------------------------------------------------------
+   Role badge
+   -------------------------------------------------------------------------
+   Inline pill that shows the current user role.  Colour-coded per role.
+*/
+.rpr-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eef6ff;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.rpr-role-badge[data-role="founder_admin"] {
+  background: rgba(241, 202, 107, 0.14);
+  border-color: rgba(241, 202, 107, 0.42);
+  color: #f1ca6b;
+}
+
+.rpr-role-badge[data-role="recruiter"] {
+  background: rgba(140, 232, 255, 0.12);
+  border-color: rgba(140, 232, 255, 0.36);
+  color: #8ce8ff;
+}
+
+.rpr-role-badge[data-role="candidate"] {
+  background: rgba(143, 243, 207, 0.1);
+  border-color: rgba(143, 243, 207, 0.3);
+  color: #8ff3cf;
+}
+
+.rpr-role-badge[data-role="operator_research"] {
+  background: rgba(190, 169, 255, 0.1);
+  border-color: rgba(190, 169, 255, 0.3);
+  color: #bea9ff;
+}
+
+/* -------------------------------------------------------------------------
+   Phase badge
+   -------------------------------------------------------------------------
+   Shows "Phase N — <name>" in the navigation header.
+*/
+.rpr-phase-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #98afca;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.rpr-phase-badge[data-phase="1"] {
+  background: rgba(143, 243, 207, 0.07);
+  border-color: rgba(143, 243, 207, 0.2);
+  color: #8ff3cf;
+}
+
+.rpr-phase-badge[data-phase="2"] {
+  background: rgba(140, 232, 255, 0.07);
+  border-color: rgba(140, 232, 255, 0.2);
+  color: #8ce8ff;
+}
+
+.rpr-phase-badge[data-phase="3"] {
+  background: rgba(190, 169, 255, 0.07);
+  border-color: rgba(190, 169, 255, 0.2);
+  color: #bea9ff;
+}
+
+.rpr-phase-badge[data-phase="4"] {
+  background: rgba(241, 202, 107, 0.07);
+  border-color: rgba(241, 202, 107, 0.2);
+  color: #f1ca6b;
+}
+
+.rpr-phase-badge[data-phase="5"] {
+  background: rgba(255, 120, 100, 0.09);
+  border-color: rgba(255, 120, 100, 0.25);
+  color: #ff9f8f;
+}
+
+/* -------------------------------------------------------------------------
+   Restricted-access overlay
+   -------------------------------------------------------------------------
+   Shown on any element with [data-requires-dashboard] when the dashboard
+   is not visible for the current role/phase.
+*/
+.rpr-locked {
+  position: relative;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rpr-locked::after {
+  content: "🔒 Locked — available in a later phase";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 17, 29, 0.82);
+  backdrop-filter: blur(6px);
+  color: #98afca;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: inherit;
+  z-index: 20;
+}
