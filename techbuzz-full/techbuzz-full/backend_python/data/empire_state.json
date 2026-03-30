@@ -5,7 +5,7 @@
     "created_at": "2026-03-26T09:05:24.169875",
     "memory_guardian": "eternal preservation",
     "creator_mode": "Creator Priority Mode",
-    "last_guardian_cycle": "2026-03-30T02:04:31.941229+00:00"
+    "last_guardian_cycle": "2026-03-30T02:06:20.049424+00:00"
   },
   "voice": {
     "always_listening": true,
@@ -482,38 +482,6 @@
     ]
   },
   "vault": [
-    {
-      "id": "vault_6094937e1b",
-      "kind": "prime_minister_cycle",
-      "title": "Prime Minister Revenue Cycle",
-      "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\nRevenue posture: \u20b95.72 Cr projected from 11 hunts today, 0 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, a",
-      "content": "{\"id\": \"cabinet_d2e04ca151\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\", \"command\": \"Brief the cabinet on the new Praapti hunt for TechBuzz Labs.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\\nRevenue posture: \u20b95.72 Cr projected from 11 hunts today, 0 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\n- Management Command Liaison: Governance, planning, revenue direction, and cross-system coordination. Next move: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-26T20:14:52.328479+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Protection Secretary\", \"Quantum Storage Secretary\", \"Management Command Liaison\", \"Delivery Secretary\"]}",
-      "created_at": "2026-03-26T20:14:52.328604+00:00"
-    },
-    {
-      "id": "vault_061599b145",
-      "kind": "cabinet_archive",
-      "title": "Prime Minister Archive Rollup",
-      "summary": "Compressed 1 older cabinet cycles into Akshaya history.",
-      "content": "[{\"id\": \"cabinet_c6c2b82231\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems by evolving the product and operating system.\", \"command\": \"Fold Nirmaan proposal Mission Memory Relay into the cabinet roadmap.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems by evolving the product and operating system.\\nRevenue posture: \u20b91.54 Cr projected from 0 hunts today, 0 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\n- Army Command Liaison: Execution, deployment pressure, and mission discipline. Next move: Execution lanes are aligned to enforce movement on hunts, packages, and cabinet orders.\\n- Evolution Chamber Liaison: Continuous learning, refinement, and next-cycle adaptation. Next move: Evolution is active through Nirmaan proposals, cabinet cycles, and preserved reports.\\n- Transmission Grid Liaison: Message relay, engine handoff, and report propagation. Next move: No recent voice relay recorded.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-26T16:57:28.256080+00:00\", \"top_secretaries\": [\"Protection Secretary\", \"Quantum Storage Secretary\", \"Army Command Liaison\", \"Evolution Chamber Liaison\", \"Transmission Grid Liaison\", \"Revenue Secretary\"]}]",
-      "created_at": "2026-03-26T20:14:52.329789+00:00"
-    },
-    {
-      "id": "vault_06ff868e70",
-      "kind": "prime_minister_cycle",
-      "title": "Prime Minister Revenue Cycle",
-      "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\nRevenue posture: \u20b95.72 Cr projected from 11 hunts today, 0 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, a",
-      "content": "{\"id\": \"cabinet_851133b692\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\", \"command\": \"Brief the cabinet on the new Praapti hunt for TechBuzz Labs.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\\nRevenue posture: \u20b95.72 Cr projected from 11 hunts today, 0 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\n- Management Command Liaison: Governance, planning, revenue direction, and cross-system coordination. Next move: Generate revenue for TechBuzz Systems by converting hiring demand into delivery and client trust.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-26T20:15:46.445310+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Protection Secretary\", \"Quantum Storage Secretary\", \"Management Command Liaison\", \"Delivery Secretary\"]}",
-      "created_at": "2026-03-26T20:15:46.445411+00:00"
-    },
-    {
-      "id": "vault_7744b49785",
-      "kind": "cabinet_archive",
-      "title": "Prime Minister Archive Rollup",
-      "summary": "Compressed 1 older cabinet cycles into Akshaya history.",
-      "content": "[{\"id\": \"cabinet_5d6b42c03e\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems by evolving the product and operating system.\", \"command\": \"Fold Nirmaan proposal Mission Memory Relay into the cabinet roadmap.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems by evolving the product and operating system.\\nRevenue posture: \u20b91.54 Cr projected from 0 hunts today, 0 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\n- Army Command Liaison: Execution, deployment pressure, and mission discipline. Next move: Execution lanes are aligned to enforce movement on hunts, packages, and cabinet orders.\\n- Evolution Chamber Liaison: Continuous learning, refinement, and next-cycle adaptation. Next move: Evolution is active through Nirmaan proposals, cabinet cycles, and preserved reports.\\n- Transmission Grid Liaison: Message relay, engine handoff, and report propagation. Next move: No recent voice relay recorded.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-26T16:58:22.356126+00:00\", \"top_secretaries\": [\"Protection Secretary\", \"Quantum Storage Secretary\", \"Army Command Liaison\", \"Evolution Chamber Liaison\", \"Transmission Grid Liaison\", \"Revenue Secretary\"]}]",
-      "created_at": "2026-03-26T20:15:46.446552+00:00"
-    },
     {
       "id": "vault_4a25e532de",
       "kind": "network_scan",
@@ -5289,6 +5257,38 @@
       "summary": "Compressed 1 older cabinet cycles into Akshaya history.",
       "content": "[{\"id\": \"cabinet_87cd783fbc\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems from active packages and delivery lanes.\", \"command\": \"Absorb package Fortress Guard into the revenue cabinet.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-27T20:16:22.761849+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Delivery Secretary\", \"Protection Secretary\", \"Quantum Storage Secretary\", \"Management Command Liaison\"]}]",
       "created_at": "2026-03-30T02:04:31.941221+00:00"
+    },
+    {
+      "id": "vault_6a1efeea45",
+      "kind": "prime_minister_cycle",
+      "title": "Prime Minister Revenue Cycle",
+      "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, an",
+      "content": "{\"id\": \"cabinet_d5f71ce328\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\", \"command\": \"Absorb swarm mission into the Prime Minister queue: autonomous evolution across expand grow develop protect\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-30T02:05:25.985913+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Delivery Secretary\", \"Protection Secretary\", \"Accounts Secretary\", \"Quantum Storage Secretary\"]}",
+      "created_at": "2026-03-30T02:05:25.985968+00:00"
+    },
+    {
+      "id": "vault_c20e39388f",
+      "kind": "cabinet_archive",
+      "title": "Prime Minister Archive Rollup",
+      "summary": "Compressed 1 older cabinet cycles into Akshaya history.",
+      "content": "[{\"id\": \"cabinet_0cfbd1410e\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems from active packages and delivery lanes.\", \"command\": \"Absorb package Fortress Guard into the revenue cabinet.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-27T20:17:16.942884+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Delivery Secretary\", \"Protection Secretary\", \"Quantum Storage Secretary\", \"Management Command Liaison\"]}]",
+      "created_at": "2026-03-30T02:05:25.993409+00:00"
+    },
+    {
+      "id": "vault_1c55bbd507",
+      "kind": "prime_minister_cycle",
+      "title": "Prime Minister Revenue Cycle",
+      "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, an",
+      "content": "{\"id\": \"cabinet_55edf3c167\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\", \"command\": \"Absorb swarm mission into the Prime Minister queue: autonomous evolution across expand grow develop protect\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-30T02:06:20.039511+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Delivery Secretary\", \"Protection Secretary\", \"Accounts Secretary\", \"Quantum Storage Secretary\"]}",
+      "created_at": "2026-03-30T02:06:20.039591+00:00"
+    },
+    {
+      "id": "vault_cab110f0a5",
+      "kind": "cabinet_archive",
+      "title": "Prime Minister Archive Rollup",
+      "summary": "Compressed 1 older cabinet cycles into Akshaya history.",
+      "content": "[{\"id\": \"cabinet_585f255505\", \"source\": \"runtime\", \"objective\": \"Generate revenue for TechBuzz Systems from active packages and delivery lanes.\", \"command\": \"Absorb package Fortress Guard into the revenue cabinet.\", \"report\": \"Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\\nSecretary briefs:\\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.\", \"created_at\": \"2026-03-27T20:18:11.221244+00:00\", \"top_secretaries\": [\"Revenue Secretary\", \"Hiring Secretary\", \"Delivery Secretary\", \"Protection Secretary\", \"Quantum Storage Secretary\", \"Management Command Liaison\"]}]",
+      "created_at": "2026-03-30T02:06:20.049416+00:00"
     }
   ],
   "praapti_hunts": [
@@ -6584,8 +6584,8 @@
       "current_order": "Absorb swarm mission into the Prime Minister queue: autonomous evolution across expand grow develop protect",
       "enabled": true,
       "interval_seconds": 45,
-      "last_cycle_at": "2026-03-30T02:04:31.933660+00:00",
-      "next_cycle_at": "2026-03-30T02:05:16.933663+00:00",
+      "last_cycle_at": "2026-03-30T02:06:20.039437+00:00",
+      "next_cycle_at": "2026-03-30T02:07:05.039441+00:00",
       "last_report": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue."
     },
     "secretaries": [
@@ -6791,38 +6791,6 @@
       }
     ],
     "mission_log": [
-      {
-        "id": "cabinet_0cfbd1410e",
-        "source": "runtime",
-        "objective": "Generate revenue for TechBuzz Systems from active packages and delivery lanes.",
-        "command": "Absorb package Fortress Guard into the revenue cabinet.",
-        "report": "Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.",
-        "created_at": "2026-03-27T20:17:16.942884+00:00",
-        "top_secretaries": [
-          "Revenue Secretary",
-          "Hiring Secretary",
-          "Delivery Secretary",
-          "Protection Secretary",
-          "Quantum Storage Secretary",
-          "Management Command Liaison"
-        ]
-      },
-      {
-        "id": "cabinet_585f255505",
-        "source": "runtime",
-        "objective": "Generate revenue for TechBuzz Systems from active packages and delivery lanes.",
-        "command": "Absorb package Fortress Guard into the revenue cabinet.",
-        "report": "Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Quantum Storage Secretary: Manage Akshaya preservation, archival rollups, and retrieval accuracy. Next move: Keep memory lightweight while preserving the highest-value traces.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.",
-        "created_at": "2026-03-27T20:18:11.221244+00:00",
-        "top_secretaries": [
-          "Revenue Secretary",
-          "Hiring Secretary",
-          "Delivery Secretary",
-          "Protection Secretary",
-          "Quantum Storage Secretary",
-          "Management Command Liaison"
-        ]
-      },
       {
         "id": "cabinet_1685070fe9",
         "source": "runtime",
@@ -9670,6 +9638,38 @@
           "Accounts Secretary",
           "Quantum Storage Secretary"
         ]
+      },
+      {
+        "id": "cabinet_d5f71ce328",
+        "source": "runtime",
+        "objective": "Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.",
+        "command": "Absorb swarm mission into the Prime Minister queue: autonomous evolution across expand grow develop protect",
+        "report": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.",
+        "created_at": "2026-03-30T02:05:25.985913+00:00",
+        "top_secretaries": [
+          "Revenue Secretary",
+          "Hiring Secretary",
+          "Delivery Secretary",
+          "Protection Secretary",
+          "Accounts Secretary",
+          "Quantum Storage Secretary"
+        ]
+      },
+      {
+        "id": "cabinet_55edf3c167",
+        "source": "runtime",
+        "objective": "Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.",
+        "command": "Absorb swarm mission into the Prime Minister queue: autonomous evolution across expand grow develop protect",
+        "report": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.",
+        "created_at": "2026-03-30T02:06:20.039511+00:00",
+        "top_secretaries": [
+          "Revenue Secretary",
+          "Hiring Secretary",
+          "Delivery Secretary",
+          "Protection Secretary",
+          "Accounts Secretary",
+          "Quantum Storage Secretary"
+        ]
       }
     ],
     "quantum_storage": {
@@ -9677,9 +9677,9 @@
       "mode": "elastic preservation",
       "seal": "Matsya + Kurma",
       "compression_strategy": "memory_guardian + vault_rollups",
-      "archive_cycles": 360,
+      "archive_cycles": 362,
       "items_preserved": 879,
-      "last_compaction_at": "2026-03-30T02:04:31.941170+00:00",
+      "last_compaction_at": "2026-03-30T02:06:20.049362+00:00",
       "state_file": "/home/runner/work/Ishani-Core/Ishani-Core/techbuzz-full/techbuzz-full/backend_python/data/empire_state.json"
     },
     "brain_directives": {
@@ -10167,22 +10167,10 @@
   },
   "monitoring": {
     "pulse_interval_ms": 2500,
-    "last_scan_at": "2026-03-30T02:04:31.941231+00:00",
-    "last_runtime_cycle_at": "2026-03-30T02:04:31.933660+00:00",
+    "last_scan_at": "2026-03-30T02:06:20.049426+00:00",
+    "last_runtime_cycle_at": "2026-03-30T02:06:20.039437+00:00",
     "last_report": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package new offers and prioritize the strongest commercial lanes.\n- Hiring Secretary: Convert demand into roles, candidate slates, and interview motion. Next move: Run Praapti on the most urgent revenue-critical role.\n- Delivery Secretary: Keep work moving from plan to execution without losing context. Next move: Bind active missions to owners, outputs, and follow-up dates.\n- Protection Secretary: Guard the core, risk posture, privacy controls, and system continuity. Next move: Preserve core memory and keep the command layer stable under load.\n- Accounts Secretary: Maintain the regional tax profile, guide bookkeeping, and keep revenue and compliance signals clean. Next move: 19 profile(s), 2 ledger entries, and 5 report(s) are feeding the revenue core.\nCore order: protect the core, accelerate delivery, and convert intelligence into revenue.",
     "alerts": [
-      {
-        "level": "ok",
-        "title": "Cabinet Cycle Completed",
-        "summary": "Ishani Prime Minister briefed 25 secretaries and refreshed the state chain.",
-        "created_at": "2026-03-28T17:54:55.799131+00:00"
-      },
-      {
-        "level": "ok",
-        "title": "Cabinet Cycle Completed",
-        "summary": "Ishani Prime Minister briefed 25 secretaries and refreshed the state chain.",
-        "created_at": "2026-03-28T17:55:50.002166+00:00"
-      },
       {
         "level": "ok",
         "title": "Cabinet Cycle Completed",
@@ -10410,23 +10398,21 @@
         "title": "Cabinet Cycle Completed",
         "summary": "Ishani Prime Minister briefed 25 secretaries and refreshed the state chain.",
         "created_at": "2026-03-30T02:04:31.933758+00:00"
+      },
+      {
+        "level": "ok",
+        "title": "Cabinet Cycle Completed",
+        "summary": "Ishani Prime Minister briefed 25 secretaries and refreshed the state chain.",
+        "created_at": "2026-03-30T02:05:25.985930+00:00"
+      },
+      {
+        "level": "ok",
+        "title": "Cabinet Cycle Completed",
+        "summary": "Ishani Prime Minister briefed 25 secretaries and refreshed the state chain.",
+        "created_at": "2026-03-30T02:06:20.039538+00:00"
       }
     ],
     "engine_reports": [
-      {
-        "id": "monitor_2fc61eb5b1",
-        "engine": "Prime Minister Cabinet",
-        "status": "governing",
-        "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package ne",
-        "created_at": "2026-03-27T20:38:58.681242+00:00"
-      },
-      {
-        "id": "monitor_2a05dda291",
-        "engine": "Prime Minister Cabinet",
-        "status": "governing",
-        "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems from active packages and delivery lanes.\nRevenue posture: \u20b92.52 Cr projected from 0 hunts today, 4 active packages, and 0 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Next move: Package ne",
-        "created_at": "2026-03-27T20:39:52.871141+00:00"
-      },
       {
         "id": "monitor_7dfee83261",
         "engine": "Prime Minister Cabinet",
@@ -11529,6 +11515,20 @@
         "status": "governing",
         "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Ne",
         "created_at": "2026-03-30T02:04:31.933754+00:00"
+      },
+      {
+        "id": "monitor_1043ce586c",
+        "engine": "Prime Minister Cabinet",
+        "status": "governing",
+        "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Ne",
+        "created_at": "2026-03-30T02:05:25.985927+00:00"
+      },
+      {
+        "id": "monitor_ea02aa1255",
+        "engine": "Prime Minister Cabinet",
+        "status": "governing",
+        "summary": "Prime Minister mandate: Generate revenue for TechBuzz Systems while using the swarm to strengthen execution and delivery.\nRevenue posture: \u20b92.66 Cr projected from 0 hunts today, 4 active packages, and 1 live proposals.\nSecretary briefs:\n- Revenue Secretary: Turn hunts, offers, and delivery lanes into booked revenue. Ne",
+        "created_at": "2026-03-30T02:06:20.039532+00:00"
       }
     ],
     "auto_repair": {

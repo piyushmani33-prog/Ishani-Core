@@ -368,17 +368,29 @@ function rmRenderFollowups(tasks) {
         <div class="rm-followup-message">${esc(t.message_draft || "No draft available.")}</div>
       </div>
       <div class="rm-followup-actions">
-        <button class="rm-btn small" onclick="rmCopyFollowup('${esc(t.id)}')" title="Copy message to clipboard">📋 Copy</button>
-        <button class="rm-btn small" onclick="rmRegenerateFollowup('${esc(t.id)}')" title="Regenerate with AI">🔄 Regenerate</button>
-        <button class="rm-btn small green" onclick="rmCompleteFollowup('${esc(t.id)}')" title="Mark as done">✅ Done</button>
-        <button class="rm-btn small" onclick="rmDismissFollowup('${esc(t.id)}')" title="Dismiss this alert">✕ Dismiss</button>
+        <button class="rm-btn small rm-fu-action" data-action="copy" data-task="${esc(t.id)}" title="Copy message to clipboard">📋 Copy</button>
+        <button class="rm-btn small rm-fu-action" data-action="regenerate" data-task="${esc(t.id)}" title="Regenerate with AI">🔄 Regenerate</button>
+        <button class="rm-btn small green rm-fu-action" data-action="complete" data-task="${esc(t.id)}" title="Mark as done">✅ Done</button>
+        <button class="rm-btn small rm-fu-action" data-action="dismiss" data-task="${esc(t.id)}" title="Dismiss this alert">✕ Dismiss</button>
       </div>
     </div>
   `).join("");
+
+  // Attach event listeners via delegation
+  list.querySelectorAll(".rm-fu-action").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const taskId = btn.dataset.task;
+      const action = btn.dataset.action;
+      if (action === "copy") rmCopyFollowup(taskId);
+      else if (action === "regenerate") rmRegenerateFollowup(taskId);
+      else if (action === "complete") rmCompleteFollowup(taskId);
+      else if (action === "dismiss") rmDismissFollowup(taskId);
+    });
+  });
 }
 
 function rmCopyFollowup(taskId) {
-  const item = document.querySelector(`.rm-followup-item[data-task-id="${taskId}"]`);
+  const item = document.querySelector(`.rm-followup-item[data-task-id="${CSS.escape(taskId)}"]`);
   if (!item) return;
   const msg = item.querySelector(".rm-followup-message");
   if (!msg) return;
@@ -409,7 +421,7 @@ async function rmDismissFollowup(taskId) {
 }
 
 async function rmRegenerateFollowup(taskId) {
-  const item = document.querySelector(`.rm-followup-item[data-task-id="${taskId}"]`);
+  const item = document.querySelector(`.rm-followup-item[data-task-id="${CSS.escape(taskId)}"]`);
   if (item) {
     const msg = item.querySelector(".rm-followup-message");
     if (msg) msg.innerHTML = '<span class="rm-spin"></span> Regenerating…';
