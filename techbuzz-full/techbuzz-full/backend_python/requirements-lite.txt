@@ -1,0 +1,16 @@
+# TechBuzz AI — Lite Requirements (CPU-only, no heavy ML frameworks)
+# Use this for demo, lightweight, or resource-constrained deployments.
+# The full requirements.txt is kept for installations that need all AI features.
+
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+httpx>=0.27.0
+python-multipart>=0.0.9
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pypdf>=5.4.0
+python-docx>=1.1.2
+openpyxl>=3.1.5
+python-pptx>=1.0.2
+pycountry>=24.6.1
+starlette>=0.36.0
