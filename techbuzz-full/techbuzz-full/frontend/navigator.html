@@ -6,6 +6,7 @@
 <title>TechBuzz Navigator | Sourcing And Research Workspace</title>
 <meta name="theme-color" content="#08111d">
 <link rel="stylesheet" href="/frontend-assets/empire-pages.css">
+<link rel="stylesheet" href="/frontend-assets/role-phase-router.css">
 <style>
 :root{
   --bg:#08111d;
@@ -94,10 +95,20 @@ iframe{flex:1;width:100%;min-height:620px;border:none;background:#fff}
       <span>Explicit sourcing • browser workspace • approved learning</span>
     </div>
     <nav class="nav-links">
-      <a href="/agent/console">Agent Console</a>
-      <a href="/leazy">Leazy</a>
-      <a href="/company/portal">Public HQ</a>
+      <a href="/agent/console" data-module="agent">Agent Console</a>
+      <a href="/leazy" data-role-required="founder_admin">Leazy</a>
+      <a href="/company/portal" data-module="public_agent">Public HQ</a>
+      <a href="/recruiter-mode" data-module="recruitment">Recruiter</a>
+      <a href="/navigator" data-module="navigator">Navigator</a>
+      <a href="/network" data-module="network">Network</a>
+      <a href="/neural" data-dashboard="neural">Neural</a>
+      <a href="/research" data-dashboard="research">Research</a>
+      <a href="/empire-portals" data-dashboard="empire-portals">Empire</a>
     </nav>
+    <div class="rp-nav-meta">
+      <span class="rp-role-badge" aria-live="polite">Loading…</span>
+      <span class="rp-phase-badge" aria-live="polite">Phase …</span>
+    </div>
   </header>
 
   <section class="hero">
@@ -187,5 +198,6 @@ iframe{flex:1;width:100%;min-height:620px;border:none;background:#fff}
 </div>
 
 <script src="/frontend-assets/navigator.js"></script>
+<script src="/frontend-assets/role-phase-router.js"></script>
 </body>
 </html>
