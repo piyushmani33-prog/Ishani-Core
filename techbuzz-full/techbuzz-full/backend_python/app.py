@@ -53,6 +53,9 @@ from brain_executor_layer import install_brain_executor_layer
 from decision_aggregator_layer import install_decision_aggregator_layer
 from action_output_layer import install_action_output_layer
 from safety_layer import install_safety_layer
+from disclosure_gate_layer import install_disclosure_gate_layer
+from learning_engine_layer import install_learning_engine_layer
+from evolution_layer import install_evolution_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10302,6 +10305,21 @@ try:
     install_safety_layer(app, _COORD_CTX)
 except Exception as _e:
     log.warning("install_safety_layer failed: %s", _e)
+
+try:
+    install_disclosure_gate_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_disclosure_gate_layer failed: %s", _e)
+
+try:
+    install_learning_engine_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_learning_engine_layer failed: %s", _e)
+
+try:
+    install_evolution_layer(app, _COORD_CTX)
+except Exception as _e:
+    log.warning("install_evolution_layer failed: %s", _e)
 
 
 if __name__ == "__main__":

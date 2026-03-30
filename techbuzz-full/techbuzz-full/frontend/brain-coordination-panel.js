@@ -74,6 +74,10 @@ const BrainCoordPanel = {
         case "execute-action": await BrainCoordPanel.executeAction(id); break;
         case "dismiss-action": await BrainCoordPanel.dismissAction(id); break;
         case "override-safety": await BrainCoordPanel.overrideSafety(id); break;
+        case "accept-insight":  await BrainCoordPanel.acceptInsight(id); break;
+        case "reject-insight":  await BrainCoordPanel.rejectInsight(id); break;
+        case "accept-proposal": await BrainCoordPanel.acceptProposal(id); break;
+        case "reject-proposal": await BrainCoordPanel.rejectProposal(id); break;
         case "refresh": await BrainCoordPanel.refresh(); break;
         default: break;
       }
@@ -94,6 +98,8 @@ const BrainCoordPanel = {
       BrainCoordPanel._loadAggregation(),
       BrainCoordPanel._loadActions(),
       BrainCoordPanel._loadSafety(),
+      BrainCoordPanel._loadLearning(),
+      BrainCoordPanel._loadEvolution(),
     ]);
   },
 
@@ -237,6 +243,79 @@ const BrainCoordPanel = {
     }
   },
 
+  async _loadLearning() {
+    try {
+      const [statsData, signalsData, insightsData] = await Promise.all([
+        _bcpApi("/api/learning/stats"),
+        _bcpApi("/api/learning/signals?limit=10"),
+        _bcpApi("/api/learning/insights?status=proposed&limit=10"),
+      ]);
+      const container = document.getElementById("bcp-learning-list");
+      if (!container) return;
+      let html = "";
+
+      if (statsData.stats) {
+        const s = statsData.stats;
+        html += `<div class="bcp-card"><span class="bcp-meta">Signals: ${s.total_signals} &nbsp;|&nbsp; Insights: ${s.total_insights}</span></div>`;
+      }
+
+      if (insightsData.insights && insightsData.insights.length > 0) {
+        html += "<h4 class='bcp-subheading'>Proposed Insights</h4>";
+        html += insightsData.insights.map(i => `
+          <div class="bcp-card">
+            <span class="bcp-badge bcp-badge-purple">${_esc(i.category)}</span>
+            <span class="bcp-meta">brain: ${_esc(i.source_brain)} &nbsp;|&nbsp; ${_esc(i.created_at)}</span>
+            <p class="bcp-msg">${_esc(i.summary)}</p>
+            <div class="bcp-actions">
+              <button class="bcp-btn bcp-btn-green" data-action="accept-insight" data-id="${_esc(i.id)}">Accept</button>
+              <button class="bcp-btn bcp-btn-red"   data-action="reject-insight" data-id="${_esc(i.id)}">Reject</button>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      if (signalsData.signals && signalsData.signals.length > 0) {
+        html += "<h4 class='bcp-subheading'>Recent Signals</h4>";
+        html += signalsData.signals.map(s => `
+          <div class="bcp-card">
+            <span class="bcp-badge bcp-badge-blue">${_esc(s.signal_type)}</span>
+            <span class="bcp-meta">${_esc(s.entity_type)}/${_esc(s.entity_id)} &nbsp;|&nbsp; ${_esc(s.created_at)}</span>
+          </div>
+        `).join("");
+      }
+
+      container.innerHTML = html || "<p class='bcp-empty'>No learning data yet.</p>";
+    } catch (err) {
+      console.error("[BCP] learning error:", err);
+    }
+  },
+
+  async _loadEvolution() {
+    try {
+      const data = await _bcpApi("/api/evolution/proposals?status=proposed&limit=10");
+      const container = document.getElementById("bcp-evolution-list");
+      if (!container) return;
+      if (!data.proposals || data.proposals.length === 0) {
+        container.innerHTML = "<p class='bcp-empty'>No pending evolution proposals.</p>";
+        return;
+      }
+      container.innerHTML = data.proposals.map(p => `
+        <div class="bcp-card">
+          <span class="bcp-badge bcp-badge-orange">${_esc(p.category)}</span>
+          <span class="bcp-meta">brain: ${_esc(p.source_brain)} &nbsp;|&nbsp; priority: ${p.priority} &nbsp;|&nbsp; ${_esc(p.created_at)}</span>
+          <p class="bcp-msg"><strong>${_esc(p.title)}</strong></p>
+          <p class="bcp-msg">${_esc(p.description)}</p>
+          <div class="bcp-actions">
+            <button class="bcp-btn bcp-btn-green" data-action="accept-proposal" data-id="${_esc(p.id)}">Accept</button>
+            <button class="bcp-btn bcp-btn-red"   data-action="reject-proposal" data-id="${_esc(p.id)}">Reject</button>
+          </div>
+        </div>
+      `).join("");
+    } catch (err) {
+      console.error("[BCP] evolution error:", err);
+    }
+  },
+
   // -----------------------------------------------------------------------
   // Button handlers
   // -----------------------------------------------------------------------
@@ -296,6 +375,44 @@ const BrainCoordPanel = {
     } catch (err) { _bcpToast("Error: " + err.message); }
   },
 
+  async acceptInsight(insightId) {
+    try {
+      await _bcpApi(`/api/learning/insights/${insightId}/accept`, { method: "POST", body: JSON.stringify({}) });
+      _bcpToast("Insight accepted ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async rejectInsight(insightId) {
+    try {
+      await _bcpApi(`/api/learning/insights/${insightId}/reject`, { method: "POST", body: JSON.stringify({}) });
+      _bcpToast("Insight rejected");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async acceptProposal(proposalId) {
+    try {
+      await _bcpApi(`/api/evolution/proposals/${proposalId}/review`, {
+        method: "POST",
+        body: JSON.stringify({ decision: "accepted", review_notes: "Approved from dashboard" }),
+      });
+      _bcpToast("Proposal accepted ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async rejectProposal(proposalId) {
+    try {
+      await _bcpApi(`/api/evolution/proposals/${proposalId}/review`, {
+        method: "POST",
+        body: JSON.stringify({ decision: "rejected", review_notes: "Rejected from dashboard" }),
+      });
+      _bcpToast("Proposal rejected");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
   // -----------------------------------------------------------------------
   // HTML skeleton
   // -----------------------------------------------------------------------
@@ -332,6 +449,16 @@ const BrainCoordPanel = {
           <section class="bcp-section bcp-section-wide">
             <h3>🛡 Safety Log</h3>
             <div id="bcp-safety-list"><p class="bcp-empty">Loading…</p></div>
+          </section>
+
+          <section class="bcp-section">
+            <h3>📚 Learning Engine</h3>
+            <div id="bcp-learning-list"><p class="bcp-empty">Loading…</p></div>
+          </section>
+
+          <section class="bcp-section">
+            <h3>🧬 Evolution Proposals</h3>
+            <div id="bcp-evolution-list"><p class="bcp-empty">Loading…</p></div>
           </section>
         </div>
       </div>
