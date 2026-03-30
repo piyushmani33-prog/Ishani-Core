@@ -38,6 +38,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from brain_prompt_layer import install_brain_prompt_layer
+from resilience_layer import install_resilience_layer
 from empire_merge_layer import install_empire_merge_layer
 from global_recruitment_brain_layer import install_global_recruitment_brain_layer
 from recruitment_brain_layer import install_recruitment_brain_layer
@@ -10076,6 +10077,22 @@ BRAIN_PROMPT_LAYER = install_brain_prompt_layer(
     },
 )
 
+RESILIENCE_LAYER = install_resilience_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_one": db_one,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "generate_text": generate_text,
+        "call_local_llm": call_local_llm,
+        "log": log,
+        "brain_aware_generate": BRAIN_PROMPT_LAYER["brain_aware_generate"],
+    },
+)
+
 install_empire_merge_layer(
     app,
     {
@@ -10221,6 +10238,8 @@ ORCHESTRATION_STACK_LAYER = install_orchestration_stack_layer(
         "build_brain_context": BRAIN_PROMPT_LAYER["build_brain_context"],
         "brain_aware_generate": BRAIN_PROMPT_LAYER["brain_aware_generate"],
         "brain_aware_local_llm": BRAIN_PROMPT_LAYER["brain_aware_local_llm"],
+        "compute_confidence": RESILIENCE_LAYER["compute_confidence"],
+        "record_override": RESILIENCE_LAYER["record_override"],
         "AI_NAME": AI_NAME,
         "CORE_IDENTITY": CORE_IDENTITY,
         "log": log,
