@@ -270,3 +270,8 @@ input,select{
   .stats-grid,.quick-grid,.chat-compose,.relay-grid,.form-grid{grid-template-columns:1fr}
   .agent-shell{padding:24px 14px 60px}
 }
+
+/* Follow-Up Assistant */
+.followup-task{border-left:3px solid #f0ad4e}
+.followup-message-preview{background:rgba(0,0,0,.3);border:1px solid rgba(240,173,78,.2);border-radius:8px;padding:10px;margin:8px 0;font-size:13px;line-height:1.6;white-space:pre-wrap;color:rgba(255,255,255,.85)}
+.stage-alert{background:rgba(240,173,78,.2);color:#f0ad4e}

@@ -1137,6 +1137,22 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             )
             """
         )
+        db_exec(
+            """
+            CREATE TABLE IF NOT EXISTS follow_up_tasks(
+                id TEXT PRIMARY KEY,
+                user_id TEXT,
+                row_id TEXT,
+                candidate_name TEXT,
+                position TEXT,
+                reason TEXT,
+                message_draft TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT,
+                completed_at TEXT
+            )
+            """
+        )
 
     def seed_brains() -> None:
         for pack in RECRUITMENT_SEED_PACKS:
@@ -6821,6 +6837,198 @@ def install_recruitment_brain_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
         user = require_member(request)
         events = recent_action_events(user["id"])
         return {"events": events, "count": len(events)}
+
+    async def detect_followup_candidates(user: Dict[str, Any]) -> Dict[str, Any]:
+        now = datetime.utcnow()
+        rows = db_all(
+            """
+            SELECT id, user_id, candidate_name, position, process_stage,
+                   response_status, follow_up_due_at, last_contacted_at, updated_at
+            FROM recruitment_tracker_rows
+            WHERE user_id=?
+              AND response_status IN ('interested', 'pending_review', 'no_response')
+            """,
+            (user["id"],),
+        ) or []
+        candidates_to_followup = []
+        for row in rows:
+            follow_up_due_at = (row.get("follow_up_due_at") or "").strip()
+            updated_at = (row.get("updated_at") or "").strip()
+            response_status = (row.get("response_status") or "").strip()
+            is_overdue = False
+            reason = ""
+            if follow_up_due_at:
+                due_dt = parse_iso(follow_up_due_at)
+                if due_dt and due_dt <= now:
+                    is_overdue = True
+                    reason = "Follow-up overdue"
+            if not is_overdue and response_status == "interested" and updated_at:
+                updated_dt = parse_iso(updated_at)
+                if updated_dt and updated_dt <= (now - timedelta(hours=48)):
+                    is_overdue = True
+                    reason = "No activity for 48+ hours"
+            if not is_overdue:
+                continue
+            candidates_to_followup.append((row, reason))
+        new_detected = 0
+        tasks = []
+        for row, reason in candidates_to_followup:
+            existing = db_all(
+                "SELECT id FROM follow_up_tasks WHERE user_id=? AND row_id=? AND status='pending' LIMIT 1",
+                (user["id"], row["id"]),
+            ) or []
+            if existing:
+                existing_task = db_all(
+                    "SELECT * FROM follow_up_tasks WHERE id=? LIMIT 1",
+                    (existing[0]["id"],),
+                ) or []
+                if existing_task:
+                    tasks.append(dict(existing_task[0]))
+                continue
+            prompt = (
+                f"Generate a professional follow-up message for a recruitment candidate.\n"
+                f"Candidate: {row.get('candidate_name', '')}\n"
+                f"Position: {row.get('position', '')}\n"
+                f"Current stage: {row.get('process_stage', '')}\n"
+                f"Last contact: {row.get('last_contacted_at', '')}\n"
+                f"Status: {row.get('response_status', '')}\n"
+                f"Keep it warm, professional, and under 100 words. Include a clear call to action."
+            )
+            try:
+                generated = await generate_text(
+                    prompt,
+                    system="You are a professional recruitment assistant. Write concise, warm, and professional follow-up messages.",
+                    max_tokens=200,
+                    use_web_search=False,
+                    workspace="agent",
+                    source="followup_assistant",
+                )
+                message_draft = generated.get("text", "").strip()
+            except Exception:
+                message_draft = (
+                    f"Hi {row.get('candidate_name', 'there')}, I wanted to follow up regarding the "
+                    f"{row.get('position', 'position')} opportunity. Please let me know if you are still interested "
+                    f"and if you have any questions. Looking forward to hearing from you."
+                )
+            task_id = new_id("fut")
+            db_exec(
+                """
+                INSERT INTO follow_up_tasks(id, user_id, row_id, candidate_name, position, reason, message_draft, status, created_at)
+                VALUES(?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+                """,
+                (
+                    task_id,
+                    user["id"],
+                    row["id"],
+                    row.get("candidate_name", ""),
+                    row.get("position", ""),
+                    reason,
+                    message_draft,
+                    now_iso(),
+                ),
+            )
+            new_detected += 1
+            tasks.append({
+                "id": task_id,
+                "user_id": user["id"],
+                "row_id": row["id"],
+                "candidate_name": row.get("candidate_name", ""),
+                "position": row.get("position", ""),
+                "reason": reason,
+                "message_draft": message_draft,
+                "status": "pending",
+                "created_at": now_iso(),
+                "completed_at": None,
+            })
+        return {"tasks": tasks, "total": len(tasks), "new_detected": new_detected}
+
+    @app.get("/api/recruitment/followup-assistant/scan")
+    async def followup_scan(request: Request):
+        user = require_member(request)
+        result = await detect_followup_candidates(user)
+        return result
+
+    @app.get("/api/recruitment/followup-assistant/tasks")
+    async def followup_tasks(request: Request, status: str = "pending"):
+        user = require_member(request)
+        allowed_statuses = {"pending", "completed", "dismissed"}
+        status = status if status in allowed_statuses else "pending"
+        rows = db_all(
+            "SELECT * FROM follow_up_tasks WHERE user_id=? AND status=? ORDER BY created_at DESC",
+            (user["id"], status),
+        ) or []
+        return {"tasks": [dict(r) for r in rows], "total": len(rows)}
+
+    @app.post("/api/recruitment/followup-assistant/complete")
+    async def followup_complete(request: Request):
+        user = require_member(request)
+        body = await request.json()
+        task_id = clean_text(body.get("task_id", ""), 80)
+        if not task_id:
+            raise HTTPException(status_code=400, detail="task_id is required")
+        row = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        if not row:
+            raise HTTPException(status_code=404, detail="Task not found")
+        db_exec(
+            "UPDATE follow_up_tasks SET status='completed', completed_at=? WHERE id=? AND user_id=?",
+            (now_iso(), task_id, user["id"]),
+        )
+        updated = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        return {"task": dict(updated[0])}
+
+    @app.post("/api/recruitment/followup-assistant/dismiss")
+    async def followup_dismiss(request: Request):
+        user = require_member(request)
+        body = await request.json()
+        task_id = clean_text(body.get("task_id", ""), 80)
+        if not task_id:
+            raise HTTPException(status_code=400, detail="task_id is required")
+        row = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        if not row:
+            raise HTTPException(status_code=404, detail="Task not found")
+        db_exec(
+            "UPDATE follow_up_tasks SET status='dismissed', completed_at=? WHERE id=? AND user_id=?",
+            (now_iso(), task_id, user["id"]),
+        )
+        updated = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        return {"task": dict(updated[0])}
+
+    @app.post("/api/recruitment/followup-assistant/regenerate")
+    async def followup_regenerate(request: Request):
+        user = require_member(request)
+        body = await request.json()
+        task_id = clean_text(body.get("task_id", ""), 80)
+        if not task_id:
+            raise HTTPException(status_code=400, detail="task_id is required")
+        row = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        if not row:
+            raise HTTPException(status_code=404, detail="Task not found")
+        task = dict(row[0])
+        prompt = (
+            f"Generate a professional follow-up message for a recruitment candidate.\n"
+            f"Candidate: {task.get('candidate_name', '')}\n"
+            f"Position: {task.get('position', '')}\n"
+            f"Reason for follow-up: {task.get('reason', '')}\n"
+            f"Keep it warm, professional, and under 100 words. Include a clear call to action."
+        )
+        try:
+            generated = await generate_text(
+                prompt,
+                system="You are a professional recruitment assistant. Write concise, warm, and professional follow-up messages.",
+                max_tokens=200,
+                use_web_search=False,
+                workspace="agent",
+                source="followup_assistant",
+            )
+            message_draft = generated.get("text", "").strip()
+        except Exception:
+            message_draft = task.get("message_draft", "")
+        db_exec(
+            "UPDATE follow_up_tasks SET message_draft=? WHERE id=? AND user_id=?",
+            (message_draft, task_id, user["id"]),
+        )
+        updated = db_all("SELECT * FROM follow_up_tasks WHERE id=? AND user_id=? LIMIT 1", (task_id, user["id"])) or []
+        return {"task": dict(updated[0]) if updated else task}
 
     return {
         "seed_brief": seed_brief,

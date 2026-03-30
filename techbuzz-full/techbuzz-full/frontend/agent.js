@@ -1843,6 +1843,7 @@ async function refreshAgentConsole() {
   if (typeof renderIntelPanel === "function") {
     renderIntelPanel();
   }
+  loadFollowUpTasks().catch(error => console.error(error));
 }
 
 function scheduleAgentStreamRefresh() {
@@ -1996,6 +1997,109 @@ async function bootAgent() {
   setInterval(() => {
     flushRecruitmentVaultMirror().catch(error => console.error(error));
   }, 1000);
+}
+
+async function scanFollowUps() {
+  const alertBox = $("followUpAlertCount");
+  if (alertBox) alertBox.textContent = "Scanning for candidates needing follow-up...";
+  try {
+    await api("/api/recruitment/followup-assistant/scan");
+    await loadFollowUpTasks();
+  } catch (error) {
+    if (alertBox) alertBox.textContent = error.message || "Scan failed.";
+  }
+}
+
+async function loadFollowUpTasks() {
+  const card = $("followUpAssistantCard");
+  const alertBox = $("followUpAlertCount");
+  const taskList = $("followUpTaskList");
+  try {
+    const data = await api("/api/recruitment/followup-assistant/tasks?status=pending");
+    const tasks = data.tasks || [];
+    if (tasks.length === 0) {
+      if (card) card.style.display = "none";
+      return;
+    }
+    if (card) card.style.display = "";
+    if (alertBox) alertBox.textContent = `${tasks.length} candidate${tasks.length === 1 ? "" : "s"} need${tasks.length === 1 ? "s" : ""} follow-up.`;
+    if (taskList) {
+      taskList.innerHTML = tasks.map(task => `
+        <div class="stack-item followup-task" data-task-id="${escapeHtml(task.id)}">
+          <div class="item-head">
+            <strong>${escapeHtml(task.candidate_name || "—")}</strong>
+            <span class="stage-badge stage-alert">${escapeHtml(task.reason || "Follow-up needed")}</span>
+          </div>
+          <div class="item-meta">${escapeHtml(task.position || "—")}</div>
+          <div class="followup-message-preview">${escapeHtml(task.message_draft || "")}</div>
+          <div class="button-row">
+            <button class="agent-btn small" onclick="copyFollowUpMessage(${JSON.stringify(task.id)}, ${JSON.stringify(task.message_draft || "")})">📋 Copy</button>
+            <button class="agent-btn small" onclick="regenerateFollowUp(${JSON.stringify(task.id)})">🔄 Regenerate</button>
+            <button class="agent-btn small" onclick="completeFollowUp(${JSON.stringify(task.id)})">✅ Done</button>
+            <button class="agent-btn small" onclick="dismissFollowUp(${JSON.stringify(task.id)})">✕ Dismiss</button>
+          </div>
+        </div>
+      `).join("");
+    }
+  } catch (error) {
+    if (alertBox) alertBox.textContent = error.message || "Failed to load follow-up tasks.";
+  }
+}
+
+async function copyFollowUpMessage(taskId, messageText) {
+  try {
+    await navigator.clipboard.writeText(messageText);
+    const alertBox = $("followUpAlertCount");
+    if (alertBox) {
+      const prev = alertBox.textContent;
+      alertBox.textContent = "Message copied to clipboard";
+      setTimeout(() => { alertBox.textContent = prev; }, 2000);
+    }
+  } catch (error) {
+    console.error("Copy failed:", error);
+  }
+}
+
+async function completeFollowUp(taskId) {
+  try {
+    await api("/api/recruitment/followup-assistant/complete", {
+      method: "POST",
+      body: JSON.stringify({ task_id: taskId })
+    });
+    await loadFollowUpTasks();
+  } catch (error) {
+    const alertBox = $("followUpAlertCount");
+    if (alertBox) alertBox.textContent = error.message || "Failed to complete task.";
+  }
+}
+
+async function dismissFollowUp(taskId) {
+  try {
+    await api("/api/recruitment/followup-assistant/dismiss", {
+      method: "POST",
+      body: JSON.stringify({ task_id: taskId })
+    });
+    await loadFollowUpTasks();
+  } catch (error) {
+    const alertBox = $("followUpAlertCount");
+    if (alertBox) alertBox.textContent = error.message || "Failed to dismiss task.";
+  }
+}
+
+async function regenerateFollowUp(taskId) {
+  const taskEl = document.querySelector(`.followup-task[data-task-id="${CSS.escape(taskId)}"]`);
+  const preview = taskEl ? taskEl.querySelector(".followup-message-preview") : null;
+  if (preview) preview.textContent = "Regenerating...";
+  try {
+    await api("/api/recruitment/followup-assistant/regenerate", {
+      method: "POST",
+      body: JSON.stringify({ task_id: taskId })
+    });
+    await loadFollowUpTasks();
+  } catch (error) {
+    const alertBox = $("followUpAlertCount");
+    if (alertBox) alertBox.textContent = error.message || "Failed to regenerate message.";
+  }
 }
 
 bootAgent().catch(error => {
