@@ -1,28 +1,62 @@
-# Ishani-Core AI Learning System
+#!/usr/bin/env python3
+"""
+Ishani-Core / TechBuzz AI — Main Entry Point
 
-"Ishani-Core" is an AI learning system designed to assist in various tasks based on machine learning principles.
+Usage:
+    python main.py
 
-## Installation
+This script launches the TechBuzz FastAPI backend server.
+The actual application is defined in techbuzz-full/techbuzz-full/backend_python/app.py
+"""
 
-To install the necessary dependencies, run:
+import sys
+import os
+import shutil
+import subprocess
 
-```bash
-pip install -r requirements.txt
-```
 
-## Usage
+def main():
+    """Launch the TechBuzz FastAPI backend server."""
+    backend_dir = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "techbuzz-full", "techbuzz-full", "backend_python"
+    )
+    app_py = os.path.join(backend_dir, "app.py")
 
-To start the system, use the following command:
+    if not os.path.isfile(app_py):
+        print("❌ Error: backend app.py not found at:")
+        print(f"   {app_py}")
+        print()
+        print("Make sure you cloned the full repository:")
+        print("  git clone https://github.com/piyushmani33-prog/Ishani-Core.git")
+        sys.exit(1)
 
-```bash
-python main.py
-```
+    # Check for .env
+    env_file = os.path.join(backend_dir, ".env")
+    env_example = os.path.join(backend_dir, ".env.example")
+    if not os.path.isfile(env_file) and os.path.isfile(env_example):
+        print("⚠️  No .env file found. Copying .env.example → .env")
+        print("   Please edit .env and add your API keys.")
+        shutil.copy2(env_example, env_file)
 
-## Features
-- Feature 1: Description
-- Feature 2: Description
-- Feature 3: Description
+    # Install dependencies if requirements.txt exists
+    req_file = os.path.join(backend_dir, "requirements.txt")
+    if os.path.isfile(req_file):
+        print("📦 Checking dependencies...")
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-q", "-r", req_file],
+            cwd=backend_dir
+        )
 
-## Contributing
+    print()
+    print("🚀 Starting Ishani-Core / TechBuzz AI Server...")
+    print("   http://localhost:8000")
+    print()
 
-If you'd like to contribute, please open an issue or submit a pull request.
+    # Launch the app
+    os.chdir(backend_dir)
+    subprocess.run([sys.executable, "app.py"], cwd=backend_dir)
+
+
+if __name__ == "__main__":
+    main()
