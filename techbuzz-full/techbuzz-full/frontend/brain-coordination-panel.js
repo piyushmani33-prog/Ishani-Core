@@ -84,6 +84,9 @@ const BrainCoordPanel = {
         case "autopilot-approve": await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "approve"); break;
         case "autopilot-reject":  await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "reject"); break;
         case "autopilot-copy":    await BrainCoordPanel.autopilotAction(btn.dataset.runId, id, "copy"); break;
+        case "loop-start":  await BrainCoordPanel.loopStart(); break;
+        case "loop-stop":   await BrainCoordPanel.loopStop(); break;
+        case "loop-tick":   await BrainCoordPanel.loopTick(); break;
         case "refresh": await BrainCoordPanel.refresh(); break;
         default: break;
       }
@@ -107,6 +110,7 @@ const BrainCoordPanel = {
       BrainCoordPanel._loadLearning(),
       BrainCoordPanel._loadEvolution(),
       BrainCoordPanel._loadAutopilot(),
+      BrainCoordPanel._loadAutonomousLoop(),
     ]);
   },
 
@@ -517,6 +521,67 @@ const BrainCoordPanel = {
     } catch (err) { _bcpToast("Error: " + err.message); }
   },
 
+  async _loadAutonomousLoop() {
+    try {
+      const data = await _bcpApi("/api/autonomous-loop/status");
+      const container = document.getElementById("bcp-loop-status");
+      if (!container) return;
+      const s = data.status || {};
+      const running = s.running;
+      const badge = running ? "bcp-badge-green" : "bcp-badge-red";
+      const label = running ? "RUNNING" : "STOPPED";
+      let html = `
+        <div class="bcp-card">
+          <span class="bcp-badge ${badge}">${label}</span>
+          <span class="bcp-meta">tick: ${s.tick || 0} &nbsp;|&nbsp; interval: ${s.interval_seconds || 30}s</span>
+          <span class="bcp-meta">events: ${s.total_events || 0} &nbsp;|&nbsp; tasks aggregated: ${s.total_tasks_aggregated || 0} &nbsp;|&nbsp; actions: ${s.total_actions || 0} &nbsp;|&nbsp; errors: ${s.total_errors || 0}</span>
+          <span class="bcp-meta">last tick: ${_esc(s.last_tick_at || "—")} &nbsp;|&nbsp; empty streak: ${s.consecutive_empty || 0}</span>
+        </div>`;
+      // History preview
+      try {
+        const hist = await _bcpApi("/api/autonomous-loop/history?limit=5");
+        if (hist.history && hist.history.length) {
+          html += `<p class="bcp-subheading">Recent ticks</p>`;
+          for (const h of hist.history) {
+            const hasActivity = h.events_published || h.tasks_aggregated || h.actions_created;
+            html += `<div class="bcp-card${h.errors ? ' bcp-card-danger' : ''}">
+              <span class="bcp-badge ${hasActivity ? 'bcp-badge-blue' : 'bcp-badge-gray'}">tick ${h.tick}</span>
+              <span class="bcp-meta">events: ${h.events_published} &nbsp;|&nbsp; agg: ${h.tasks_aggregated} &nbsp;|&nbsp; actions: ${h.actions_created} &nbsp;|&nbsp; err: ${h.errors} &nbsp;|&nbsp; ${_esc(h.created_at)}</span>
+            </div>`;
+          }
+        }
+      } catch (_) { /* history optional */ }
+      container.innerHTML = html;
+    } catch (err) {
+      console.error("[BCP] autonomous loop error:", err);
+    }
+  },
+
+  async loopStart() {
+    try {
+      await _bcpApi("/api/autonomous-loop/start", { method: "POST", body: JSON.stringify({}) });
+      _bcpToast("Autonomous loop started ✓");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async loopStop() {
+    try {
+      await _bcpApi("/api/autonomous-loop/stop", { method: "POST", body: JSON.stringify({}) });
+      _bcpToast("Autonomous loop stopped");
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
+  async loopTick() {
+    try {
+      const data = await _bcpApi("/api/autonomous-loop/tick", { method: "POST", body: JSON.stringify({}) });
+      const r = data.tick_result || {};
+      _bcpToast(`Tick #${r.tick}: ${r.events_published} events, ${r.tasks_aggregated} tasks, ${r.actions_created} actions`);
+      BrainCoordPanel.refresh();
+    } catch (err) { _bcpToast("Error: " + err.message); }
+  },
+
   // -----------------------------------------------------------------------
   // HTML skeleton
   // -----------------------------------------------------------------------
@@ -573,6 +638,16 @@ const BrainCoordPanel = {
               <button class="bcp-btn bcp-btn-green"  data-action="trigger-status">📊 Daily Status Loop</button>
             </div>
             <div id="bcp-autopilot-list"><p class="bcp-empty">Loading…</p></div>
+          </section>
+
+          <section class="bcp-section bcp-section-wide">
+            <h3>🔄 Autonomous Brain Loop</h3>
+            <div class="bcp-actions" style="margin-bottom:8px;">
+              <button class="bcp-btn bcp-btn-green"  data-action="loop-start">▶ Start Loop</button>
+              <button class="bcp-btn bcp-btn-red"    data-action="loop-stop">⏹ Stop Loop</button>
+              <button class="bcp-btn bcp-btn-blue"   data-action="loop-tick">⏭ Run Single Tick</button>
+            </div>
+            <div id="bcp-loop-status"><p class="bcp-empty">Loading…</p></div>
           </section>
         </div>
       </div>
