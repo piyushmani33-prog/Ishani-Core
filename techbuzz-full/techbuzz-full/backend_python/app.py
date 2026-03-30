@@ -39,6 +39,7 @@ from pydantic import BaseModel
 
 from brain_prompt_layer import install_brain_prompt_layer
 from empire_merge_layer import install_empire_merge_layer
+from prompt_adaptation_layer import install_prompt_adaptation_layer
 from global_recruitment_brain_layer import install_global_recruitment_brain_layer
 from recruitment_brain_layer import install_recruitment_brain_layer
 from browser_suite_layer import install_browser_suite_layer
@@ -10073,6 +10074,22 @@ BRAIN_PROMPT_LAYER = install_brain_prompt_layer(
         "generate_text": generate_text,
         "call_local_llm": call_local_llm,
         "log": log,
+    },
+)
+
+PROMPT_ADAPTATION_LAYER = install_prompt_adaptation_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_one": db_one,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "log": log,
+        "brain_aware_generate": BRAIN_PROMPT_LAYER["brain_aware_generate"],
+        "get_brain_profile": BRAIN_PROMPT_LAYER["get_brain_profile"],
+        "build_brain_context": BRAIN_PROMPT_LAYER["build_brain_context"],
     },
 )
 
