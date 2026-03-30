@@ -46,6 +46,7 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from brain_contract_layer import install_brain_contract_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -10224,6 +10225,21 @@ VOICE_RUNTIME_LAYER = install_voice_runtime_layer(
         "now_iso": now_iso,
         "BACKEND_DIR": BACKEND_DIR,
         "DATA_DIR": DATA_DIR,
+        "log": log,
+    },
+)
+
+BRAIN_CONTRACT_LAYER = install_brain_contract_layer(
+    app,
+    {
+        "db_exec": db_exec,
+        "db_one": db_one,
+        "db_all": db_all,
+        "new_id": new_id,
+        "now_iso": now_iso,
+        "session_user": session_user,
+        "can_control_brain": can_control_brain,
+        "brain_hierarchy_payload": brain_hierarchy_payload,
         "log": log,
     },
 )
