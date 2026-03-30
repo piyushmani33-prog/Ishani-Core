@@ -110,7 +110,7 @@ def install_decision_aggregator_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any
             # output keys (e.g. one says "action": "send" vs "action": "wait").
             def _conflict_key(t: Dict) -> str:
                 od = t.get("output_data", {})
-                return od.get("action", od.get("intent", od.get("message", "")[:80]))
+                return od.get("action", od.get("intent", str(od.get("message", ""))[:80]))
 
             unique_intent_keys = set(_conflict_key(t) for t in tasks_sorted)
 

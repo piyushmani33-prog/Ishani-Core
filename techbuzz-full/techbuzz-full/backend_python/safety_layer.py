@@ -97,7 +97,7 @@ def install_safety_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
             (content_hash, cutoff),
         )
         if rows:
-            reason = f"Duplicate of recently blocked/executed action (hash={content_hash[:12]}…) within {window_seconds}s window"
+            reason = f"Duplicate of recently blocked/executed action (hash={content_hash[:12]}...) within {window_seconds}s window"
             _log_check(action_id, "duplicate", "blocked", reason)
             db_exec(
                 "INSERT OR IGNORE INTO safety_blocks (id, action_id, content_hash, reason, overridden, created_at) VALUES (?,?,?,?,0,?)",

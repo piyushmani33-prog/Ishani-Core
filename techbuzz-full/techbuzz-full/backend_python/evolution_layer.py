@@ -128,7 +128,7 @@ def install_evolution_layer(app, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
     def review_proposal(proposal_id: str, decision: str, review_notes: str = "") -> Optional[Dict[str, Any]]:
         if decision not in ("accepted", "rejected", "deferred"):
-            raise ValueError(f"Invalid decision '{decision}'; must be accepted|rejected|deferred")
+            raise ValueError(f"Invalid decision '{decision}'; must be accepted, rejected, or deferred")
         reviewed_at = now_iso() if decision in ("accepted", "rejected") else None
         db_exec(
             "UPDATE evolution_proposals SET status=?, review_notes=?, reviewed_at=? WHERE id=?",
