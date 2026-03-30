@@ -109,6 +109,7 @@ async function renderBrainHierarchy() {
         <button class="bh-tab" onclick="showBHTab('relay',this)">Permission Relay</button>
         <button class="bh-tab" onclick="showBHTab('motivation',this)">Motivation</button>
         <button class="bh-tab" onclick="showBHTab('training',this)">Doctrine</button>
+        <button class="bh-tab" onclick="showBHTab('comms',this);loadBrainComms()">Comms</button>
       </div>
 
       <div id="bh-tree" class="bh-content">
@@ -247,6 +248,47 @@ async function renderBrainHierarchy() {
         </div>
       </div>
 
+      <div id="bh-comms" class="bh-content" style="display:none">
+        <div id="bh-comms-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+          <button onclick="loadBrainComms()" style="padding:7px 14px;border-radius:999px;background:rgba(135,223,255,.08);border:1px solid rgba(135,223,255,.2);color:var(--blue);cursor:pointer;font-weight:700">Refresh</button>
+          <button onclick="processPendingMessages()" style="padding:7px 14px;border-radius:999px;background:rgba(144,242,210,.08);border:1px solid rgba(144,242,210,.25);color:var(--teal);cursor:pointer;font-weight:700">Process Pending</button>
+        </div>
+        <div style="margin-bottom:18px">
+          <div style="color:var(--muted);font-size:12px;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Send Brain Message</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <select id="bh-msg-from" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px">
+              ${brains.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.emoji||"🧠")} ${escapeHtml(b.name)}</option>`).join("")}
+            </select>
+            <select id="bh-msg-to" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px">
+              ${brains.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.emoji||"🧠")} ${escapeHtml(b.name)}</option>`).join("")}
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <select id="bh-msg-type" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px">
+              <option value="request_help">request_help</option>
+              <option value="handoff_task">handoff_task</option>
+              <option value="escalate">escalate</option>
+              <option value="attach_evidence">attach_evidence</option>
+              <option value="request_decision">request_decision</option>
+              <option value="return_result">return_result</option>
+              <option value="broadcast_signal">broadcast_signal</option>
+            </select>
+            <select id="bh-msg-priority" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px">
+              <option value="normal">normal</option>
+              <option value="low">low</option>
+              <option value="high">high</option>
+              <option value="critical">critical</option>
+            </select>
+          </div>
+          <textarea id="bh-msg-payload" rows="2" placeholder='Optional payload JSON e.g. {"note":"details"}' style="width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;resize:vertical;font-family:inherit;font-size:13px;margin-bottom:8px"></textarea>
+          <button onclick="sendBrainMessage()" style="padding:8px 20px;border-radius:999px;background:rgba(241,202,107,.12);border:1px solid rgba(241,202,107,.3);color:var(--gold);cursor:pointer;font-weight:700">Send Message</button>
+        </div>
+        <div id="bh-comms-recent" style="margin-bottom:18px"></div>
+        <div id="bh-comms-handoffs" style="margin-bottom:18px"></div>
+        <div id="bh-comms-escalations"></div>
+      </div>
+
       <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="renderBrainHierarchy()" style="padding:8px 14px;border-radius:999px;background:rgba(241,202,107,.1);border:1px solid rgba(241,202,107,.25);color:var(--gold);cursor:pointer;font-weight:700">Refresh</button>
         <button onclick="assignBrainTask('all','All Brains')" style="padding:8px 14px;border-radius:999px;background:rgba(135,223,255,.08);border:1px solid rgba(135,223,255,.2);color:var(--blue);cursor:pointer;font-weight:700">Mass Task Deploy</button>
@@ -260,7 +302,7 @@ async function renderBrainHierarchy() {
 }
 
 function showBHTab(tab, btn) {
-  ["tree", "relay", "motivation", "training"].forEach(name => {
+  ["tree", "relay", "motivation", "training", "comms"].forEach(name => {
     const el = document.getElementById(`bh-${name}`);
     if (el) el.style.display = name === tab ? "block" : "none";
   });
@@ -339,9 +381,119 @@ async function runBrainAutoRepair(brainId = "all") {
 }
 
 let _brainHierarchyRefresh = null;
+
+const _MSG_TYPE_COLORS = {
+  request_help: "#87dfff",
+  handoff_task: "#f1ca6b",
+  escalate: "#ff847d",
+  attach_evidence: "#9fb5ff",
+  request_decision: "#c1a1ff",
+  return_result: "#90f2d2",
+  broadcast_signal: "#f39ddd",
+};
+
+function _commsTypeBadge(type) {
+  const color = _MSG_TYPE_COLORS[type] || "#95a5c3";
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${color}22;color:${color};border:1px solid ${color}44">${escapeHtml(type)}</span>`;
+}
+
+function _commsStatusBadge(status) {
+  const map = { pending: "#f1ca6b", in_progress: "#87dfff", resolved: "#90f2d2" };
+  const color = map[status] || "#95a5c3";
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:${color}22;color:${color};border:1px solid ${color}44">${escapeHtml(status)}</span>`;
+}
+
+function _renderCommsMessages(msgs, containerSelector, title) {
+  const el = document.getElementById(containerSelector);
+  if (!el) return;
+  if (!msgs || !msgs.length) {
+    el.innerHTML = `<div style="color:var(--muted);font-size:13px">${escapeHtml(title)}: none yet</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="color:var(--muted);font-size:12px;margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">${escapeHtml(title)}</div>
+    ${msgs.map(m => `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:7px">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px">
+          ${_commsTypeBadge(m.message_type)}
+          ${_commsStatusBadge(m.status)}
+          <span style="font-size:12px;color:var(--muted)">${escapeHtml(m.priority || "normal")}</span>
+        </div>
+        <div style="font-size:13px;margin-bottom:3px"><strong>${escapeHtml(m.from_brain_name || m.from_brain)}</strong> → <strong>${escapeHtml(m.to_brain_name || m.to_brain)}</strong></div>
+        <div style="font-size:12px;color:var(--muted)">${escapeHtml(m.created_at || "")}</div>
+        ${m.status === "pending" ? `<button onclick="resolveBrainMessage('${escapeHtml(m.id)}')" style="margin-top:6px;padding:4px 12px;border-radius:999px;background:rgba(144,242,210,.1);border:1px solid rgba(144,242,210,.25);color:var(--teal);cursor:pointer;font-size:12px">Resolve</button>` : ""}
+      </div>
+    `).join("")}
+  `;
+}
+
+async function loadBrainComms() {
+  try {
+    const stats = await apiReq("/api/brain/messages/stats");
+    const statsEl = document.getElementById("bh-comms-stats");
+    if (statsEl) {
+      statsEl.innerHTML = `
+        <div class="bh-stat"><strong>${stats.total || 0}</strong><span>Total Messages</span></div>
+        <div class="bh-stat"><strong>${stats.pending || 0}</strong><span>Pending</span></div>
+        <div class="bh-stat"><strong>${stats.resolved || 0}</strong><span>Resolved</span></div>
+        <div class="bh-stat"><strong>${stats.violations || 0}</strong><span>Violations</span></div>
+      `;
+    }
+    _renderCommsMessages(stats.recent_messages || [], "bh-comms-recent", "Recent Messages");
+    _renderCommsMessages(stats.recent_handoffs || [], "bh-comms-handoffs", "Recent Handoffs");
+    _renderCommsMessages(stats.recent_escalations || [], "bh-comms-escalations", "Recent Escalations");
+  } catch (error) {
+    showToast(`Comms load error: ${error.message}`);
+  }
+}
+
+async function sendBrainMessage() {
+  const fromBrain = (document.getElementById("bh-msg-from") || {}).value || "";
+  const toBrain = (document.getElementById("bh-msg-to") || {}).value || "";
+  const messageType = (document.getElementById("bh-msg-type") || {}).value || "request_help";
+  const priority = (document.getElementById("bh-msg-priority") || {}).value || "normal";
+  const payloadRaw = ((document.getElementById("bh-msg-payload") || {}).value || "").trim();
+  let payload = null;
+  if (payloadRaw) {
+    try { payload = JSON.parse(payloadRaw); } catch (_) { payload = { raw: payloadRaw }; }
+  }
+  try {
+    await apiReq("/api/brain/message/send", {
+      method: "POST",
+      body: JSON.stringify({ from_brain: fromBrain, to_brain: toBrain, message_type: messageType, priority, payload }),
+    });
+    showToast("Message sent");
+    loadBrainComms();
+  } catch (error) {
+    showToast(`Send error: ${error.message}`);
+  }
+}
+
+async function resolveBrainMessage(messageId) {
+  try {
+    await apiReq("/api/brain/message/resolve", {
+      method: "POST",
+      body: JSON.stringify({ message_id: messageId, resolved_by: "operator" }),
+    });
+    showToast("Message resolved");
+    loadBrainComms();
+  } catch (error) {
+    showToast(`Resolve error: ${error.message}`);
+  }
+}
+
+async function processPendingMessages() {
+  try {
+    const data = await apiReq("/api/brain/message/process-pending", { method: "POST" });
+    showToast(`Processed ${data.processed || 0} messages`);
+    loadBrainComms();
+  } catch (error) {
+    showToast(`Process error: ${error.message}`);
+  }
+}
+
 function startBHAutoRefresh() {
   if (_brainHierarchyRefresh) clearInterval(_brainHierarchyRefresh);
-  _brainHierarchyRefresh = setInterval(() => {
     const wrap = document.getElementById("brainHierarchyWrap");
     if (wrap) renderBrainHierarchy();
   }, 30000);
