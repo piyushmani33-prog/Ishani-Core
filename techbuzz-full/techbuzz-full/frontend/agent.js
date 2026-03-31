@@ -225,16 +225,6 @@ function describeRecruiterExportSummary(summary) {
   ].join(" | ");
 }
 
-function seedAccountsEntry() {
-  $("accountsEntryType").value = "income";
-  $("accountsEntryCategory").value = "retainer";
-  $("accountsEntryAmount").value = "45000";
-  $("accountsEntryTaxPercent").value = $("accountsTaxRate")?.value || "18";
-  $("accountsCounterparty").value = "TechBuzz Growth Client";
-  $("accountsEntryDescription").value = "Monthly retainer invoice for strategy, automation, and hiring support.";
-  $("accountsOccurredOn").value = new Date().toISOString().slice(0, 10);
-}
-
 function clearDraftFlags(ids) {
   ids.forEach(id => {
     const field = $(id);
@@ -319,66 +309,6 @@ function renderAgentStats(state) {
       <p>${primeMinister.objective || "No cabinet mandate set yet."}</p>
     </div>
   `;
-}
-
-function renderRelayBoard(state) {
-  const brain = state.brain || {};
-  const pillars = brain.pillars || [];
-  const evolution = brain.evolution_cycle || [];
-  const rows = [...pillars.slice(0, 2), ...evolution.slice(0, 2)];
-  $("agentRelayBoard").innerHTML = rows.map(item => {
-    const score = item.score || 0;
-    return `
-      <div class="relay-card">
-        <span>${item.label}</span>
-        <strong>${score}%</strong>
-        <div class="meter"><div class="meter-fill" style="width:${score}%"></div></div>
-        <p>${item.summary || item.status || ""}</p>
-      </div>
-    `;
-  }).join("");
-}
-
-function renderRecentHunts(hunts) {
-  const rows = hunts || [];
-  $("recentHunts").innerHTML = rows.length ? rows.map(item => `
-    <div class="stack-item">
-      <strong>${item.client_company || "TechBuzz Systems"}</strong>
-      <div class="stack-meta">
-        <span>${(item.avatars || []).join(" + ") || "Rama"}</span>
-        <span>${item.provider || "built-in"}</span>
-      </div>
-      <p>${(item.job_description || "").slice(0, 180)}</p>
-    </div>
-  `).join("") : `<div class="empty">No hunts yet. Run Praapti from this page and the results will appear here.</div>`;
-}
-
-function renderVaultItems(activity) {
-  const rows = activity || [];
-  $("agentVaultList").innerHTML = rows.length ? rows.slice(0, 5).map(item => `
-    <div class="stack-item">
-      <strong>${item.title}</strong>
-      <div class="stack-meta">
-        <span>${item.kind}</span>
-        <span>${item.created_at}</span>
-      </div>
-      <p>${item.summary}</p>
-    </div>
-  `).join("") : `<div class="empty">The vault is empty for now.</div>`;
-}
-
-function renderReports(reports) {
-  const rows = reports || [];
-  const cabinetCycle = agentPortalState?.cabinet?.mission_log?.[0];
-  const merged = cabinetCycle
-    ? [{ title: "Prime Minister Cycle", summary: cabinetCycle.report || cabinetCycle.objective || "Cabinet cycle logged." }, ...rows]
-    : rows;
-  $("agentReportList").innerHTML = merged.length ? merged.slice(0, 4).map(item => `
-    <div class="stack-item">
-      <strong>${item.title}</strong>
-      <p>${item.summary}</p>
-    </div>
-  `).join("") : `<div class="empty">No reports yet.</div>`;
 }
 
 function renderCandidates(candidates) {
@@ -1076,195 +1006,6 @@ function renderActionCenterRecent(events) {
   `).join("") : `<div class="empty">No prepared actions yet.</div>`;
 }
 
-function renderQueue(brain) {
-  const rows = agentPortalState?.cabinet?.secretaries?.slice(0, 6) || [];
-  if (rows.length) {
-    $("agentQueueList").innerHTML = rows.map(item => `
-      <div class="stack-item">
-        <strong>${item.name}</strong>
-        <div class="stack-meta">
-          <span>${item.lane || "lane"}</span>
-          <span>${item.priority || 0}%</span>
-        </div>
-        <p>${item.next_move || item.brief || "Awaiting next move."}</p>
-      </div>
-    `).join("");
-    return;
-  }
-  const fallbackRows = brain?.recommendations || [];
-  $("agentQueueList").innerHTML = fallbackRows.length ? fallbackRows.map(item => `
-    <div class="stack-item">
-      <strong>${item.title}</strong>
-      <div class="stack-meta">
-        <span>${item.layer || "bridge"}</span>
-      </div>
-      <p>${item.action}</p>
-    </div>
-  `).join("") : `<div class="empty">No execution queue yet.</div>`;
-}
-
-function renderMonitor(monitor) {
-  const alerts = monitor?.alerts || [];
-  const domains = monitor?.domains || [];
-  const carbon = monitor?.nervous_system?.carbon_protocol || {};
-  const intelligence = monitor?.nervous_system?.component_intelligence?.summary || {};
-  const hierarchy = monitor?.nervous_system?.hierarchy || {};
-  const hierarchySummary = hierarchy.summary || {};
-  const brains = hierarchy.brains || [];
-  const relays = hierarchy.permission_relays || [];
-  const brainLookup = new Map(brains.map(item => [item.id, item.name]));
-  const stats = [
-    ["Heartbeat", `${monitor?.heartbeat_ms || 0} ms`],
-    ["Alerts", alerts.length],
-    ["Domains", domains.length],
-    ["Reports", (monitor?.reports || []).length],
-    ["Brains", hierarchySummary.total_brains || 0],
-    ["Layers", hierarchySummary.layers || 0],
-    ["Carbon", carbon.allotrope || "carbon-seed"],
-    ["Thinking Units", intelligence.thinking_units || 0],
-    ["Molecules", intelligence.molecules || 0],
-    ["Vault", monitor?.memory_audit?.counts?.vault || 0],
-    ["Footprint", `${monitor?.memory_audit?.footprint_kb || 0} KB`]
-  ];
-  $("agentMonitorStats").innerHTML = stats.map(item => `<div class="stat"><span>${item[0]}</span><strong>${item[1]}</strong></div>`).join("");
-  $("agentMonitorAlerts").innerHTML = alerts.length ? alerts.map(item => `
-    <div class="stack-item">
-      <strong>${item.title}</strong>
-      <div class="stack-meta">
-        <span>${item.level || "info"}</span>
-      </div>
-      <p>${item.summary}</p>
-    </div>
-  `).join("") : `<div class="empty">No monitor alerts right now.</div>`;
-  $("agentDomainList").innerHTML = domains.length ? domains.slice(0, 10).map(item => `
-    <div class="stack-item">
-      <strong>${escapeHtml(item.name)}</strong>
-      <div class="stack-meta">
-        <span>${escapeHtml(item.lead)}</span>
-        <span>${escapeHtml(item.status)}</span>
-        <span>${escapeHtml(item.priority || 0)}%</span>
-      </div>
-      <p>${escapeHtml(item.latest_signal)}</p>
-    </div>
-  `).join("") : `<div class="empty">No domain systems loaded yet.</div>`;
-  if ($("agentBrainHierarchy")) {
-    $("agentBrainHierarchy").innerHTML = brains.length ? brains.slice(0, 14).map(item => `
-      <div class="stack-item">
-        <strong>${escapeHtml(item.name)}</strong>
-        <div class="stack-meta">
-          <span>${escapeHtml(item.layer)}</span>
-          <span>${escapeHtml(item.status)}</span>
-          <span>${escapeHtml(item.children_count || 0)} children</span>
-        </div>
-        <p>${escapeHtml(item.assigned_task || "Awaiting assignment.")}</p>
-        <p>Reports to ${escapeHtml(brainLookup.get(item.parent_id) || "mother root")}.</p>
-      </div>
-    `).join("") : `<div class="empty">No brain hierarchy mapped yet.</div>`;
-  }
-  if ($("agentPermissionRelay")) {
-    $("agentPermissionRelay").innerHTML = relays.length ? relays.slice(0, 16).map(item => `
-      <div class="stack-item">
-        <strong>${escapeHtml(item.from_name || item.from)} -> ${escapeHtml(item.to_name || item.to)}</strong>
-        <div class="stack-meta">
-          <span>${escapeHtml(Array.isArray(item.permission) ? item.permission.join(", ") : (item.permission || "relay"))}</span>
-          <span>${escapeHtml(item.status || "live")}</span>
-        </div>
-        <p>${escapeHtml(item.reason || "Relay active.")}</p>
-      </div>
-    `).join("") : `<div class="empty">No permission relay is active yet.</div>`;
-  }
-}
-
-function renderAccounts(accounts) {
-  const profile = accounts?.profile || {};
-  const metrics = accounts?.metrics || {};
-  const guidance = accounts?.guidance || [];
-  const reports = accounts?.reports || [];
-  const entries = accounts?.entries || [];
-  const automation = accounts?.automation || {};
-  const regions = accounts?.regions || [];
-  const entryTypes = accounts?.entry_types || [];
-
-  if ($("agentAccountsStats")) {
-    const stats = [
-      ["Income", formatMoney(metrics.income_total, profile.currency)],
-      ["Expense", formatMoney(metrics.expense_total, profile.currency)],
-      ["Cashflow", formatMoney(metrics.net_cashflow, profile.currency)],
-      ["Tax Reserve", formatMoney(metrics.estimated_tax_payable, profile.currency)],
-      ["Entries", metrics.entries_count || 0],
-      ["Reports", metrics.reports_count || 0]
-    ];
-    $("agentAccountsStats").innerHTML = stats.map(item => `<div class="stat"><span>${item[0]}</span><strong>${item[1]}</strong></div>`).join("");
-  }
-
-  if ($("accountsRegionSelect")) {
-    $("accountsRegionSelect").innerHTML = regions.map(region => `<option value="${region.code}">${region.label}</option>`).join("");
-    syncFieldValue("accountsRegionSelect", profile.region_code || "IN");
-  }
-  if ($("accountsEntryType")) {
-    const selectedType = $("accountsEntryType").value || "income";
-    $("accountsEntryType").innerHTML = entryTypes.map(type => `<option value="${type.id}">${type.label}</option>`).join("");
-    syncFieldValue("accountsEntryType", selectedType);
-  }
-
-  syncFieldValue("accountsBusinessName", profile.business_name || "");
-  syncFieldValue("accountsBusinessType", profile.business_type || "");
-  syncFieldValue("accountsCurrency", profile.currency || "INR");
-  syncFieldValue("accountsTaxName", profile.tax_name || "Tax");
-  syncFieldValue("accountsTaxRate", profile.default_tax_rate ?? "");
-  syncFieldValue("accountsFilingCycle", profile.filing_cycle || "");
-  syncFieldValue("accountsRegistration", profile.tax_registration || "");
-  syncFieldValue("accountsProfileNotes", profile.notes || "");
-  if ($("accountsOccurredOn") && !$("accountsOccurredOn").value) {
-    $("accountsOccurredOn").value = new Date().toISOString().slice(0, 10);
-  }
-  if ($("accountsEntryTaxPercent") && !$("accountsEntryTaxPercent").value) {
-    $("accountsEntryTaxPercent").value = profile.default_tax_rate ?? 0;
-  }
-
-  if ($("accountsProfileStatus")) {
-    $("accountsProfileStatus").textContent =
-      `${automation.headline || "Accounts automation ready."}\n\n` +
-      `Tax lane: ${profile.tax_name || "Tax"} • Filing cycle: ${profile.filing_cycle || "custom"} • Registration: ${profile.tax_registration || "not added yet"}\n\n` +
-      `${automation.notes || "Add region and ledger details to let Ishani guide accounts with more context."}`;
-  }
-
-  if ($("agentAccountsGuideList")) {
-    $("agentAccountsGuideList").innerHTML = guidance.length ? guidance.map(item => `
-      <div class="stack-item">
-        <strong>${item.title}</strong>
-        <p>${item.summary}</p>
-      </div>
-    `).join("") : `<div class="empty">No accounts guidance yet.</div>`;
-  }
-
-  if ($("agentAccountsReportList")) {
-    $("agentAccountsReportList").innerHTML = reports.length ? reports.map(item => `
-      <div class="stack-item">
-        <strong>${item.title}</strong>
-        <div class="stack-meta">
-          <span>${item.created_at || "now"}</span>
-        </div>
-        <p>${item.summary}</p>
-      </div>
-    `).join("") : `<div class="empty">No account reports yet. Run an analysis after adding profile or ledger entries.</div>`;
-  }
-
-  if ($("agentAccountsEntryList")) {
-    $("agentAccountsEntryList").innerHTML = entries.length ? entries.slice(0, 8).map(item => `
-      <div class="stack-item">
-        <strong>${item.category} • ${item.entry_type}</strong>
-        <div class="stack-meta">
-          <span>${formatMoney(item.amount, item.currency)}</span>
-          <span>${item.tax_percent || 0}% ${profile.tax_name || "tax"}</span>
-          <span>${item.occurred_on || item.created_at || "now"}</span>
-        </div>
-        <p>${item.counterparty || "No counterparty"} • ${item.description || "Ledger entry saved to the accounts relay."}</p>
-      </div>
-    `).join("") : `<div class="empty">No ledger entries yet. Add income, expenses, salary, or tax payments to wake the accounts relay.</div>`;
-  }
-}
-
 function toggleDocumentSelection(documentId, enabled) {
   if (enabled) selectedDocumentIds.add(documentId);
   else selectedDocumentIds.delete(documentId);
@@ -1365,81 +1106,6 @@ async function splitDocument(documentId) {
     })
   });
   $("agentDocumentStatus").textContent = data.message || "PDF split complete.";
-  await refreshAgentConsole();
-}
-
-async function saveAccountsProfile() {
-  const data = await api("/api/accounts/profile", {
-    method: "POST",
-    body: JSON.stringify({
-      region_code: $("accountsRegionSelect").value,
-      business_name: $("accountsBusinessName").value,
-      business_type: $("accountsBusinessType").value,
-      currency: $("accountsCurrency").value,
-      tax_name: $("accountsTaxName").value,
-      default_tax_rate: Number($("accountsTaxRate").value || 0),
-      filing_cycle: $("accountsFilingCycle").value,
-      tax_registration: $("accountsRegistration").value,
-      notes: $("accountsProfileNotes").value,
-    })
-  });
-  $("accountsProfileStatus").textContent = data.message || "Accounts profile saved.";
-  clearDraftFlags([
-    "accountsRegionSelect",
-    "accountsBusinessName",
-    "accountsBusinessType",
-    "accountsCurrency",
-    "accountsTaxName",
-    "accountsTaxRate",
-    "accountsFilingCycle",
-    "accountsRegistration",
-    "accountsProfileNotes"
-  ]);
-  await refreshAgentConsole();
-}
-
-async function addAccountsEntry() {
-  const amount = Number($("accountsEntryAmount").value || 0);
-  if (!(amount > 0)) {
-    $("accountsEntryStatus").textContent = "Enter a positive amount before posting to the ledger.";
-    return;
-  }
-  const data = await api("/api/accounts/entry", {
-    method: "POST",
-    body: JSON.stringify({
-      entry_type: $("accountsEntryType").value,
-      category: $("accountsEntryCategory").value,
-      amount,
-      tax_percent: Number($("accountsEntryTaxPercent").value || 0),
-      currency: $("accountsCurrency").value,
-      counterparty: $("accountsCounterparty").value,
-      description: $("accountsEntryDescription").value,
-      occurred_on: $("accountsOccurredOn").value,
-      source: "agent_console",
-    })
-  });
-  $("accountsEntryStatus").textContent = data.message || "Ledger entry saved.";
-  $("accountsEntryAmount").value = "";
-  $("accountsCounterparty").value = "";
-  $("accountsEntryDescription").value = "";
-  clearDraftFlags([
-    "accountsEntryType",
-    "accountsEntryCategory",
-    "accountsEntryAmount",
-    "accountsEntryTaxPercent",
-    "accountsCounterparty",
-    "accountsEntryDescription",
-    "accountsOccurredOn"
-  ]);
-  await refreshAgentConsole();
-}
-
-async function runAccountsAnalysis() {
-  const data = await api("/api/accounts/analyze", {
-    method: "POST",
-    body: JSON.stringify({ focus: "local_tax_and_cashflow" })
-  });
-  $("accountsProfileStatus").textContent = data.message || "Accounts analysis complete.";
   await refreshAgentConsole();
 }
 
@@ -1818,10 +1484,6 @@ async function refreshAgentConsole() {
   const filters = currentAgentConsoleFilters();
   agentPortalState = await api("/api/agent/console/state" + queryStringFromObject(filters));
   renderAgentStats(agentPortalState);
-  renderRelayBoard(agentPortalState);
-  renderRecentHunts(agentPortalState.hunts || []);
-  renderVaultItems(agentPortalState.activity || []);
-  renderReports(agentPortalState.reports || []);
   renderCandidates(agentPortalState.candidates || []);
   renderRoles(agentPortalState.jobs || []);
   renderRecruitmentTracker(agentPortalState.recruitment_tracker || {});
@@ -1831,15 +1493,9 @@ async function refreshAgentConsole() {
   renderCandidateIntelligence((agentPortalState.recruitment_ops || {}).tools?.candidate_intelligence || agentPortalState.candidate_intelligence || {});
   renderRecruitmentTools((agentPortalState.recruitment_ops || {}).tools || {});
   renderAtsConsoleMeta(agentPortalState.ats_console || {});
-  renderQueue(agentPortalState.brain || {});
-  renderMonitor(agentPortalState.monitor || {});
-  renderAccounts(agentPortalState.accounts || {});
   renderDocuments(agentPortalState.documents || []);
   vaultMirrorDirty = true;
   await loadRecruitmentCore();
-  if (typeof renderBrainHierarchy === "function") {
-    renderBrainHierarchy();
-  }
   if (typeof renderIntelPanel === "function") {
     renderIntelPanel();
   }
@@ -1885,16 +1541,33 @@ async function startAgentHunt() {
 
 async function sendAgentMessage() {
   const input = $("agentChatInput");
+  const sendBtn = $("chatSendBtn");
+  const statusBar = $("chatStatusBar");
   const message = input.value.trim();
   if (!message) return;
   appendAgentBubble("user", message);
   input.value = "";
-  const data = await api("/api/agent/console/chat", {
-    method: "POST",
-    body: JSON.stringify({ message, ...currentAgentConsoleFilters() })
-  });
-  appendAgentBubble("ai", data.reply);
-  await refreshAgentConsole();
+  if (sendBtn) sendBtn.disabled = true;
+  if (statusBar) statusBar.textContent = "Thinking…";
+  try {
+    const data = await api("/api/agent/console/chat", {
+      method: "POST",
+      body: JSON.stringify({ message, ...currentAgentConsoleFilters() })
+    });
+    appendAgentBubble("ai", data.reply);
+    if (statusBar) statusBar.textContent = "";
+    const provider = data.provider || data.provider_used || "";
+    if ($("chatProviderBadge") && provider) {
+      $("chatProviderBadge").textContent = provider;
+    }
+    await refreshAgentConsole();
+  } catch (error) {
+    const msg = error.message || "Chat request failed. Please try again.";
+    appendAgentBubble("ai", `⚠ ${msg}`);
+    if (statusBar) statusBar.textContent = "";
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
 }
 
 async function bootAgent() {
@@ -1910,22 +1583,6 @@ async function bootAgent() {
     console.error(error);
   }
   [
-    "accountsRegionSelect",
-    "accountsBusinessName",
-    "accountsBusinessType",
-    "accountsCurrency",
-    "accountsTaxName",
-    "accountsTaxRate",
-    "accountsFilingCycle",
-    "accountsRegistration",
-    "accountsProfileNotes",
-    "accountsEntryType",
-    "accountsEntryCategory",
-    "accountsEntryAmount",
-    "accountsEntryTaxPercent",
-    "accountsCounterparty",
-    "accountsEntryDescription",
-    "accountsOccurredOn",
     "candidateSearch",
     "candidateStageFilter",
     "candidateDetailLevel",

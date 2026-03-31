@@ -116,6 +116,7 @@ MASTER_ACCOUNT_EMAIL = os.getenv("MASTER_ACCOUNT_EMAIL", "owner@local").strip() 
 MASTER_LOGIN_ID = os.getenv("MASTER_LOGIN_ID", "MasterPiyushMani").strip() or "MasterPiyushMani"
 MASTER_PASSWORD_HASH = os.getenv("MASTER_PASSWORD_HASH", "").strip()
 MASTER_PASSWORD_SALT = os.getenv("MASTER_PASSWORD_SALT", "").strip()
+MASTER_PASSWORD = os.getenv("MASTER_PASSWORD", "").strip()
 ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",") if origin.strip()]
 MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514").strip() or "claude-sonnet-4-20250514"
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.1-chat-latest").strip() or "gpt-5.1-chat-latest"
@@ -806,6 +807,13 @@ async def app_lifespan(app: FastAPI):
     repair_summary = repair_operator_state_and_brain_memory()
     if any(repair_summary.values()):
         log.info("Operator-text repair applied: %s", repair_summary)
+    if MASTER_PASSWORD and not (MASTER_PASSWORD_HASH and MASTER_PASSWORD_SALT):
+        log.warning(
+            "Master login is using a plain-text MASTER_PASSWORD. "
+            "This is not safe for production. "
+            "Generate a salted hash (MASTER_PASSWORD_HASH + MASTER_PASSWORD_SALT) "
+            "and remove MASTER_PASSWORD before deploying publicly."
+        )
     start_cabinet_loop()
     try:
         yield
@@ -1492,9 +1500,13 @@ def normalize_master_identifier(identifier: str) -> str:
 
 
 def verify_master_password(password: str) -> bool:
-    if not MASTER_PASSWORD_HASH or not MASTER_PASSWORD_SALT or not password:
+    if not password:
         return False
-    return secrets.compare_digest(hash_secret(password, MASTER_PASSWORD_SALT), MASTER_PASSWORD_HASH)
+    if MASTER_PASSWORD_HASH and MASTER_PASSWORD_SALT:
+        return secrets.compare_digest(hash_secret(password, MASTER_PASSWORD_SALT), MASTER_PASSWORD_HASH)
+    if MASTER_PASSWORD:
+        return secrets.compare_digest(password, MASTER_PASSWORD)
+    return False
 
 
 def matches_master_identity(identifier: str) -> bool:
