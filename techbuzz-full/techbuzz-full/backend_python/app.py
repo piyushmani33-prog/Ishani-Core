@@ -49,6 +49,10 @@ from orchestration_stack_layer import install_orchestration_stack_layer
 from local_ai_runtime_layer import install_local_ai_runtime_layer
 from voice_runtime_layer import install_voice_runtime_layer
 from recruiter_status_layer import register_recruiter_status_routes
+from platform_status import install_platform_status
+from unified_brain_registry import install_unified_brain_registry
+from unified_agent_registry import install_unified_agent_registry
+from settings_manager import install_settings_manager
 from phase_exposure_layer import install_phase_exposure_layer
 from role_router_layer import install_role_router_layer
 
@@ -10320,6 +10324,19 @@ _ROLE_ROUTER_CTX = install_role_router_layer(
         "get_phase": _PHASE_LAYER_CTX["get_phase"],
     },
 )
+
+# ---------------------------------------------------------------------------
+# Unified platform registries and status (additive — no existing code changed)
+# ---------------------------------------------------------------------------
+_PLATFORM_CTX = {
+    "session_user": session_user,
+    "DATA_DIR": DATA_DIR,
+    "BACKEND_DIR": BACKEND_DIR,
+}
+install_platform_status(app, _PLATFORM_CTX)
+install_unified_brain_registry(app, _PLATFORM_CTX)
+install_unified_agent_registry(app, _PLATFORM_CTX)
+install_settings_manager(app, _PLATFORM_CTX)
 
 
 if __name__ == "__main__":

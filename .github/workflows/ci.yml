@@ -29,9 +29,19 @@ jobs:
             techbuzz-full/techbuzz-full/backend_python/config.py \
             techbuzz-full/techbuzz-full/backend_python/middleware.py \
             techbuzz-full/techbuzz-full/backend_python/health_check.py \
+            techbuzz-full/techbuzz-full/backend_python/platform_status.py \
+            techbuzz-full/techbuzz-full/backend_python/unified_brain_registry.py \
+            techbuzz-full/techbuzz-full/backend_python/unified_agent_registry.py \
+            techbuzz-full/techbuzz-full/backend_python/settings_manager.py \
             tests/test_config.py \
             tests/test_middleware.py \
             tests/test_deployment.py \
+            tests/test_learning_system.py \
+            tests/test_platform_status.py \
+            tests/test_brain_registry.py \
+            tests/test_settings_flow.py \
+            tests/test_voice_readiness.py \
+            tests/test_smoke.py \
             --select E,W,F \
             --ignore E501
 
