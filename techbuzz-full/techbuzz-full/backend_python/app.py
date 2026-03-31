@@ -55,6 +55,7 @@ from unified_agent_registry import install_unified_agent_registry
 from settings_manager import install_settings_manager
 from phase_exposure_layer import install_phase_exposure_layer
 from role_router_layer import install_role_router_layer
+from provider_status_layer import install_provider_status_layer
 
 try:
     from pypdf import PdfReader, PdfWriter
@@ -3202,8 +3203,25 @@ async def generate_text(
 ) -> Dict[str, Any]:
     source_name = (source or "system").strip().lower()
     preferred = provider_preference()
+
+    # Load settings once and read both selected_provider and fallback_enabled
+    _fallback_enabled = True
+    try:
+        from settings_manager import SettingsManager  # noqa: PLC0415
+        from pathlib import Path as _Path  # noqa: PLC0415
+        _ai_settings = SettingsManager(_Path(DATA_DIR)).load_raw().get("ai_providers", {})
+        _sm_provider = _ai_settings.get("selected_provider", "").strip().lower()
+        if _sm_provider and _sm_provider not in ("fallback", "built_in", "built-in", ""):
+            preferred = _sm_provider
+        _fallback_enabled = bool(_ai_settings.get("fallback_enabled", True))
+    except Exception:
+        pass
+
     if not external_ai_allowed_for_source(source_name) and preferred in {"anthropic", "openai", "gemini"}:
         preferred = "built_in"
+
+    _errors: list = []
+
     for provider_name in provider_order(preferred):
         if provider_name != "built_in" and provider_in_cooldown(provider_name):
             continue
@@ -3230,6 +3248,9 @@ async def generate_text(
                 return {
                     "text": text,
                     "provider": f"ollama/{OLLAMA_MODEL}",
+                    "provider_used": f"ollama/{OLLAMA_MODEL}",
+                    "fallback_used": False,
+                    "mock_used": False,
                     "usage": {
                         "prompt_eval_count": result.get("prompt_eval_count", 0),
                         "eval_count": result.get("eval_count", 0),
@@ -3238,10 +3259,12 @@ async def generate_text(
             except HTTPException as exc:
                 detail = str(exc.detail or "").strip() or "Ollama local model timed out or is unavailable."
                 set_provider_issue("ollama", detail)
+                _errors.append(f"ollama: {detail}")
                 log.warning("Falling back after Ollama error: %s", detail)
             except Exception as exc:
                 detail = str(exc).strip() or "Ollama local model timed out or returned no usable reply."
                 set_provider_issue("ollama", detail)
+                _errors.append(f"ollama: {detail}")
                 log.warning("Falling back after unexpected Ollama error: %s", detail)
         if provider_name == "anthropic" and ANTHROPIC_API_KEY:
             try:
@@ -3255,13 +3278,18 @@ async def generate_text(
                 return {
                     "text": extract_text(result),
                     "provider": f"anthropic/{MODEL}",
+                    "provider_used": f"anthropic/{MODEL}",
+                    "fallback_used": False,
+                    "mock_used": False,
                     "usage": result.get("usage", {}),
                 }
             except HTTPException as exc:
                 set_provider_issue("anthropic", exc.detail)
+                _errors.append(f"anthropic: {exc.detail}")
                 log.warning("Falling back after Anthropic error: %s", exc.detail)
             except Exception as exc:
                 set_provider_issue("anthropic", str(exc))
+                _errors.append(f"anthropic: {exc}")
                 log.warning("Falling back after unexpected Anthropic error: %s", exc)
         if provider_name == "openai" and OPENAI_API_KEY:
             try:
@@ -3274,13 +3302,18 @@ async def generate_text(
                 return {
                     "text": extract_openai_text(result),
                     "provider": f"openai/{OPENAI_MODEL}",
+                    "provider_used": f"openai/{OPENAI_MODEL}",
+                    "fallback_used": False,
+                    "mock_used": False,
                     "usage": result.get("usage", {}),
                 }
             except HTTPException as exc:
                 set_provider_issue("openai", exc.detail)
+                _errors.append(f"openai: {exc.detail}")
                 log.warning("Falling back after OpenAI error: %s", exc.detail)
             except Exception as exc:
                 set_provider_issue("openai", str(exc))
+                _errors.append(f"openai: {exc}")
                 log.warning("Falling back after unexpected OpenAI error: %s", exc)
         if provider_name == "gemini" and GEMINI_API_KEY:
             try:
@@ -3289,19 +3322,39 @@ async def generate_text(
                 return {
                     "text": extract_gemini_text(result),
                     "provider": f"gemini/{GEMINI_MODEL}",
+                    "provider_used": f"gemini/{GEMINI_MODEL}",
+                    "fallback_used": False,
+                    "mock_used": False,
                     "usage": result.get("usageMetadata", {}),
                 }
             except HTTPException as exc:
                 set_provider_issue("gemini", exc.detail)
+                _errors.append(f"gemini: {exc.detail}")
                 log.warning("Falling back after Gemini error: %s", exc.detail)
             except Exception as exc:
                 set_provider_issue("gemini", str(exc))
+                _errors.append(f"gemini: {exc}")
                 log.warning("Falling back after unexpected Gemini error: %s", exc)
-    return {
+
+    # Check settings for fallback_enabled before using built-in
+    # (already loaded above; _fallback_enabled is set at function start)
+
+    fallback_response = {
         "text": fallback_model_text(prompt, state=get_state(), workspace=workspace, source=source),
         "provider": "built-in",
+        "provider_used": "built-in",
+        "fallback_used": True,
+        "mock_used": True,
         "usage": {},
     }
+    if _errors:
+        fallback_response["error"] = "; ".join(_errors)
+    if not _fallback_enabled and _errors:
+        fallback_response["error"] = (
+            "All configured providers failed and fallback is disabled. "
+            + fallback_response.get("error", "")
+        ).strip()
+    return fallback_response
 
 
 def parse_json_blob(raw: str) -> Any:
@@ -10349,6 +10402,7 @@ install_platform_status(app, _PLATFORM_CTX)
 install_unified_brain_registry(app, _PLATFORM_CTX)
 install_unified_agent_registry(app, _PLATFORM_CTX)
 install_settings_manager(app, _PLATFORM_CTX)
+install_provider_status_layer(app, _PLATFORM_CTX)
 
 
 if __name__ == "__main__":

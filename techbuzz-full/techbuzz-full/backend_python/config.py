@@ -39,6 +39,7 @@ class AppConfig:
     gemini_api_key: str = ""
     anthropic_api_key: str = ""
     ollama_host: str = "http://localhost:11434"
+    ollama_model: str = "mistral"
 
     # Database
     database_url: str = "sqlite:///data/techbuzz.db"
@@ -66,6 +67,7 @@ class AppConfig:
             gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
             ollama_host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
+            ollama_model=os.getenv("OLLAMA_MODEL", "mistral"),
             database_url=os.getenv("DATABASE_URL", "sqlite:///data/techbuzz.db"),
         )
 
@@ -93,7 +95,7 @@ class AppConfig:
         if not self.has_ai_provider:
             warnings.append(
                 "No AI provider API keys configured "
-                "(OPENAI_API_KEY / GEMINI_API_KEY / ANTHROPIC_API_KEY). "
+                "(OPENAI_API_KEY / GEMINI_API_KEY / ANTHROPIC_API_KEY) and Ollama host not set. "
                 "Using built-in fallback brain only."
             )
 
@@ -118,8 +120,23 @@ class AppConfig:
 
     @property
     def has_ai_provider(self) -> bool:
-        """Return True if at least one external AI provider API key is configured."""
-        return bool(self.openai_api_key or self.gemini_api_key or self.anthropic_api_key)
+        """Return True if at least one external AI provider API key or Ollama host is configured."""
+        return bool(self.openai_api_key or self.gemini_api_key or self.anthropic_api_key or self.ollama_host)
+
+    @property
+    def provider_priority(self) -> list:
+        """Return ordered list of configured providers (most preferred first)."""
+        providers = []
+        if self.ollama_host:
+            providers.append("ollama")
+        if self.openai_api_key:
+            providers.append("openai")
+        if self.gemini_api_key:
+            providers.append("gemini")
+        if self.anthropic_api_key:
+            providers.append("anthropic")
+        providers.append("built_in")
+        return providers
 
     @property
     def effective_session_secret(self) -> str:
@@ -159,6 +176,7 @@ class AppConfig:
                 "gemini": bool(self.gemini_api_key),
                 "anthropic": bool(self.anthropic_api_key),
                 "ollama_host": self.ollama_host,
+                "ollama_model": self.ollama_model,
             },
             "database_url": (
                 self.database_url.split("@")[-1]

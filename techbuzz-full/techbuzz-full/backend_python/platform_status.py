@@ -65,20 +65,57 @@ def _check_ai_providers() -> Dict[str, Any]:
     ollama_host = os.getenv("OLLAMA_HOST", "").strip()
     fallback_enabled = os.getenv("AI_FALLBACK_ENABLED", "true").lower() != "false"
 
-    any_real = bool(openai_key or gemini_key or anthropic_key or ollama_host)
+    # Attempt real Ollama connectivity check (synchronous HTTP with short timeout)
+    ollama_reachable = False
+    if ollama_host:
+        try:
+            import urllib.request
+            req = urllib.request.urlopen(
+                f"{ollama_host.rstrip('/')}/api/version", timeout=3
+            )
+            ollama_reachable = req.getcode() == 200
+        except Exception:
+            ollama_reachable = False
+
+    # Key format checks for cloud providers
+    openai_valid = bool(openai_key) and openai_key.startswith("sk-")
+    gemini_valid = bool(gemini_key) and gemini_key.startswith("AIza")
+    anthropic_valid = bool(anthropic_key) and anthropic_key.startswith("sk-ant-")
+
+    any_real = ollama_reachable or openai_valid or gemini_valid or anthropic_valid
     configured = any_real or fallback_enabled
+
+    # Determine the active provider
+    if ollama_reachable:
+        active_provider = f"ollama/{os.getenv('OLLAMA_MODEL', 'mistral')}"
+    elif openai_valid:
+        active_provider = "openai"
+    elif gemini_valid:
+        active_provider = "gemini"
+    elif anthropic_valid:
+        active_provider = "anthropic"
+    else:
+        active_provider = "built-in (fallback)"
 
     notes = []
     if not openai_key:
         notes.append("OpenAI key not set")
+    elif not openai_valid:
+        notes.append("OpenAI key format invalid (expected sk-...)")
     if not gemini_key:
         notes.append("Gemini key not set")
+    elif not gemini_valid:
+        notes.append("Gemini key format invalid (expected AIza...)")
     if not anthropic_key:
         notes.append("Anthropic key not set")
-    if not ollama_host:
+    elif not anthropic_valid:
+        notes.append("Anthropic key format invalid (expected sk-ant-...)")
+    if ollama_host and not ollama_reachable:
+        notes.append(f"Ollama host {ollama_host!r} is configured but not reachable")
+    elif not ollama_host:
         notes.append("Ollama host not configured")
     if fallback_enabled and not any_real:
-        notes.append("Using mock/fallback LLM — no real provider configured")
+        notes.append("Using mock/fallback LLM — no real provider configured or reachable")
 
     return {
         **_subsystem(
@@ -93,12 +130,13 @@ def _check_ai_providers() -> Dict[str, Any]:
             ready_for_automation=any_real,
         ),
         "providers": {
-            "openai": bool(openai_key),
-            "gemini": bool(gemini_key),
-            "anthropic": bool(anthropic_key),
-            "ollama": bool(ollama_host),
+            "openai": openai_valid,
+            "gemini": gemini_valid,
+            "anthropic": anthropic_valid,
+            "ollama": ollama_reachable,
             "fallback": fallback_enabled,
         },
+        "active_provider": active_provider,
         "notes": notes,
     }
 

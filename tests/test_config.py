@@ -165,6 +165,7 @@ class TestConfigValidation:
         monkeypatch.setenv("OPENAI_API_KEY", "")
         monkeypatch.setenv("GEMINI_API_KEY", "")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+        monkeypatch.setenv("OLLAMA_HOST", "")
         config = AppConfig.from_env()
         warnings = config.validate()
         assert any("AI provider" in w or "fallback" in w.lower() for w in warnings)
@@ -196,7 +197,7 @@ class TestConfigProperties:
 
     def test_has_ai_provider_false_with_no_keys(self):
         AppConfig = _import_config()
-        config = AppConfig()
+        config = AppConfig(ollama_host="")
         assert config.has_ai_provider is False
 
     def test_has_ai_provider_true_with_openai(self):
