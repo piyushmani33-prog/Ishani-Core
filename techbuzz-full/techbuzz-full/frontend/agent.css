@@ -103,11 +103,9 @@ body{overflow-x:hidden}
 }
 .agent-btn.small{padding:10px 14px;font-size:.9rem}
 .agent-grid{display:grid;gap:16px}
-.agent-grid.top{grid-template-columns:1.05fr .95fr .8fr}
+.agent-grid.top{grid-template-columns:1.05fr .8fr}
 .agent-grid.main{grid-template-columns:1.05fr .95fr;margin-top:16px}
 .agent-grid.pipeline{grid-template-columns:1fr 1fr;margin-top:16px}
-.agent-grid.bottom{grid-template-columns:.9fr .9fr 1.2fr;margin-top:16px}
-.agent-grid.accounts{grid-template-columns:1.05fr .95fr 1fr;margin-top:16px}
 .agent-card{
   background:linear-gradient(180deg, rgba(17,19,35,.8), rgba(10,12,22,.74));
   border:1px solid var(--line);
@@ -134,14 +132,14 @@ body{overflow-x:hidden}
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
-.stat,.relay-card,.quick-link{
+.stat,.quick-link{
   padding:14px;
   border-radius:20px;
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.04);
 }
-.stat span,.relay-card span{display:block;color:var(--muted);font-size:.85rem}
-.stat strong,.relay-card strong{display:block;margin-top:8px;font-size:1.28rem;color:var(--gold);font-family:var(--heading)}
+.stat span{display:block;color:var(--muted);font-size:.85rem}
+.stat strong{display:block;margin-top:8px;font-size:1.28rem;color:var(--gold);font-family:var(--heading)}
 .avatar-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .avatar-pill{
   padding:8px 12px;
@@ -149,23 +147,6 @@ body{overflow-x:hidden}
   border:1px solid rgba(255,255,255,.08);
   background:rgba(255,255,255,.05);
   font-weight:800;
-}
-.relay-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-}
-.meter{
-  margin-top:12px;
-  height:10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  overflow:hidden;
-}
-.meter-fill{
-  height:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--gold),var(--rose),var(--blue));
 }
 .quick-grid{
   display:grid;
@@ -261,13 +242,13 @@ input,select{
 .empty{padding:18px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--muted)}
 .stack-list.compact{margin-top:12px}
 @media (max-width: 1280px){
-  .agent-grid.top,.agent-grid.bottom,.agent-grid.accounts{grid-template-columns:1fr 1fr}
+  .agent-grid.top{grid-template-columns:1fr 1fr}
 }
 @media (max-width: 1120px){
-  .agent-grid.top,.agent-grid.main,.agent-grid.pipeline,.agent-grid.bottom,.agent-grid.accounts{grid-template-columns:1fr}
+  .agent-grid.top,.agent-grid.main,.agent-grid.pipeline{grid-template-columns:1fr}
 }
 @media (max-width: 760px){
-  .stats-grid,.quick-grid,.chat-compose,.relay-grid,.form-grid{grid-template-columns:1fr}
+  .stats-grid,.quick-grid,.chat-compose,.form-grid{grid-template-columns:1fr}
   .agent-shell{padding:24px 14px 60px}
 }
 

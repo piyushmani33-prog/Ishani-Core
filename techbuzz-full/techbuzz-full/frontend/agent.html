@@ -6,7 +6,6 @@
 <title>Leazy Jinn Agent Console</title>
 <meta name="theme-color" content="#120f25">
 <link rel="stylesheet" href="/frontend-assets/agent.css">
-<link rel="stylesheet" href="/frontend-assets/brain-accounts.css">
 </head>
 <body>
 <div class="agent-sky">
@@ -47,13 +46,6 @@
 
     <article class="agent-card">
       <div class="card-head">
-        <h2>Brain Relay</h2>
-      </div>
-      <div class="relay-grid" id="agentRelayBoard"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
         <h2>Quick Links</h2>
       </div>
       <div class="quick-grid">
@@ -61,7 +53,6 @@
         <button class="quick-link" onclick="window.location.href='/leazy#cabinet'">Cabinet</button>
         <button class="quick-link" onclick="window.location.href='/leazy#praapti'">Praapti</button>
         <button class="quick-link" onclick="window.location.href='/leazy#avatars'">Avatars</button>
-        <button class="quick-link" onclick="document.getElementById('accountsAutomation').scrollIntoView({behavior:'smooth'})">Accounts</button>
         <button class="quick-link" onclick="window.location.href='/company/portal#dashboard'">HQ</button>
         <button class="quick-link" onclick="window.location.href='/navigator'">Navigator</button>
         <button class="quick-link" onclick="window.location.href='/network/intel'">Network Intel</button>
@@ -91,11 +82,13 @@
     <article class="agent-card">
       <div class="card-head">
         <h2>Strategist Chat</h2>
+        <span class="hero-chip" id="chatProviderBadge" style="font-size:.78rem;opacity:.8"></span>
       </div>
       <div class="chat-log" id="agentChatLog"></div>
+      <div id="chatStatusBar" class="muted" style="font-size:.82rem;min-height:1.2em"></div>
       <div class="chat-compose">
-        <textarea id="agentChatInput" rows="3" placeholder="Ask for candidate strategy, sourcing plans, hiring guidance, role summaries, or next actions."></textarea>
-        <button class="agent-btn primary" onclick="sendAgentMessage()">Send</button>
+        <textarea id="agentChatInput" rows="3" placeholder="Ask for candidate strategy, sourcing plans, hiring guidance, role summaries, or next actions. Press Ctrl+Enter to send."></textarea>
+        <button class="agent-btn primary" id="chatSendBtn" onclick="sendAgentMessage()">Send</button>
       </div>
     </article>
   </section>
@@ -471,128 +464,7 @@
     </article>
   </section>
 
-  <section class="agent-grid bottom">
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Execution Queue</h2>
-      </div>
-      <div class="stack-list" id="agentQueueList"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Recent Hunts</h2>
-      </div>
-      <div class="stack-list" id="recentHunts"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Reports And Vault</h2>
-      </div>
-      <div class="stack-list" id="agentReportList"></div>
-      <div class="stack-list compact" id="agentVaultList"></div>
-    </article>
-  </section>
-
   <section class="agent-grid pipeline">
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Mother Monitor</h2>
-      </div>
-      <div class="stats-grid" id="agentMonitorStats"></div>
-      <div class="stack-list compact" id="agentMonitorAlerts"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Domain Systems</h2>
-      </div>
-      <div class="stack-list" id="agentDomainList"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Brain Hierarchy</h2>
-      </div>
-      <div class="stack-list" id="agentBrainHierarchy"></div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Permission Relay</h2>
-      </div>
-      <div class="stack-list" id="agentPermissionRelay"></div>
-    </article>
-  </section>
-
-  <section class="agent-grid accounts" id="accountsAutomation">
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Accounts Command</h2>
-        <button class="agent-btn small" onclick="saveAccountsProfile()">Save Profile</button>
-      </div>
-      <div class="stats-grid" id="agentAccountsStats"></div>
-      <div class="form-grid">
-        <select id="accountsRegionSelect"></select>
-        <input id="accountsBusinessName" type="text" placeholder="Business name">
-        <input id="accountsBusinessType" type="text" placeholder="Business type">
-        <input id="accountsCurrency" type="text" placeholder="Currency">
-        <input id="accountsTaxName" type="text" placeholder="Tax name">
-        <input id="accountsTaxRate" type="number" step="0.01" placeholder="Default tax rate">
-        <input id="accountsFilingCycle" type="text" placeholder="Filing cycle">
-        <input id="accountsRegistration" type="text" placeholder="Tax registration">
-      </div>
-      <textarea id="accountsProfileNotes" placeholder="Regional notes, accountant instructions, or local compliance reminders."></textarea>
-      <div class="button-row">
-        <button class="agent-btn primary" onclick="saveAccountsProfile()">Save Accounts Profile</button>
-        <button class="agent-btn" onclick="runAccountsAnalysis()">Analyze Accounts</button>
-      </div>
-      <div class="report-box" id="accountsProfileStatus">Accounts automation is ready to learn your region, tax style, and bookkeeping rhythm.</div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Ledger Entry Composer</h2>
-        <button class="agent-btn small" onclick="addAccountsEntry()">Add Entry</button>
-      </div>
-      <div class="form-grid">
-        <select id="accountsEntryType"></select>
-        <input id="accountsEntryCategory" type="text" placeholder="Category">
-        <input id="accountsEntryAmount" type="number" step="0.01" placeholder="Amount">
-        <input id="accountsEntryTaxPercent" type="number" step="0.01" placeholder="Tax percent">
-        <input id="accountsCounterparty" type="text" placeholder="Client or vendor">
-        <input id="accountsOccurredOn" type="date">
-      </div>
-      <textarea id="accountsEntryDescription" placeholder="Describe the invoice, expense, payroll, tax payment, or other transaction."></textarea>
-      <div class="button-row">
-        <button class="agent-btn primary" onclick="addAccountsEntry()">Post To Ledger</button>
-        <button class="agent-btn" onclick="seedAccountsEntry()">Use Sample Entry</button>
-      </div>
-      <div class="report-box" id="accountsEntryStatus">Ledger relay idle. Add income, expense, payroll, or tax entries and Ishani will map the flow.</div>
-    </article>
-
-    <article class="agent-card">
-      <div class="card-head">
-        <h2>Accounts Guidance</h2>
-      </div>
-      <div class="stack-list compact" id="agentAccountsGuideList"></div>
-      <div class="stack-list" id="agentAccountsReportList"></div>
-      <div class="stack-list compact" id="agentAccountsEntryList"></div>
-    </article>
-  </section>
-
-  <section class="agent-grid pipeline">
-    <article class="agent-card" style="grid-column:1/-1">
-      <div class="card-head">
-        <h2>Living Brain Hierarchy</h2>
-        <button class="agent-btn small" onclick="if(typeof renderBrainHierarchy==='function')renderBrainHierarchy()">Refresh</button>
-      </div>
-      <div id="brainHierarchyWrap">
-        <div class="muted">Loading brain hierarchy...</div>
-      </div>
-    </article>
-
     <article class="agent-card" style="grid-column:1/-1">
       <div class="card-head">
         <h2>Research Intelligence Engine</h2>
@@ -638,7 +510,6 @@
   </section>
 </main>
 
-<script src="/frontend-assets/brain-hierarchy.js"></script>
 <script src="/frontend-assets/intel-panel.js"></script>
 <script src="/frontend-assets/agent.js"></script>
 </body>
