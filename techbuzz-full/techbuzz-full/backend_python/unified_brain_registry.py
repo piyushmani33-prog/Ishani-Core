@@ -14,7 +14,14 @@ from __future__ import annotations
 import datetime
 from typing import Any, Dict, List, Optional
 
-from fastapi import HTTPException
+try:
+    from fastapi import HTTPException
+except ImportError:  # allow import without fastapi installed (e.g. unit tests)
+    class HTTPException(Exception):  # type: ignore[no-redef]
+        def __init__(self, status_code: int = 500, detail: str = ""):
+            self.status_code = status_code
+            self.detail = detail
+            super().__init__(detail)
 
 # ---------------------------------------------------------------------------
 # Brain tier definitions (mirrors app.py brain_hierarchy_payload)
